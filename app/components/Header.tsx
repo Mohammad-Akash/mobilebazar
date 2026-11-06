@@ -1,8 +1,10 @@
 import Link from 'next/link'
+import { connection } from 'next/server'
 import { createClient } from '@/src/lib/supabase/server'
 import { logoutAction } from '@/app/auth/actions'
 
 export async function Header() {
+  await connection()
   const supabase = await createClient()
 
   // Always use getUser() on server, never getSession()
@@ -90,3 +92,4 @@ export async function Header() {
     </header>
   )
 }
+
