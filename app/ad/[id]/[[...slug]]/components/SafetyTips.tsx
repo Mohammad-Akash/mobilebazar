@@ -1,13 +1,16 @@
 'use client'
 
 import { useState } from 'react'
+import { ReportModal } from './ReportModal'
 
 interface SafetyTipsProps {
+  adId: string
   adTitle: string
 }
 
-export function SafetyTips({ adTitle }: SafetyTipsProps) {
+export function SafetyTips({ adId, adTitle }: SafetyTipsProps) {
   const [copied, setCopied] = useState(false)
+  const [reportModalOpen, setReportModalOpen] = useState(false)
 
   const handleShare = async () => {
     const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
@@ -60,16 +63,23 @@ export function SafetyTips({ adTitle }: SafetyTipsProps) {
           <span>{copied ? 'Link Copied! ✓' : 'Share Ad'}</span>
         </button>
 
-        {/* Report Button (Disabled placeholder for Phase 7) */}
+        {/* Report Button */}
         <button
           type="button"
-          disabled
-          title="Reporting Phase 7 mein activate hogi"
-          className="py-2.5 px-4 rounded-xl border border-zinc-100 dark:border-zinc-800 text-xs font-medium text-zinc-400 cursor-not-allowed opacity-60"
+          onClick={() => setReportModalOpen(true)}
+          className="py-2.5 px-4 rounded-xl border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5 transition-colors shadow-sm"
         >
-          🚩 Report Ad
+          <span>🚩</span>
+          <span>Report Ad</span>
         </button>
       </div>
+
+      <ReportModal
+        adId={adId}
+        adTitle={adTitle}
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+      />
     </div>
   )
 }

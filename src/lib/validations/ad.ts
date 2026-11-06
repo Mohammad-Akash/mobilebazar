@@ -70,6 +70,27 @@ export const step2SpecsSchema = z
 
 export type Step2SpecsData = z.infer<typeof step2SpecsSchema>
 
+// Helper functions for spam prevention (phone and url blocking)
+export function containsPhoneNumber(text: string): boolean {
+  const clean = text.replace(/[\u200B-\u200D\uFEFF]/g, '')
+  // Match Pakistani mobile format (03XX-XXXXXXX or +923XXXXXXXXX)
+  // Don't trigger on 15-digit IMEIs
+  const phoneRegex = /(?:^|[^0-9])(?:0|\+?92)\s*[-.]?\s*(3[0-9]{2})\s*[-.]?\s*([0-9]{7})(?:[^0-9]|$)/
+  if (phoneRegex.test(clean)) {
+    // If the sequence is part of a 15-digit number, ignore
+    if (/[0-9]{15}/.test(clean)) {
+      return false
+    }
+    return true
+  }
+  return false
+}
+
+export function containsUrl(text: string): boolean {
+  const urlRegex = /(?:https?:\/\/|www\.)[^\s]+|\b[a-zA-Z0-9-]+\.(?:com|pk|net|org|xyz|info)\b|\b(?:bit\.ly|wa\.me)\b/i
+  return urlRegex.test(text)
+}
+
 // ------------------------------------------------------------------------------
 // Step 3: Price & Details (Price, Negotiable, Title, Description, IMEI)
 // ------------------------------------------------------------------------------
@@ -98,6 +119,38 @@ export const step3PriceSchema = z
       .or(z.literal('')),
   })
   .superRefine((data, ctx) => {
+    // Anti-spam checks: Phone numbers in title/desc
+    if (containsPhoneNumber(data.title)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['title'],
+        message: 'Title mein phone number dena mana hai. Buyers "Contact" button se rabta karenge.',
+      })
+    }
+    if (containsPhoneNumber(data.description)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['description'],
+        message: 'Tafseel mein phone number dena mana hai. Buyers "Contact" button se rabta karenge.',
+      })
+    }
+
+    // Anti-spam checks: URLs in title/desc
+    if (containsUrl(data.title)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['title'],
+        message: 'Title mein links ya websites dena mana hai.',
+      })
+    }
+    if (containsUrl(data.description)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['description'],
+        message: 'Tafseel mein links ya websites dena mana hai.',
+      })
+    }
+
     if (data.imei && data.imei.length > 0) {
       const clean = data.imei.replace(/[\s-]/g, '')
       if (!/^\d{15}$/.test(clean)) {
@@ -183,6 +236,38 @@ export const fullAdSchema = z
     contact_preference: z.enum(['phone', 'whatsapp', 'both']),
   })
   .superRefine((data, ctx) => {
+    // Phone in title/description check
+    if (containsPhoneNumber(data.title)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['title'],
+        message: 'Title mein phone number dena mana hai.',
+      })
+    }
+    if (containsPhoneNumber(data.description)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['description'],
+        message: 'Tafseel mein phone number dena mana hai.',
+      })
+    }
+
+    // URL check
+    if (containsUrl(data.title)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['title'],
+        message: 'Title mein links ya websites dena mana hai.',
+      })
+    }
+    if (containsUrl(data.description)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['description'],
+        message: 'Tafseel mein links ya websites dena mana hai.',
+      })
+    }
+
     // Warranty check
     if (data.warranty_type === 'in_warranty' && (!data.warranty_months_remaining || data.warranty_months_remaining < 1)) {
       ctx.addIssue({

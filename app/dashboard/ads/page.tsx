@@ -13,10 +13,9 @@ export default async function MyAdsPage({ searchParams }: MyAdsPageProps) {
   await connection()
   const { status, cursor } = await searchParams
 
-  const currentTab = (status === 'sold' || status === 'expired' ? status : 'active') as
-    | 'active'
-    | 'sold'
-    | 'expired'
+  const currentTab = (['sold', 'expired', 'under_review'].includes(status || '')
+    ? status
+    : 'active') as 'active' | 'sold' | 'expired' | 'under_review'
 
   // Fetch counts & ads concurrently
   const [counts, adsResult] = await Promise.all([
@@ -24,8 +23,9 @@ export default async function MyAdsPage({ searchParams }: MyAdsPageProps) {
     getMyAds(currentTab, cursor),
   ])
 
-  const tabs: { key: 'active' | 'sold' | 'expired'; label: string; count: number }[] = [
+  const tabs: { key: 'active' | 'sold' | 'expired' | 'under_review'; label: string; count: number }[] = [
     { key: 'active', label: 'Active Ads', count: counts.active_count },
+    { key: 'under_review', label: 'Under Review', count: counts.under_review_count },
     { key: 'sold', label: 'Sold Ads', count: counts.sold_count },
     { key: 'expired', label: 'Expired Ads', count: counts.expired_count },
   ]

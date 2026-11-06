@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/src/lib/supabase/server'
+import { checkRateLimit } from '@/src/lib/rate-limit'
 
 // Validation Schemas with Zod
 const loginSchema = z.object({
@@ -26,11 +27,6 @@ const signupSchema = z
 const profileSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
   cityId: z.string().uuid().or(z.literal('')).optional(),
-  phone: z
-    .string()
-    .regex(/^(\+923[0-9]{9}|03[0-9]{9})$/, 'Pakistani format zaroori hai (e.g. 03001234567 ya +923001234567)')
-    .or(z.literal(''))
-    .optional(),
   whatsappNumber: z
     .string()
     .regex(/^(\+923[0-9]{9}|03[0-9]{9})$/, 'Pakistani format zaroori hai (e.g. 03001234567 ya +923001234567)')
@@ -56,6 +52,13 @@ export async function loginAction(
   prevState: AuthState | null,
   formData: FormData
 ): Promise<AuthState> {
+  const rl = await checkRateLimit('login')
+  if (!rl.success) {
+    return {
+      error: `Bohat zyada koshishein. ${rl.retryAfterSeconds || 60} seconds baad dobara try karein.`,
+    }
+  }
+
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const next = formData.get('next') as string | null
@@ -93,6 +96,13 @@ export async function signupAction(
   prevState: AuthState | null,
   formData: FormData
 ): Promise<AuthState> {
+  const rl = await checkRateLimit('signup')
+  if (!rl.success) {
+    return {
+      error: `Sign up limit. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad try karein.`,
+    }
+  }
+
   const fullName = formData.get('fullName') as string
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -159,13 +169,11 @@ export async function updateProfileAction(
 
   const fullName = formData.get('fullName') as string
   const cityId = formData.get('cityId') as string
-  const phone = formData.get('phone') as string
   const whatsappNumber = formData.get('whatsappNumber') as string
 
   const validated = profileSchema.safeParse({
     fullName,
     cityId,
-    phone,
     whatsappNumber,
   })
 
@@ -189,11 +197,10 @@ export async function updateProfileAction(
     return { error: profileError.message }
   }
 
-  // 2. Update private profile (phone, whatsapp)
+  // 2. Update private profile (whatsapp only - phone is OTP-verified only)
   const { error: privateError } = await supabase
     .from('profile_private')
     .update({
-      phone: validated.data.phone || null,
       whatsapp_number: validated.data.whatsappNumber || null,
     })
     .eq('id', user.id)

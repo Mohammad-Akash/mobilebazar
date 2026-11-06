@@ -478,6 +478,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_phone_verified: boolean
           updated_at: string
         }
         Insert: {
@@ -487,6 +488,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_phone_verified?: boolean
           updated_at?: string
         }
         Update: {
@@ -496,6 +498,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_phone_verified?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -715,7 +718,7 @@ export type Database = {
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
-      ad_status: "draft" | "active" | "sold" | "expired" | "deleted"
+      ad_status: "draft" | "active" | "sold" | "expired" | "deleted" | "under_review"
       condition_type: "new" | "used"
       contact_preference: "phone" | "whatsapp" | "both"
       pta_status: "pta_approved" | "non_pta" | "jv" | "unknown"
@@ -856,7 +859,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      ad_status: ["draft", "active", "sold", "expired", "deleted"],
+      ad_status: ["draft", "active", "sold", "expired", "deleted", "under_review"],
       condition_type: ["new", "used"],
       contact_preference: ["phone", "whatsapp", "both"],
       pta_status: ["pta_approved", "non_pta", "jv", "unknown"],

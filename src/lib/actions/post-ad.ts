@@ -8,6 +8,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/src/lib/supabase/server'
 import { fullAdSchema, type FullAdFormData } from '@/src/lib/validations/ad'
+import { checkRateLimit } from '@/src/lib/rate-limit'
 
 export interface CreateAdResult {
   success?: boolean
@@ -27,6 +28,27 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
   if (authError || !user) {
     return {
       error: 'Aap logged in nahi hain. Baraye meharbani pehle login karein.',
+    }
+  }
+
+  // 1.2 Rate limit check (Max 10 ad creation requests per hour)
+  const rl = await checkRateLimit('post_ad', user.id)
+  if (!rl.success) {
+    return {
+      error: `Bohat zyada requests. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad try karein.`,
+    }
+  }
+
+  // 1.5 Verify User Phone Verification
+  const { data: privateProfile } = await supabase
+    .from('profile_private')
+    .select('is_phone_verified')
+    .eq('id', user.id)
+    .single()
+
+  if (!privateProfile?.is_phone_verified) {
+    return {
+      error: 'Ad post karne ke liye pehle apna mobile number verify karein.',
     }
   }
 

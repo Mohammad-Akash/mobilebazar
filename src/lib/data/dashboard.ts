@@ -14,7 +14,7 @@ export interface MyAdItem {
   condition: string
   pta_status: string
   storage_gb: number
-  status: 'active' | 'sold' | 'expired' | 'deleted'
+  status: 'active' | 'sold' | 'expired' | 'deleted' | 'under_review'
   is_featured: boolean
   views_count: number
   favorites_count: number
@@ -31,6 +31,7 @@ export interface MyAdCounts {
   active_count: number
   sold_count: number
   expired_count: number
+  under_review_count: number
 }
 
 /**
@@ -39,33 +40,23 @@ export interface MyAdCounts {
 export async function getMyAdCounts(): Promise<MyAdCounts> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase.rpc('get_my_ad_counts' as any)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { active_count: 0, sold_count: 0, expired_count: 0, under_review_count: 0 }
 
-  if (error || !data || !Array.isArray(data) || data.length === 0) {
-    // Fallback: direct count query
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return { active_count: 0, sold_count: 0, expired_count: 0 }
+  const [activeRes, soldRes, expiredRes, underReviewRes] = await Promise.all([
+    supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'active'),
+    supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'sold'),
+    supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'expired'),
+    supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'under_review'),
+  ])
 
-    const [activeRes, soldRes, expiredRes] = await Promise.all([
-      supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'active'),
-      supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'sold'),
-      supabase.from('ads').select('*', { count: 'exact', head: true }).eq('seller_id', user.id).eq('status', 'expired'),
-    ])
-
-    return {
-      active_count: activeRes.count || 0,
-      sold_count: soldRes.count || 0,
-      expired_count: expiredRes.count || 0,
-    }
-  }
-
-  const row = data[0]
   return {
-    active_count: Number(row.active_count || 0),
-    sold_count: Number(row.sold_count || 0),
-    expired_count: Number(row.expired_count || 0),
+    active_count: activeRes.count || 0,
+    sold_count: soldRes.count || 0,
+    expired_count: expiredRes.count || 0,
+    under_review_count: underReviewRes.count || 0,
   }
 }
 
@@ -73,7 +64,7 @@ export async function getMyAdCounts(): Promise<MyAdCounts> {
  * Fetches user's ads for a specific tab with keyset pagination
  */
 export async function getMyAds(
-  status: 'active' | 'sold' | 'expired',
+  status: 'active' | 'sold' | 'expired' | 'under_review',
   cursor?: string | null,
   limit: number = 15
 ): Promise<{ ads: MyAdItem[]; nextCursor: string | null; hasNextPage: boolean }> {

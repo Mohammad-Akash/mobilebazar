@@ -26,19 +26,15 @@ export default async function PostAdPage() {
     redirect('/login?next=/post-ad')
   }
 
-  // 2. Verify Seller Contact Profile (User must have a phone or whatsapp number)
+  // 2. Verify Seller Contact Profile (User must have a verified phone)
   const { data: privateProfile } = await supabase
     .from('profile_private')
-    .select('phone, whatsapp_number')
+    .select('phone, is_phone_verified')
     .eq('id', user.id)
     .single()
 
-  const hasContactNumber =
-    Boolean(privateProfile?.phone?.trim()) ||
-    Boolean(privateProfile?.whatsapp_number?.trim())
-
-  if (!hasContactNumber) {
-    redirect('/profile?warning=phone_required')
+  if (!privateProfile?.is_phone_verified) {
+    redirect('/dashboard/profile/verify?return_to=/post-ad')
   }
 
   // 3. Pre-fetch reference data on server (eliminates waterfalls)

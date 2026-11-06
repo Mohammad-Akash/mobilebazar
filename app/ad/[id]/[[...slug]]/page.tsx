@@ -284,8 +284,37 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
             contactPreference={ad.contact_preference || 'both'}
           />
 
+          {/* Seller Profile Card */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center font-extrabold text-emerald-700 dark:text-emerald-300 text-lg">
+                {(ad.seller?.full_name || ad.seller_name || 'U')[0].toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                    {ad.seller?.full_name || ad.seller_name || 'MobileBazar User'}
+                  </span>
+                  {ad.seller?.is_phone_verified ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                      <span>✓</span>
+                      <span>Phone Verified</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                      Unverified
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Member since {ad.seller?.created_at ? new Date(ad.seller.created_at).toLocaleDateString('en-PK', { month: 'short', year: 'numeric' }) : 'Recently'} • {ad.seller?.ads_count ?? 1} Ads
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Safety Tips Card */}
-          <SafetyTips adTitle={ad.title || 'Mobile Phone'} />
+          <SafetyTips adId={adId} adTitle={ad.title || 'Mobile Phone'} />
         </div>
       </div>
 

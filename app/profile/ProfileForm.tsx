@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import Link from 'next/link'
 import { updateProfileAction, type AuthState } from '@/app/auth/actions'
 
 type City = {
@@ -121,19 +122,24 @@ export function ProfileForm({
               </span>
             )}
           </div>
-          <input
-            type="tel"
-            name="phone"
-            defaultValue={initialData.phone || ''}
-            placeholder="03001234567 ya +923001234567"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
+          <div className="flex gap-2 items-center">
+            <input
+              type="tel"
+              value={initialData.phone || ''}
+              readOnly
+              placeholder="Number verify nahi hai"
+              className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 cursor-not-allowed focus:outline-none"
+            />
+            <Link
+              href="/dashboard/profile/verify?return_to=/profile"
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white whitespace-nowrap transition-colors"
+            >
+              {initialData.isPhoneVerified ? 'Change Number' : 'Verify Number'}
+            </Link>
+          </div>
           <p className="text-xs text-zinc-500 mt-1">
-            Pakistani format zaroori hai. Number badalne par verified badge reset ho jayega.
+            Security aur spam rokne ke liye phone number sirf SMS OTP se update hota hai.
           </p>
-          {state?.fieldErrors?.phone && (
-            <p className="text-xs text-red-600 mt-1">{state.fieldErrors.phone[0]}</p>
-          )}
         </div>
 
         <div>

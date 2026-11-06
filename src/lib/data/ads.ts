@@ -23,6 +23,7 @@ export interface AdDetailWithRelations extends ActiveAdRow {
     avatar_url: string | null
     created_at: string
     ads_count: number
+    is_phone_verified?: boolean
   } | null
 }
 
@@ -201,7 +202,7 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
       viewAd.seller_id
         ? supabase
             .from('profiles')
-            .select('id, full_name, avatar_url, created_at, ads_count')
+            .select('id, full_name, avatar_url, created_at, ads_count, is_phone_verified')
             .eq('id', viewAd.seller_id)
             .maybeSingle()
         : Promise.resolve({ data: null }),
@@ -250,7 +251,7 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
       .order('position', { ascending: true }),
     supabase
       .from('profiles')
-      .select('id, full_name, avatar_url, created_at, ads_count')
+      .select('id, full_name, avatar_url, created_at, ads_count, is_phone_verified')
       .eq('id', ad.seller_id)
       .maybeSingle(),
   ])

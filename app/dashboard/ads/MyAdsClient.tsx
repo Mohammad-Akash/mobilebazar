@@ -9,7 +9,7 @@ import { markAdSoldAction, deleteAdAction, renewAdAction } from '@/src/lib/actio
 
 interface MyAdsClientProps {
   initialAds: MyAdItem[]
-  currentStatus: 'active' | 'sold' | 'expired'
+  currentStatus: 'active' | 'sold' | 'expired' | 'under_review'
 }
 
 export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
@@ -114,6 +114,7 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
         {ads.map((ad) => {
           const daysLeft = getDaysUntilExpiry(ad.expires_at)
           const isExpiringSoon = currentStatus === 'active' && daysLeft <= 3 && daysLeft >= 0
+          const isUnderReview = ad.status === 'under_review' || currentStatus === 'under_review'
 
           return (
             <div
@@ -141,6 +142,11 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                     <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400">
                       {formatPrice(ad.price)}
                     </span>
+                    {isUnderReview && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300">
+                        🛡️ Under Review (Jaiza Liya Ja Raha Hai)
+                      </span>
+                    )}
                     {isExpiringSoon && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300">
                         ⏳ {daysLeft === 0 ? 'Aaj expire hoga' : `${daysLeft} din mein expire hoga`}
@@ -164,12 +170,18 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                     <span>•</span>
                     <span>{formatRelativeTime(ad.published_at || ad.created_at)}</span>
                   </div>
+
+                  {isUnderReview && (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400 pt-0.5">
+                      Yeh ishtehaar reports ya security jaizay ki waja se temporarily public view se chhupa diya gaya hai.
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Right: Action Buttons */}
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800">
-                {currentStatus === 'active' && (
+                {currentStatus === 'active' && !isUnderReview && (
                   <>
                     <Link
                       href={`/dashboard/ads/${ad.id}/edit`}
