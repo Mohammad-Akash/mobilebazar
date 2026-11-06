@@ -70,8 +70,7 @@ export async function searchAds(params: SearchParamsInput): Promise<SearchAdsRes
   })
 
   if (error) {
-    console.error('Error in searchAds RPC:', error)
-    // Fallback: query active_ads_view directly if RPC not yet run in dev
+    // Gracefully fall back to querying active_ads_view directly
     return searchAdsFallback(params)
   }
 

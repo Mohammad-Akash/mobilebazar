@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { connection } from 'next/server'
 import { searchParamsSchema } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 
 export async function GET(request: NextRequest) {
   try {
+    await connection()
     const searchParams = request.nextUrl.searchParams
 
     // Convert URLSearchParams to plain object

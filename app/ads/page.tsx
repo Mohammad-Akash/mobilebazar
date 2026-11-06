@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { connection } from 'next/server'
 import { searchParamsSchema } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
@@ -14,6 +15,7 @@ interface AdsPageProps {
 }
 
 export default async function AdsPage({ searchParams }: AdsPageProps) {
+  await connection()
   const rawParams = await searchParams
 
   // Flatten searchParams

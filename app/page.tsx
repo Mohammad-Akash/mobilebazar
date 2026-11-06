@@ -1,10 +1,12 @@
 import Link from 'next/link'
+import { connection } from 'next/server'
 import { getLatestAds, getPopularBrands, getActiveCitiesWithCounts } from '@/src/lib/data/ads'
 import { AdCard } from '@/app/components/AdCard'
 
 export const instant = false
 
 export default async function HomePage() {
+  await connection()
   const [latestAds, popularBrands, cities] = await Promise.all([
     getLatestAds(8),
     getPopularBrands(12),

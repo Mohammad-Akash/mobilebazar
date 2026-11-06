@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { connection } from 'next/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getAdById, getSimilarAds } from '@/src/lib/data/ads'
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }: AdDetailPageProps): Promise<M
 }
 
 export default async function AdDetailPage({ params }: AdDetailPageProps) {
+  await connection()
   const { id } = await params
   const ad = await getAdById(id)
 
