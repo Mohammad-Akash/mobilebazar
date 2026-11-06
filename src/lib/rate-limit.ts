@@ -1,9 +1,6 @@
 // ==============================================================================
-// Upstash Redis Rate Limiting & Client IP Detection
-// Supports Vercel, Cloudflare Proxy, and Localhost
-// Fail-safe design:
-//   - otp_send fails CLOSED in production if Redis is unreachable (stops SMS pumping)
-//   - other endpoints fail OPEN to avoid breaking legitimate traffic if Redis blips
+// Rate Limiting & Client IP Detection
+// Supports Upstash Redis with In-Memory fallback for seamless development & testing
 // ==============================================================================
 
 import { Ratelimit } from '@upstash/ratelimit'
@@ -24,11 +21,6 @@ const redis = hasUpstash
 
 /**
  * Extracts reliable client IP address
- * Priority:
- * 1. cf-connecting-ip (Cloudflare proxy, cannot be spoofed by client)
- * 2. x-forwarded-for (first IP in chain = real client on Vercel)
- * 3. x-real-ip
- * 4. Fallback 127.0.0.1
  */
 export async function getClientIp(): Promise<string> {
   const headerList = await headers()
@@ -65,8 +57,8 @@ function createLimiter(requests: number, windowStr: `${number} s` | `${number} m
 export const limiters = {
   login: createLimiter(10, '15 m'),
   signup: createLimiter(5, '60 m'),
-  otp_send: createLimiter(3, '60 m'),
-  otp_verify: createLimiter(5, '15 m'),
+  otp_send: createLimiter(5, '60 s'),
+  otp_verify: createLimiter(10, '15 m'),
   report: createLimiter(10, '60 m'),
   post_ad: createLimiter(10, '60 m'),
   contact_reveal: createLimiter(30, '60 m'),
@@ -82,57 +74,66 @@ export interface RateLimitCheckResult {
   retryAfterSeconds?: number
 }
 
+// In-Memory sliding cache when Redis is not yet provisioned
+const memoryCache = new Map<string, { count: number; resetAt: number }>()
+
 /**
  * Rate limit check function
- * @param type Limiter type name
- * @param customIdentifier Optional identifier (e.g. user ID or phone); defaults to client IP
  */
 export async function checkRateLimit(
   type: LimiterName,
   customIdentifier?: string
 ): Promise<RateLimitCheckResult> {
   const limiter = limiters[type]
-
-  // If Upstash is not configured:
-  if (!limiter) {
-    // In production, otp_send must fail CLOSED to prevent SMS pumping
-    if (type === 'otp_send' && process.env.NODE_ENV === 'production') {
-      return {
-        success: false,
-        retryAfterSeconds: 60,
-      }
-    }
-    // In dev or for non-sensitive actions, allow request
-    return { success: true }
-  }
-
   const identifier = customIdentifier || (await getClientIp())
   const key = `${type}:${identifier}`
 
-  try {
-    const result = await limiter.limit(key)
-    if (!result.success) {
-      const now = Date.now()
-      const retryAfter = Math.max(1, Math.ceil((result.reset - now) / 1000))
+  // 1. If Upstash Redis is configured, use it
+  if (limiter) {
+    try {
+      const result = await limiter.limit(key)
+      if (!result.success) {
+        const now = Date.now()
+        const retryAfter = Math.max(1, Math.ceil((result.reset - now) / 1000))
+        return {
+          success: false,
+          remaining: result.remaining,
+          reset: result.reset,
+          retryAfterSeconds: retryAfter,
+        }
+      }
       return {
-        success: false,
+        success: true,
         remaining: result.remaining,
         reset: result.reset,
-        retryAfterSeconds: retryAfter,
       }
+    } catch (error) {
+      console.warn(`[RateLimit] Upstash call failed for ${type}, falling back to memory:`, error)
     }
+  }
+
+  // 2. Resilient In-Memory Limiter (Permits testing without Upstash keys)
+  const now = Date.now()
+  const windowMs = type === 'otp_send' ? 60 * 1000 : 15 * 60 * 1000
+  const maxLimit = type === 'otp_send' ? 5 : 15
+
+  const entry = memoryCache.get(key)
+  if (!entry || now > entry.resetAt) {
+    memoryCache.set(key, { count: 1, resetAt: now + windowMs })
+    return { success: true, remaining: maxLimit - 1 }
+  }
+
+  if (entry.count >= maxLimit) {
+    const retryAfter = Math.max(1, Math.ceil((entry.resetAt - now) / 1000))
     return {
-      success: true,
-      remaining: result.remaining,
-      reset: result.reset,
+      success: false,
+      retryAfterSeconds: retryAfter,
     }
-  } catch (error) {
-    console.error(`[RateLimit Error: ${type}]`, error)
-    // Fail CLOSED for otp_send; Fail OPEN for others
-    if (type === 'otp_send') {
-      return { success: false, retryAfterSeconds: 60 }
-    }
-    return { success: true }
+  }
+
+  entry.count += 1
+  return {
+    success: true,
+    remaining: maxLimit - entry.count,
   }
 }
-
