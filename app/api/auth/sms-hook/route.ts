@@ -46,12 +46,19 @@ function verifyStandardWebhook(
     return false
   }
 
-  // 2. Extract key (Standard webhooks secret often has 'whsec_' prefix)
+  // 2. Extract key (Supabase standard webhook secrets start with 'v1,whsec_' or 'whsec_')
   let keyBuffer: Buffer
-  if (secret.startsWith('whsec_')) {
-    keyBuffer = Buffer.from(secret.slice(6), 'base64')
-  } else {
-    keyBuffer = Buffer.from(secret, 'utf-8')
+  let cleanSecret = secret.trim()
+  if (cleanSecret.startsWith('v1,whsec_')) {
+    cleanSecret = cleanSecret.slice(9)
+  } else if (cleanSecret.startsWith('whsec_')) {
+    cleanSecret = cleanSecret.slice(6)
+  }
+
+  try {
+    keyBuffer = Buffer.from(cleanSecret, 'base64')
+  } catch {
+    keyBuffer = Buffer.from(cleanSecret, 'utf-8')
   }
 
   // 3. Construct signature payload: `${msgId}.${timestamp}.${rawBody}`
