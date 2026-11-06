@@ -41,10 +41,20 @@ export function Gallery({ images, adTitle }: GalleryProps) {
       <div className="relative aspect-[4/3] bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={getAdImageUrl(imageList[currentIndex].storage_path)}
+          src={getAdImageUrl(imageList[currentIndex].storage_path, 'md')}
           alt={`${adTitle} - photo ${currentIndex + 1}`}
           onClick={() => setIsFullscreen(true)}
           className="w-full h-full object-contain cursor-zoom-in"
+          loading={currentIndex === 0 ? 'eager' : 'lazy'}
+          fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
+          onError={(e) => {
+            // Fallback to base image if _md variant returns 404 (e.g. legacy test ad)
+            const target = e.currentTarget
+            const fallback = getAdImageUrl(imageList[currentIndex].storage_path, 'base')
+            if (target.src !== fallback) {
+              target.src = fallback
+            }
+          }}
         />
 
         {/* Counter Badge */}
@@ -97,9 +107,17 @@ export function Gallery({ images, adTitle }: GalleryProps) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={getAdImageUrl(img.storage_path)}
+                src={getAdImageUrl(img.storage_path, 'sm')}
                 alt={`Thumbnail ${idx + 1}`}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.currentTarget
+                  const fallback = getAdImageUrl(img.storage_path, 'base')
+                  if (target.src !== fallback) {
+                    target.src = fallback
+                  }
+                }}
               />
             </button>
           ))}
@@ -131,7 +149,7 @@ export function Gallery({ images, adTitle }: GalleryProps) {
           <div className="flex-1 flex items-center justify-center p-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={getAdImageUrl(imageList[currentIndex].storage_path)}
+              src={getAdImageUrl(imageList[currentIndex].storage_path, 'base')}
               alt="Fullscreen view"
               className="max-h-[80vh] max-w-[95vw] object-contain"
             />

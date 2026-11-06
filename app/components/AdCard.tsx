@@ -1,24 +1,36 @@
+'use client'
+
 import Link from 'next/link'
+import { FavoriteButton } from '@/app/components/FavoriteButton'
 import { ActiveAdRow } from '@/src/lib/data/ads'
 import { formatPrice, formatStorage, formatRelativeTime, formatPtaBadge } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
+import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'
 
+// Interface for AdCard props
 interface AdCardProps {
-  ad: ActiveAdRow
+  ad: ActiveAdRow;
+  initialIsFavorited?: boolean;
 }
 
-export function AdCard({ ad }: AdCardProps) {
-  const pta = formatPtaBadge(ad.pta_status)
-  const imageUrl = getAdImageUrl(ad.cover_image_path)
-  const relativeTime = ad.published_at ? formatRelativeTime(ad.published_at) : ''
+export function AdCard({ ad, initialIsFavorited = false }: AdCardProps) {
+  // Helper data
+  const pta = formatPtaBadge(ad.pta_status);
+  // Try _sm first; onError fallback goes to base (old ads don't have _sm variant)
+  const imageUrl = getAdImageUrl(ad.cover_image_path, 'sm');
+  const baseImageUrl = getAdImageUrl(ad.cover_image_path, 'base');
+  const relativeTime = ad.published_at ? formatRelativeTime(ad.published_at) : '';
 
-  // Build clean URL slug
-  const titleSlug = (ad.title || 'phone')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-
-  const adHref = `/ad/${ad.id}/${titleSlug}`
+  // Deterministic canonical slug for direct, redirect-free navigation
+  const slug = buildAdSlug({
+    title: ad.title,
+    brand_name: ad.brand_name,
+    model_name: ad.model_name,
+    storage_gb: ad.storage_gb,
+    pta_status: ad.pta_status,
+    city_name: ad.city_name,
+  });
+  const adHref = buildAdCanonicalPath(ad.id || '', slug);
 
   return (
     <Link
@@ -33,6 +45,14 @@ export function AdCard({ ad }: AdCardProps) {
           alt={ad.title || 'Mobile Phone'}
           loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            // _sm variant nahi hai (purani upload) — base image use karo
+            const target = e.currentTarget as HTMLImageElement;
+            if (!target.dataset.fallback) {
+              target.dataset.fallback = '1';
+              target.src = baseImageUrl;
+            }
+          }}
         />
 
         {/* Featured Badge */}
@@ -76,7 +96,6 @@ export function AdCard({ ad }: AdCardProps) {
               {formatStorage(ad.storage_gb)}
             </span>
           )}
-
           <span
             className={`px-2 py-0.5 rounded-md font-medium ${
               pta.isApproved
@@ -96,7 +115,13 @@ export function AdCard({ ad }: AdCardProps) {
           <span className="whitespace-nowrap">{relativeTime}</span>
         </div>
       </div>
-    </Link>
-  )
-}
 
+      {/* Favorite Button Overlay (top-right) */}
+      {ad.id && (
+        <div className="absolute top-2 right-2">
+          <FavoriteButton adId={ad.id} initialIsFavorited={initialIsFavorited} />
+        </div>
+      )}
+    </Link>
+  );
+}

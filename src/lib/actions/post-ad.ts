@@ -5,6 +5,7 @@
 // Never trusts client, strictly verifies user session & storage paths
 // ==============================================================================
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/src/lib/supabase/server'
 import { fullAdSchema, type FullAdFormData } from '@/src/lib/validations/ad'
 
@@ -154,6 +155,13 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
       }
     }
   }
+
+  // 7. On-demand cache revalidation for SEO and listing feeds
+  revalidatePath('/')
+  revalidatePath('/ads')
+  revalidatePath(`/ad/${createdAdId}`)
+  revalidatePath('/mobiles', 'layout')
+  revalidatePath('/brands', 'layout')
 
   return {
     success: true,

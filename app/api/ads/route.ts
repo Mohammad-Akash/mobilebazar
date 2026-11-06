@@ -4,8 +4,8 @@ import { searchParamsSchema } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 
 export async function GET(request: NextRequest) {
+  await connection()
   try {
-    await connection()
     const searchParams = request.nextUrl.searchParams
 
     // Convert URLSearchParams to plain object

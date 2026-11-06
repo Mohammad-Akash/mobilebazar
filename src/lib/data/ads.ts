@@ -184,44 +184,83 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
 
   const supabase = await createClient()
 
-  // 1. Fetch main ad row with joined brands, models, cities, areas
+  // 1. Fast path: check active_ads_view first (has pre-joined brand, model, city, area)
+  const { data: viewAd } = await supabase
+    .from('active_ads_view')
+    .select('*')
+    .eq('id', adId)
+    .maybeSingle()
+
+  if (viewAd) {
+    const [imagesRes, sellerRes] = await Promise.all([
+      supabase
+        .from('ad_images')
+        .select('id, storage_path, position')
+        .eq('ad_id', adId)
+        .order('position', { ascending: true }),
+      viewAd.seller_id
+        ? supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url, created_at, ads_count')
+            .eq('id', viewAd.seller_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ])
+
+    const images = imagesRes.data || []
+    const seller = sellerRes.data
+
+    return {
+      ...(viewAd as ActiveAdRow),
+      images,
+      cover_image_path: images.length > 0 ? images[0].storage_path : viewAd.cover_image_path,
+      seller: seller || null,
+    } as AdDetailWithRelations
+  }
+
+  // 2. Fallback path for sold or expired ads (direct from ads table)
   const { data: ad, error: adError } = await supabase
     .from('ads')
-    .select(
-      `
-      *,
-      brands:brand_id (id, name, slug),
-      models:model_id (id, name, slug),
-      cities:city_id (id, name, slug),
-      areas:area_id (id, name, slug)
-    `
-    )
+    .select('*')
     .eq('id', adId)
-    .single()
+    .maybeSingle()
 
-  if (adError || !ad) {
+  if (adError || !ad || ad.status === 'deleted') {
     return null
   }
 
-  // 2. Fetch all images ordered by position
-  const { data: images } = await supabase
-    .from('ad_images')
-    .select('id, storage_path, position')
-    .eq('ad_id', adId)
-    .order('position', { ascending: true })
+  // Fetch relations safely by IDs without PostgREST foreign key relationship syntax
+  const [brandRes, modelRes, cityRes, areaRes, imagesRes, sellerRes] = await Promise.all([
+    ad.brand_id
+      ? supabase.from('brands').select('id, name, slug').eq('id', ad.brand_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ad.model_id
+      ? supabase.from('models').select('id, name, slug').eq('id', ad.model_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ad.city_id
+      ? supabase.from('cities').select('id, name, slug').eq('id', ad.city_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    ad.area_id
+      ? supabase.from('areas').select('id, name, slug').eq('id', ad.area_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase
+      .from('ad_images')
+      .select('id, storage_path, position')
+      .eq('ad_id', adId)
+      .order('position', { ascending: true }),
+    supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, created_at, ads_count')
+      .eq('id', ad.seller_id)
+      .maybeSingle(),
+  ])
 
-  // 3. Fetch public seller details (Notice: NO phone or private fields!)
-  const { data: seller } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url, created_at, ads_count')
-    .eq('id', ad.seller_id)
-    .single()
-
-  // Transform into unified structure matching ActiveAdRow
-  const brandData = Array.isArray(ad.brands) ? ad.brands[0] : ad.brands
-  const modelData = Array.isArray(ad.models) ? ad.models[0] : ad.models
-  const cityData = Array.isArray(ad.cities) ? ad.cities[0] : ad.cities
-  const areaData = Array.isArray(ad.areas) ? ad.areas[0] : ad.areas
+  const brand = brandRes.data
+  const model = modelRes.data
+  const city = cityRes.data
+  const area = areaRes.data
+  const images = imagesRes.data || []
+  const seller = sellerRes.data
 
   const result: AdDetailWithRelations = {
     id: ad.id,
@@ -250,19 +289,19 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
     published_at: ad.published_at,
     created_at: ad.created_at,
     brand_id: ad.brand_id,
-    brand_name: brandData?.name || null,
-    brand_slug: brandData?.slug || null,
+    brand_name: brand?.name || null,
+    brand_slug: brand?.slug || null,
     model_id: ad.model_id,
-    model_name: modelData?.name || null,
-    model_slug: modelData?.slug || null,
+    model_name: model?.name || null,
+    model_slug: model?.slug || null,
     city_id: ad.city_id,
-    city_name: cityData?.name || null,
-    city_slug: cityData?.slug || null,
+    city_name: city?.name || null,
+    city_slug: city?.slug || null,
     area_id: ad.area_id,
-    area_name: areaData?.name || null,
-    area_slug: areaData?.slug || null,
-    cover_image_path: images && images.length > 0 ? images[0].storage_path : null,
-    images: images || [],
+    area_name: area?.name || null,
+    area_slug: area?.slug || null,
+    cover_image_path: images.length > 0 ? images[0].storage_path : null,
+    images,
     seller: seller || null,
   }
 

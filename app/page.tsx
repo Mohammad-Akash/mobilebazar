@@ -1,9 +1,17 @@
 import Link from 'next/link'
 import { connection } from 'next/server'
+import type { Metadata } from 'next'
 import { getLatestAds, getPopularBrands, getActiveCitiesWithCounts } from '@/src/lib/data/ads'
 import { AdCard } from '@/app/components/AdCard'
+import { JsonLd, buildOrganizationJsonLd } from '@/src/lib/seo/jsonld'
 
 export const instant = false
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: '/',
+  },
+}
 
 export default async function HomePage() {
   await connection()
@@ -15,6 +23,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12 pb-16">
+      <JsonLd data={buildOrganizationJsonLd()} />
       {/* 1. Hero Section with Search & City Selector */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-600/10 via-emerald-600/5 to-transparent py-12 sm:py-16 px-4">
         <div className="max-w-4xl mx-auto text-center space-y-6">

@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -638,6 +638,62 @@ export type Database = {
     }
     Functions: {
       delete_ad: { Args: { p_ad_id: string }; Returns: undefined }
+      get_landing_stats: {
+        Args: {
+          p_city_slug?: string | null
+          p_brand_slug?: string | null
+          p_model_slug?: string | null
+        }
+        Returns: {
+          ad_count: number
+          min_price: number | null
+          median_price: number | null
+          max_price: number | null
+          newest_published_at: string | null
+        }[]
+      }
+      get_indexable_landing_pages: {
+        Args: {
+          p_min_ads?: number
+        }
+        Returns: {
+          page_type: string
+          city_slug: string | null
+          brand_slug: string | null
+          model_slug: string | null
+          ad_count: number
+          newest_published_at: string | null
+        }[]
+      }
+      get_related_landing_links: {
+        Args: {
+          p_city_slug?: string | null
+          p_brand_slug?: string | null
+          p_model_slug?: string | null
+          p_limit?: number
+        }
+        Returns: {
+          link_type: string
+          slug: string
+          name: string
+          ad_count: number
+        }[]
+      }
+      get_sitemap_ads: {
+        Args: {
+          p_cursor_id?: string | null
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          title: string
+          brand_name: string | null
+          model_name: string | null
+          storage_gb: number | null
+          city_name: string | null
+          updated_at: string
+        }[]
+      }
       get_seller_contact: {
         Args: { p_ad_id: string }
         Returns: {

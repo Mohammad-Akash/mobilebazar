@@ -7,16 +7,70 @@ import { Header } from "@/app/components/Header";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
+import { SITE_CONFIG } from "@/src/lib/seo/site";
+
 export const metadata: Metadata = {
-  title: "MobileBazar — Pakistan's Mobile Phones Marketplace",
-  description: "Buy and sell mobile phones across Pakistan with PTA verification, genuine specs and trusted sellers.",
+  // metadataBase makes all OG images and canonical URLs absolute
+  metadataBase: new URL(SITE_CONFIG.url),
+
+  // Title template: child pages set their own title, it becomes "Title | MobileBazar"
+  title: {
+    default: `${SITE_CONFIG.name} — Pakistan's Mobile Phones Marketplace`,
+    template: `%s | ${SITE_CONFIG.name}`,
+  },
+
+  description: SITE_CONFIG.description,
+
+  // When indexing is OFF (pre-launch), block all crawlers site-wide
+  robots: SITE_CONFIG.allowIndexing
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      }
+    : {
+        index: false,
+        follow: false,
+        noarchive: true,
+        nocache: true,
+        googleBot: {
+          index: false,
+          follow: false,
+        },
+      },
+
+  // Default Open Graph for pages that don't override
+  openGraph: {
+    type: "website",
+    siteName: SITE_CONFIG.name,
+    locale: "en_PK",
+    images: [{ url: SITE_CONFIG.defaultOgImage, width: 1200, height: 630 }],
+  },
+
+  // Twitter card defaults
+  twitter: {
+    card: "summary_large_image",
+  },
+
+  // Icons
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

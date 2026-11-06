@@ -1,7 +1,16 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
 import { PostAdWizard } from './PostAdWizard'
+
+export const metadata: Metadata = {
+  title: 'Post Free Mobile Ad',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export const instant = false
 

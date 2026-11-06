@@ -57,7 +57,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
     const supabase = createClient()
 
     try {
-      // 1. Compression phase
+      // 1. Compression phase: generate 3 variants (1600px base, 800px _md, 400px _sm)
       setPhotos((prev) =>
         prev.map((p) =>
           p.id === item.id
@@ -66,25 +66,34 @@ export function Step4Photos({ form, userId }: Step4Props) {
         )
       )
 
-      const compressionOptions = {
-        maxSizeMB: 0.35, // ~350 KB target
+      const basePromise = imageCompression(item.file, {
+        maxSizeMB: 0.35,
         maxWidthOrHeight: 1600,
         useWebWorker: true,
         fileType: 'image/webp',
-        onProgress: (p: number) => {
-          setPhotos((prev) =>
-            prev.map((photo) =>
-              photo.id === item.id
-                ? { ...photo, progress: Math.min(50, Math.round(p * 0.5)) }
-                : photo
-            )
-          )
-        },
-      }
+      })
 
-      const compressedFile = await imageCompression(item.file, compressionOptions)
+      const mdPromise = imageCompression(item.file, {
+        maxSizeMB: 0.15,
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+        fileType: 'image/webp',
+      })
 
-      // 2. Uploading phase
+      const smPromise = imageCompression(item.file, {
+        maxSizeMB: 0.05,
+        maxWidthOrHeight: 400,
+        useWebWorker: true,
+        fileType: 'image/webp',
+      })
+
+      const [baseFile, mdFile, smFile] = await Promise.all([
+        basePromise,
+        mdPromise,
+        smPromise,
+      ])
+
+      // 2. Uploading phase: upload all 3 variants with 1-year immutable cacheControl
       setPhotos((prev) =>
         prev.map((p) =>
           p.id === item.id ? { ...p, status: 'uploading', progress: 60 } : p
@@ -93,17 +102,24 @@ export function Step4Photos({ form, userId }: Step4Props) {
 
       const fileUuid = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15)
       const storagePath = `${userId}/${draftIdRef.current}/${fileUuid}.webp`
+      const mdPath = `${userId}/${draftIdRef.current}/${fileUuid}_md.webp`
+      const smPath = `${userId}/${draftIdRef.current}/${fileUuid}_sm.webp`
 
-      const { error: uploadError } = await supabase.storage
-        .from('ad-images')
-        .upload(storagePath, compressedFile, {
-          contentType: 'image/webp',
-          upsert: false,
-        })
-
-      if (uploadError) {
-        throw new Error(uploadError.message || 'Upload mein masla aaya')
+      const uploadOptions = {
+        contentType: 'image/webp',
+        cacheControl: '31536000',
+        upsert: false,
       }
+
+      const [resBase, resMd, resSm] = await Promise.all([
+        supabase.storage.from('ad-images').upload(storagePath, baseFile, uploadOptions),
+        supabase.storage.from('ad-images').upload(mdPath, mdFile, uploadOptions),
+        supabase.storage.from('ad-images').upload(smPath, smFile, uploadOptions),
+      ])
+
+      if (resBase.error) throw new Error(resBase.error.message || 'Base image upload failed')
+      if (resMd.error) console.warn('Warning: _md variant upload failed:', resMd.error.message)
+      if (resSm.error) console.warn('Warning: _sm variant upload failed:', resSm.error.message)
 
       // 3. Done
       setPhotos((prev) =>
@@ -201,14 +217,20 @@ export function Step4Photos({ form, userId }: Step4Props) {
       // ignore
     }
 
-    // If uploaded, delete from bucket in background
+    // If uploaded, delete base + variants from bucket in background
     if (item.storagePath) {
       const supabase = createClient()
+      const p = item.storagePath
+      const allVariants = [
+        p,
+        p.endsWith('.webp') ? p.replace(/\.webp$/, '_md.webp') : `${p}_md`,
+        p.endsWith('.webp') ? p.replace(/\.webp$/, '_sm.webp') : `${p}_sm`,
+      ]
       supabase.storage
         .from('ad-images')
-        .remove([item.storagePath])
+        .remove(allVariants)
         .then(({ error }) => {
-          if (error) console.error('Failed to remove image from storage:', error)
+          if (error) console.error('Failed to remove image variants from storage:', error)
         })
     }
 

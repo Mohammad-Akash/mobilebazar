@@ -1,16 +1,21 @@
-import { notFound } from 'next/navigation'
-import { cookies } from 'next/headers'
-import { connection } from 'next/server'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getAdById, getSimilarAds } from '@/src/lib/data/ads'
 import { formatPrice, formatRelativeTime } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
-import { createClient } from '@/src/lib/supabase/server'
+import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'
+import { SITE_CONFIG, absoluteUrl } from '@/src/lib/seo/site'
+import {
+  JsonLd,
+  buildProductJsonLd,
+  buildBreadcrumbJsonLd,
+} from '@/src/lib/seo/jsonld'
 import { Gallery } from './components/Gallery'
 import { SpecTable } from './components/SpecTable'
 import { ContactButtons } from './components/ContactButtons'
 import { SafetyTips } from './components/SafetyTips'
+import { ViewCounter } from './components/ViewCounter'
 import { AdCard } from '@/app/components/AdCard'
 
 export const instant = false
@@ -19,61 +24,133 @@ interface AdDetailPageProps {
   params: Promise<{ id: string; slug?: string[] }>
 }
 
-export async function generateMetadata({ params }: AdDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: AdDetailPageProps): Promise<Metadata> {
   const { id } = await params
   const ad = await getAdById(id)
 
-  if (!ad) {
-    return { title: 'Ad Not Found | MobileBazar' }
+  if (!ad || ad.status === 'deleted') {
+    return { title: 'Ad Not Found' }
   }
 
-  const coverUrl = getAdImageUrl(ad.cover_image_path)
+  const canonicalSlug = buildAdSlug({
+    title: ad.title,
+    brand_name: ad.brand_name,
+    model_name: ad.model_name,
+    storage_gb: ad.storage_gb,
+    pta_status: ad.pta_status,
+    city_name: ad.city_name,
+  })
+
+  const canonicalPath = buildAdCanonicalPath(id, canonicalSlug)
+  const coverUrl = ad.cover_image_path
+    ? getAdImageUrl(ad.cover_image_path, 'md')
+    : absoluteUrl(SITE_CONFIG.defaultOgImage)
   const priceText = formatPrice(ad.price || 0)
-  const metaTitle = `${ad.title} for Sale in ${ad.city_name || 'Pakistan'} - ${priceText}`
-  const metaDesc = ad.description ? ad.description.slice(0, 160) : metaTitle
+  const metaTitle = `${ad.title || 'Mobile Phone'} for Sale in ${
+    ad.city_name || 'Pakistan'
+  } — ${priceText}`
+  const metaDesc = ad.description
+    ? ad.description.replace(/[\r\n]+/g, ' ').slice(0, 155)
+    : `Buy ${ad.title} for ${priceText} in ${ad.city_name || 'Pakistan'} on MobileBazar.`
+
+  const isIndexable =
+    ad.status === 'active' && SITE_CONFIG.allowIndexing
 
   return {
-    title: `${metaTitle} | MobileBazar`,
+    title: metaTitle,
     description: metaDesc,
+    alternates: {
+      canonical: canonicalPath,
+    },
     openGraph: {
       title: metaTitle,
       description: metaDesc,
-      images: coverUrl ? [{ url: coverUrl }] : [],
+      url: canonicalPath,
+      siteName: SITE_CONFIG.name,
+      images: [
+        {
+          url: coverUrl,
+          width: 800,
+          height: 600,
+          alt: ad.title || 'Mobile Photo',
+        },
+      ],
     },
-    robots: ad.status === 'active' ? 'index, follow' : 'noindex, nofollow',
+    twitter: {
+      card: 'summary_large_image',
+      title: metaTitle,
+      description: metaDesc,
+      images: [coverUrl],
+    },
+    robots: isIndexable
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
   }
 }
 
 export default async function AdDetailPage({ params }: AdDetailPageProps) {
-  await connection()
-  const { id } = await params
+  const { id, slug: slugArray } = await params
   const ad = await getAdById(id)
 
-  if (!ad) {
+  // 1. Not found if ad doesn't exist or is marked as deleted
+  if (!ad || ad.status === 'deleted') {
     notFound()
   }
 
-  // 1. View Counting with 24-hour cookie guard
-  const cookieStore = await cookies()
-  const adId = ad.id || id
-  const viewCookieName = `viewed_ad_${adId}`
-  const hasViewed = cookieStore.get(viewCookieName)
+  // 2. Canonical slug enforcement (Permanent 301 Redirect if slug is missing or wrong)
+  const canonicalSlug = buildAdSlug({
+    title: ad.title,
+    brand_name: ad.brand_name,
+    model_name: ad.model_name,
+    storage_gb: ad.storage_gb,
+    pta_status: ad.pta_status,
+    city_name: ad.city_name,
+  })
 
-  if (!hasViewed && adId) {
-    // Non-blocking fire & forget RPC call
-    const supabase = await createClient()
-    supabase.rpc('increment_ad_views', { p_ad_id: adId }).then(() => {
-      // ignore
-    })
-    cookieStore.set(viewCookieName, '1', {
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: '/',
-      httpOnly: true,
-      sameSite: 'lax',
-    })
+  const currentSlug = slugArray?.[0]
+  if (currentSlug !== canonicalSlug) {
+    permanentRedirect(buildAdCanonicalPath(id, canonicalSlug))
   }
 
-  // 2. Fetch similar ads
+  const adId = ad.id || id
+  const canonicalPath = buildAdCanonicalPath(id, canonicalSlug)
+
+  // 3. Structured Data
+  const absoluteImages = (ad.images || [])
+    .slice(0, 4)
+    .map((img) => getAdImageUrl(img.storage_path, 'md'))
+
+  const productJsonLd = buildProductJsonLd({
+    id: adId,
+    title: ad.title || 'Mobile Phone',
+    description: ad.description,
+    price: ad.price || 0,
+    brandName: ad.brand_name,
+    images: absoluteImages,
+    canonicalPath,
+    status: ad.status || 'active',
+    condition: ad.condition,
+  })
+
+  const breadcrumbsList = [
+    { name: 'Home', url: '/' },
+    ...(ad.city_slug && ad.city_name
+      ? [{ name: ad.city_name, url: `/mobiles/${ad.city_slug}` }]
+      : []),
+    ...(ad.brand_slug && ad.brand_name
+      ? [{ name: ad.brand_name, url: `/brands/${ad.brand_slug}` }]
+      : []),
+    ...(ad.brand_slug && ad.model_slug && ad.model_name
+      ? [{ name: ad.model_name, url: `/brands/${ad.brand_slug}/${ad.model_slug}` }]
+      : []),
+    { name: ad.title || 'Ad', url: canonicalPath },
+  ]
+
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(breadcrumbsList)
+
+  // 4. Fetch similar ads
   const similarAds =
     ad.brand_id && ad.model_id && ad.city_id
       ? await getSimilarAds({
@@ -89,6 +166,39 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      {/* Schemas */}
+      <JsonLd data={productJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
+      {/* Non-blocking client-side view counter */}
+      <ViewCounter adId={adId} />
+
+      {/* Visual Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="text-xs text-zinc-500 dark:text-zinc-400">
+        <ol className="flex flex-wrap items-center gap-1.5">
+          {breadcrumbsList.map((crumb, idx) => {
+            const isLast = idx === breadcrumbsList.length - 1
+            return (
+              <li key={crumb.url} className="flex items-center gap-1.5">
+                {idx > 0 && <span>/</span>}
+                {isLast ? (
+                  <span className="font-medium text-zinc-900 dark:text-zinc-200 truncate max-w-[200px]">
+                    {crumb.name}
+                  </span>
+                ) : (
+                  <Link
+                    href={crumb.url}
+                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    {crumb.name}
+                  </Link>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      </nav>
+
       {/* Inactive Ad Warning Banner */}
       {ad.status !== 'active' && (
         <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-2xl text-amber-900 dark:text-amber-200 flex items-center gap-3 shadow-sm">
@@ -104,7 +214,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
 
       {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Photos & Details (8 Cols) */}
+        {/* Left Column: Photos & Details (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Photos Gallery */}
           <Gallery images={ad.images} adTitle={ad.title || 'Mobile'} />
@@ -112,7 +222,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           {/* Specifications Table */}
           <SpecTable ad={ad} />
 
-          {/* Description Box (Rendered as plain text to prevent XSS) */}
+          {/* Description Box */}
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-3">
             <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <span>📝</span>
@@ -139,74 +249,64 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
               )}
             </div>
 
-            <h1 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 leading-snug">
-              {ad.title}
-            </h1>
-
-            <div className="flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-              <span>📍 {ad.city_name}{ad.area_name ? `, ${ad.area_name}` : ''}</span>
-              <span>{relativeTime}</span>
-            </div>
-
-            {/* Contact Action Buttons (Call / WhatsApp via secure RPC) */}
-            <ContactButtons
-              adId={adId}
-              adTitle={ad.title || 'Mobile Phone'}
-              adStatus={ad.status || 'active'}
-              contactPreference={ad.contact_preference || 'both'}
-            />
-          </div>
-
-          {/* Seller Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Seller Information
-            </span>
-
-            <div className="flex items-center gap-3 pt-1">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-lg">
-                {ad.seller_name ? ad.seller_name.charAt(0).toUpperCase() : 'S'}
-              </div>
-              <div>
-                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
-                  {ad.seller_name || 'MobileBazar User'}
-                </h4>
-                <p className="text-xs text-zinc-400">
-                  Active Ads: {ad.seller?.ads_count || 1}
-                </p>
+            <div className="space-y-1">
+              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 leading-snug">
+                {ad.title}
+              </h1>
+              <div className="flex items-center gap-3 text-xs text-zinc-500 pt-1">
+                <span>📍 {ad.city_name}{ad.area_name ? `, ${ad.area_name}` : ''}</span>
+                <span>•</span>
+                <span>🕒 {relativeTime}</span>
               </div>
             </div>
 
-            <div className="pt-2">
-              <Link
-                href={`/ads?q=${encodeURIComponent(ad.seller_name || '')}`}
-                className="w-full block py-2 text-center text-xs font-semibold text-emerald-600 hover:underline"
-              >
-                Seller ke deegar ads dekhein →
-              </Link>
+            {/* Quick Badges */}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                Condition: {ad.condition === 'new' ? 'Brand New' : 'Used'}
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                PTA: {ad.pta_status ? ad.pta_status.replace(/_/g, ' ').toUpperCase() : 'UNKNOWN'}
+              </span>
+              {ad.storage_gb && (
+                <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  Storage: {ad.storage_gb} GB
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Safety Tips & Share */}
-          <SafetyTips adTitle={ad.title || 'Mobile'} />
+          {/* Contact Seller Button */}
+          <ContactButtons
+            adId={adId}
+            adTitle={ad.title || 'Mobile Phone'}
+            adStatus={ad.status || 'active'}
+            contactPreference={ad.contact_preference || 'both'}
+          />
+
+          {/* Safety Tips Card */}
+          <SafetyTips adTitle={ad.title || 'Mobile Phone'} />
         </div>
       </div>
 
-      {/* Similar Ads Recommendation Section */}
+      {/* Similar Ads Section */}
       {similarAds.length > 0 && (
-        <section className="pt-12 border-t border-zinc-200 dark:border-zinc-800 space-y-6">
-          <div>
-            <h3 className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100">
-              Isi Tarah Ke Deegar Mobiles (Similar Ads)
-            </h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Aapko ye phones bhi pasand aa sakte hain
-            </p>
+        <section className="pt-10 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              Mutaliqa Phones (Similar Ads)
+            </h2>
+            <Link
+              href={`/ads?brand=${ad.brand_slug}&city=${ad.city_slug}`}
+              className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
+            >
+              Mazeed Dekhein &rarr;
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {similarAds.map((simAd) => (
-              <AdCard key={simAd.id} ad={simAd} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {similarAds.map((item) => (
+              <AdCard key={item.id} ad={item} />
             ))}
           </div>
         </section>

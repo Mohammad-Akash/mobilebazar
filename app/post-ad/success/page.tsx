@@ -1,4 +1,13 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Ad Posted Successfully',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export const instant = false
 

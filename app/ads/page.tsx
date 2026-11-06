@@ -1,5 +1,7 @@
 import { Suspense } from 'react'
 import { connection } from 'next/server'
+import type { Metadata } from 'next'
+import { SITE_CONFIG } from '@/src/lib/seo/site'
 import { searchParamsSchema } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
@@ -12,6 +14,42 @@ export const instant = false
 
 interface AdsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+export async function generateMetadata({ searchParams }: AdsPageProps): Promise<Metadata> {
+  const rawParams = await searchParams
+  const hasFilterParams = Object.keys(rawParams).some((key) => {
+    const val = rawParams[key]
+    return val !== undefined && val !== ''
+  })
+
+  // Filtered/searched URLs get noindex, follow to avoid duplicate content & crawl traps,
+  // pointing canonical back to the clean /ads base URL.
+  if (hasFilterParams) {
+    return {
+      title: 'Mobiles Search & Filter Results',
+      robots: {
+        index: false,
+        follow: true,
+      },
+      alternates: {
+        canonical: '/ads',
+      },
+    }
+  }
+
+  // Base /ads URL is indexable
+  return {
+    title: 'Used & New Mobile Phones for Sale in Pakistan',
+    description:
+      'Browse verified mobile phones for sale across Pakistan. PTA approved, genuine specs, and trusted sellers in Lahore, Karachi, Islamabad and all cities.',
+    alternates: {
+      canonical: '/ads',
+    },
+    robots: SITE_CONFIG.allowIndexing
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+  }
 }
 
 export default async function AdsPage({ searchParams }: AdsPageProps) {

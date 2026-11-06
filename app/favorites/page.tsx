@@ -1,5 +1,14 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
+
+export const metadata: Metadata = {
+  title: 'My Favorites',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export const instant = false
 
