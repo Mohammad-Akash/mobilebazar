@@ -60,14 +60,25 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
   const { error } = await supabase.auth.updateUser({ phone: normalized })
 
   if (error) {
+    console.error('[sendOtp Error]:', error.message, error)
     // Map Supabase error codes to friendly messages
-    if (error.message?.includes('already registered')) {
+    if (error.message?.includes('already registered') || error.message?.includes('unique')) {
       return { error: 'Ye number kisi doosre account se linked hai.' }
     }
-    if (error.message?.includes('rate')) {
+    if (error.message?.includes('rate') || error.message?.includes('limit')) {
       return { error: 'Bohat zyada requests. Thodi der baad try karein.' }
     }
-    return { error: 'OTP bhejne mein masla aaya. Dobara koshish karein.' }
+    if (
+      error.message?.toLowerCase().includes('disabled') ||
+      error.message?.toLowerCase().includes('unsupported') ||
+      error.message?.toLowerCase().includes('provider')
+    ) {
+      return {
+        error:
+          'Supabase mein Phone Provider on nahi hai. Dashboard > Authentication > Providers > Phone enable karein.',
+      }
+    }
+    return { error: `OTP error: ${error.message}` }
   }
 
   return { success: true }

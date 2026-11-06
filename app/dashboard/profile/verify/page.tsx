@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { VerifyPhoneForm } from './VerifyForm'
@@ -15,6 +16,7 @@ export default async function VerifyPhonePage({
 }: {
   searchParams: Promise<{ return_to?: string }>
 }) {
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
