@@ -28,3 +28,4 @@ export async function GET(request: NextRequest) {
   // Redirect to an error page or login with error
   return NextResponse.redirect(new URL('/login?error=Verification link expired or invalid', request.url))
 }
+

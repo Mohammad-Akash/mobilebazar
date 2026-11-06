@@ -4,7 +4,12 @@ import { ProfileForm } from './ProfileForm'
 
 export const instant = false
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ warning?: string }>
+}) {
+  const { warning } = await searchParams
   const supabase = await createClient()
 
   // 1. Server-side Authentication Verification
@@ -48,7 +53,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
-      <ProfileForm initialData={initialData} cities={cities || []} />
+      <ProfileForm initialData={initialData} cities={cities || []} warning={warning} />
     </div>
   )
 }

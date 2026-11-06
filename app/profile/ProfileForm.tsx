@@ -20,9 +20,11 @@ type ProfileData = {
 export function ProfileForm({
   initialData,
   cities,
+  warning,
 }: {
   initialData: ProfileData
   cities: City[]
+  warning?: string
 }) {
   const [state, formAction, isPending] = useActionState<AuthState | null, FormData>(
     updateProfileAction,
@@ -31,6 +33,17 @@ export function ProfileForm({
 
   return (
     <div className="w-full max-w-xl mx-auto p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+      {warning === 'phone_required' && (
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-800 dark:text-amber-200 flex items-start gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <p className="font-semibold">Phone ya WhatsApp number zaroori hai</p>
+            <p className="text-xs mt-0.5 text-amber-700 dark:text-amber-300">
+              Ad post karne se pehle apna rabta number darj karein taake buyers aap se rabta kar sakein.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
