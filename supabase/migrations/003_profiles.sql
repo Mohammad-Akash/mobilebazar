@@ -61,7 +61,7 @@ BEGIN
     v_full_name := COALESCE(
         NEW.raw_user_meta_data->>'full_name',
         NEW.raw_user_meta_data->>'name',
-        split_part(NEW.email, '@', 1)
+        'User'
     );
     v_avatar_url := NEW.raw_user_meta_data->>'avatar_url';
     v_phone := NEW.phone;

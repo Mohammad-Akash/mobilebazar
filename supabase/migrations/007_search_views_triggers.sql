@@ -39,9 +39,13 @@ CREATE INDEX IF NOT EXISTS idx_ads_search_vector
     ON ads USING gin (search_vector) 
     WHERE status = 'active';
 
--- 2. Trigger: Keep profiles.ads_count updated
+-- 2. Trigger: Keep profiles.ads_count updated (SECURITY DEFINER for RLS bypass)
 CREATE OR REPLACE FUNCTION update_profile_ads_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 BEGIN
     -- If inserted as active
     IF (TG_OP = 'INSERT') THEN
@@ -76,7 +80,11 @@ CREATE TRIGGER trigger_profile_ads_count
 
 -- 3. SQL Function to mark expired ads (For pg_cron or edge functions)
 CREATE OR REPLACE FUNCTION mark_expired_ads()
-RETURNS INTEGER AS $$
+RETURNS INTEGER 
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 DECLARE
     v_count INTEGER;
 BEGIN
@@ -88,7 +96,11 @@ BEGIN
     GET DIAGNOSTICS v_count = ROW_COUNT;
     RETURN v_count;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+-- Restrict execution to service_role only (cannot be triggered by anon / authenticated users)
+REVOKE EXECUTE ON FUNCTION mark_expired_ads() FROM public, anon, authenticated;
+GRANT EXECUTE ON FUNCTION mark_expired_ads() TO service_role;
 
 -- 4. RPC Function to increment ad views safely
 CREATE OR REPLACE FUNCTION increment_ad_views(p_ad_id UUID)

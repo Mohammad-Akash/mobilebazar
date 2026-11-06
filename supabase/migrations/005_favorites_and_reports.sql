@@ -25,9 +25,13 @@ CREATE TABLE IF NOT EXISTS reports (
     CONSTRAINT reports_ad_reporter_unique UNIQUE (ad_id, reporter_id)
 );
 
--- 3. Trigger Function: Automatically update ads.favorites_count
+-- 3. Trigger Function: Automatically update ads.favorites_count (SECURITY DEFINER for RLS bypass)
 CREATE OR REPLACE FUNCTION update_ad_favorites_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         UPDATE ads 

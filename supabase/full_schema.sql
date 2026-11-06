@@ -1,11 +1,12 @@
 -- ==============================================================================
--- MobileBazar: COMPLETE PRODUCTION DATABASE SCHEMA (Phase 1)
--- Run this single script in Supabase -> SQL Editor
+-- MobileBazar: COMPLETE DATABASE SCHEMA (Phase 1) - FIXED VERSION
+-- Run this single script in Supabase -> SQL Editor, then run 008_seed_data.sql
+-- Requires PostgreSQL 15+ (Supabase default)
 -- ==============================================================================
 
 -- 1. Extensions
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
-CREATE EXTENSION IF NOT EXISTS "unaccent";
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- 2. Enums
 DO $$ BEGIN
@@ -35,16 +36,18 @@ DO $$ BEGIN
     END IF;
 END $$;
 
--- 3. Core Function: Updated_at Trigger
+-- 3. Core function: updated_at trigger
 CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     NEW.updated_at = now();
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- 4. Reference Tables
+-- 4. Reference tables
 CREATE TABLE IF NOT EXISTS cities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
@@ -117,7 +120,7 @@ CREATE TRIGGER trigger_models_updated_at
 CREATE INDEX IF NOT EXISTS idx_models_brand_id ON models(brand_id);
 CREATE INDEX IF NOT EXISTS idx_models_slug ON models(slug);
 
--- 5. Profiles Tables
+-- 5. Profiles
 CREATE TABLE IF NOT EXISTS profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name VARCHAR(120),
@@ -149,13 +152,13 @@ CREATE TRIGGER trigger_profile_private_updated_at
     BEFORE UPDATE ON profile_private
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_private_phone_unique 
-    ON profile_private(phone) 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_private_phone_unique
+    ON profile_private(phone)
     WHERE phone IS NOT NULL;
 
--- Profile creation trigger on signup
+-- Auto-create profile rows on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER 
+RETURNS TRIGGER
 SECURITY DEFINER
 SET search_path = public, auth
 LANGUAGE plpgsql
@@ -168,10 +171,10 @@ BEGIN
     v_full_name := COALESCE(
         NEW.raw_user_meta_data->>'full_name',
         NEW.raw_user_meta_data->>'name',
-        split_part(NEW.email, '@', 1)
+        'User'
     );
     v_avatar_url := NEW.raw_user_meta_data->>'avatar_url';
-    v_phone := NEW.phone;
+    v_phone := NULLIF(NEW.phone, '');
 
     INSERT INTO public.profiles (id, full_name, avatar_url)
     VALUES (NEW.id, v_full_name, v_avatar_url)
@@ -179,7 +182,7 @@ BEGIN
 
     INSERT INTO public.profile_private (id, phone, is_phone_verified)
     VALUES (
-        NEW.id, 
+        NEW.id,
         v_phone,
         CASE WHEN NEW.phone_confirmed_at IS NOT NULL THEN true ELSE false END
     )
@@ -195,7 +198,7 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW
     EXECUTE FUNCTION handle_new_user();
 
--- 6. Ads, Ad Private & Images
+-- 6. Ads, ad_private, ad_images
 CREATE TABLE IF NOT EXISTS ads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     seller_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -203,7 +206,7 @@ CREATE TABLE IF NOT EXISTS ads (
     model_id UUID NOT NULL,
     city_id UUID NOT NULL REFERENCES cities(id) ON DELETE RESTRICT,
     area_id UUID,
-    
+
     title VARCHAR(150) NOT NULL,
     description TEXT NOT NULL,
     price BIGINT NOT NULL CHECK (price > 0),
@@ -218,10 +221,6 @@ CREATE TABLE IF NOT EXISTS ads (
     has_accessories BOOLEAN NOT NULL DEFAULT false,
     warranty_type warranty_type NOT NULL DEFAULT 'none',
     warranty_months_remaining SMALLINT DEFAULT 0,
-    CONSTRAINT chk_ad_warranty CHECK (
-        (warranty_type = 'none' AND (warranty_months_remaining IS NULL OR warranty_months_remaining = 0)) OR
-        (warranty_type = 'in_warranty' AND warranty_months_remaining > 0)
-    ),
     contact_preference contact_preference NOT NULL DEFAULT 'both',
     status ad_status NOT NULL DEFAULT 'active',
     is_featured BOOLEAN NOT NULL DEFAULT false,
@@ -235,10 +234,14 @@ CREATE TABLE IF NOT EXISTS ads (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
+    CONSTRAINT chk_ad_warranty CHECK (
+        (warranty_type = 'none' AND (warranty_months_remaining IS NULL OR warranty_months_remaining = 0)) OR
+        (warranty_type = 'in_warranty' AND warranty_months_remaining > 0)
+    ),
     CONSTRAINT fk_ads_model_brand FOREIGN KEY (model_id, brand_id)
         REFERENCES models(id, brand_id) ON DELETE RESTRICT,
     CONSTRAINT fk_ads_area_city FOREIGN KEY (area_id, city_id)
-        REFERENCES areas(id, city_id) ON DELETE SET NULL
+        REFERENCES areas(id, city_id) ON DELETE SET NULL (area_id)
 );
 
 DROP TRIGGER IF EXISTS trigger_ads_updated_at ON ads;
@@ -268,14 +271,16 @@ CREATE TABLE IF NOT EXISTS ad_images (
 );
 
 CREATE OR REPLACE FUNCTION check_ad_images_limit()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     IF (SELECT count(*) FROM ad_images WHERE ad_id = NEW.ad_id) >= 8 THEN
         RAISE EXCEPTION 'Maximum 8 images allowed per ad';
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS trigger_check_ad_images_limit ON ad_images;
 CREATE TRIGGER trigger_check_ad_images_limit
@@ -291,7 +296,11 @@ CREATE TABLE IF NOT EXISTS favorites (
 );
 
 CREATE OR REPLACE FUNCTION update_ad_favorites_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         UPDATE ads SET favorites_count = favorites_count + 1 WHERE id = NEW.ad_id;
@@ -302,7 +311,7 @@ BEGIN
     END IF;
     RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS trigger_favorites_count ON favorites;
 CREATE TRIGGER trigger_favorites_count
@@ -322,7 +331,7 @@ CREATE TABLE IF NOT EXISTS reports (
     CONSTRAINT reports_ad_reporter_unique UNIQUE (ad_id, reporter_id)
 );
 
--- 8. Performance Indexes
+-- 8. Performance indexes
 CREATE INDEX IF NOT EXISTS idx_ads_active_published ON ads (published_at DESC) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_ads_city_published ON ads (city_id, published_at DESC) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_ads_city_brand_price_published ON ads (city_id, brand_id, price, published_at DESC) WHERE status = 'active';
@@ -335,11 +344,15 @@ CREATE INDEX IF NOT EXISTS idx_reports_status_created ON reports (status, create
 CREATE INDEX IF NOT EXISTS idx_ads_title_trgm ON ads USING gin (title gin_trgm_ops) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_ad_images_ad_id_position ON ad_images (ad_id, position);
 
--- 9. Full-Text Search, Counters, RPC & Listing View
+-- 9. Full-text search, counters, RPC, listing view
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS search_vector tsvector;
 
 CREATE OR REPLACE FUNCTION ads_generate_search_vector()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 DECLARE
     v_brand_name TEXT := '';
     v_model_name TEXT := '';
@@ -347,7 +360,7 @@ BEGIN
     SELECT name INTO v_brand_name FROM brands WHERE id = NEW.brand_id;
     SELECT name INTO v_model_name FROM models WHERE id = NEW.model_id;
 
-    NEW.search_vector := 
+    NEW.search_vector :=
         setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') ||
         setweight(to_tsvector('english', COALESCE(v_brand_name, '')), 'A') ||
         setweight(to_tsvector('english', COALESCE(v_model_name, '')), 'B') ||
@@ -355,7 +368,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS trigger_ads_search_vector ON ads;
 CREATE TRIGGER trigger_ads_search_vector
@@ -365,7 +378,11 @@ CREATE TRIGGER trigger_ads_search_vector
 CREATE INDEX IF NOT EXISTS idx_ads_search_vector ON ads USING gin (search_vector) WHERE status = 'active';
 
 CREATE OR REPLACE FUNCTION update_profile_ads_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         IF (NEW.status = 'active') THEN
@@ -373,9 +390,9 @@ BEGIN
         END IF;
         RETURN NEW;
     ELSIF (TG_OP = 'UPDATE') THEN
-        IF (OLD.status != 'active' AND NEW.status = 'active') THEN
+        IF (OLD.status <> 'active' AND NEW.status = 'active') THEN
             UPDATE profiles SET ads_count = ads_count + 1 WHERE id = NEW.seller_id;
-        ELSIF (OLD.status = 'active' AND NEW.status != 'active') THEN
+        ELSIF (OLD.status = 'active' AND NEW.status <> 'active') THEN
             UPDATE profiles SET ads_count = GREATEST(ads_count - 1, 0) WHERE id = NEW.seller_id;
         END IF;
         RETURN NEW;
@@ -387,7 +404,7 @@ BEGIN
     END IF;
     RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS trigger_profile_ads_count ON ads;
 CREATE TRIGGER trigger_profile_ads_count
@@ -395,7 +412,11 @@ CREATE TRIGGER trigger_profile_ads_count
     FOR EACH ROW EXECUTE FUNCTION update_profile_ads_count();
 
 CREATE OR REPLACE FUNCTION mark_expired_ads()
-RETURNS INTEGER AS $$
+RETURNS INTEGER
+SECURITY DEFINER
+SET search_path = public
+LANGUAGE plpgsql
+AS $$
 DECLARE
     v_count INTEGER;
 BEGIN
@@ -406,21 +427,25 @@ BEGIN
     GET DIAGNOSTICS v_count = ROW_COUNT;
     RETURN v_count;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+REVOKE EXECUTE ON FUNCTION mark_expired_ads() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION mark_expired_ads() TO service_role;
 
 CREATE OR REPLACE FUNCTION increment_ad_views(p_ad_id UUID)
-RETURNS VOID 
+RETURNS VOID
 SECURITY DEFINER
 SET search_path = public
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE ads SET views_count = views_count + 1 WHERE id = p_ad_id;
+    UPDATE ads SET views_count = views_count + 1
+    WHERE id = p_ad_id AND status = 'active';
 END;
 $$;
 
 CREATE OR REPLACE VIEW active_ads_view AS
-SELECT 
+SELECT
     a.id,
     a.seller_id,
     p.full_name AS seller_name,
@@ -468,7 +493,7 @@ LEFT JOIN areas ar ON a.area_id = ar.id
 LEFT JOIN ad_images img ON img.ad_id = a.id AND img.position = 0
 WHERE a.status = 'active';
 
--- 10. RLS Initial Lock & Reference Policies
+-- 10. RLS initial lock + public reference policies
 ALTER TABLE cities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE areas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
@@ -492,4 +517,3 @@ CREATE POLICY "Public can view active brands" ON brands FOR SELECT USING (is_act
 
 DROP POLICY IF EXISTS "Public can view active models" ON models;
 CREATE POLICY "Public can view active models" ON models FOR SELECT USING (is_active = true);
-

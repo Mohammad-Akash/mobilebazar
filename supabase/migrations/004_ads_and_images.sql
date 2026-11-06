@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS ads (
     CONSTRAINT fk_ads_model_brand FOREIGN KEY (model_id, brand_id)
         REFERENCES models(id, brand_id) ON DELETE RESTRICT,
     CONSTRAINT fk_ads_area_city FOREIGN KEY (area_id, city_id)
-        REFERENCES areas(id, city_id) ON DELETE SET NULL
+        REFERENCES areas(id, city_id) ON DELETE SET NULL (area_id)
 );
 
 -- Trigger for ads updated_at
