@@ -34,3 +34,4 @@ export function normalizePakistaniPhone(raw: string): string | null {
 export function isValidPakistaniPhone(phone: string): boolean {
   return /^\+923[0-9]{9}$/.test(phone)
 }
+

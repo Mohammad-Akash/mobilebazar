@@ -5,16 +5,18 @@
 
 import type { SmsAdapter } from './types'
 import { consoleSmsAdapter } from './console'
+import { sendpkSmsAdapter } from './sendpk'
 
 export function getSmsAdapter(): SmsAdapter {
-  const provider = process.env.SMS_PROVIDER || 'console'
+  const provider = (process.env.SMS_PROVIDER || 'console').toLowerCase().trim()
+
+  if (provider === 'sendpk') {
+    return sendpkSmsAdapter
+  }
 
   if (provider === 'console') {
     return consoleSmsAdapter
   }
-
-  // Future providers (e.g., netsol, jazzcash, twilio) can be connected here:
-  // if (provider === 'netsol') return netsolSmsAdapter
 
   console.warn(`[SMS] Unknown SMS_PROVIDER "${provider}", falling back to console mock`)
   return consoleSmsAdapter
