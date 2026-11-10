@@ -176,6 +176,12 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                       This ad is temporarily hidden from public view for security or moderation review.
                     </p>
                   )}
+
+                  {ad.moderation_reason && (
+                    <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300">
+                      <span className="font-bold">Removed by moderators:</span> &quot;{ad.moderation_reason}&quot;
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -25,6 +25,7 @@ export interface MyAdItem {
   model_name: string | null
   city_name: string | null
   cover_image_path: string | null
+  moderation_reason?: string | null
 }
 
 export interface MyAdCounts {

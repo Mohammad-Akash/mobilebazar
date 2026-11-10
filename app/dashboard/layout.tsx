@@ -38,28 +38,37 @@ export default async function DashboardLayout({
       .select('full_name, avatar_url, created_at, ads_count')
       .eq('id', user.id)
       .single(),
-    supabase
+    (supabase as any)
       .from('profile_private')
-      .select('is_banned, role')
+      .select('is_banned, role, ban_reason')
       .eq('id', user.id)
       .single(),
   ])
 
   const profile = profileRes.data
   const isBanned = privateRes.data?.is_banned || false
+  const banReason = privateRes.data?.ban_reason || null
+  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@mobilebazar.pk'
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       {/* Banned Alert Banner */}
       {isBanned && (
-        <div className="p-4 bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 rounded-2xl text-red-900 dark:text-red-200 flex items-center gap-3 shadow-md">
-          <span className="text-3xl">🚫</span>
-          <div>
+        <div className="p-4 bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 rounded-2xl text-red-900 dark:text-red-200 flex items-start gap-3 shadow-md">
+          <span className="text-3xl shrink-0">🚫</span>
+          <div className="space-y-1">
             <p className="font-extrabold text-sm sm:text-base">
               Your Account Has Been Suspended
             </p>
-            <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">
-              Your account has been suspended due to policy violations. You cannot post, edit, or renew ads.
+            <p className="text-xs text-red-700 dark:text-red-300">
+              Reason: <span className="font-semibold">&quot;{banReason || 'Policy violations'}&quot;</span>
+            </p>
+            <p className="text-xs text-red-700 dark:text-red-300">
+              You cannot post, edit, favorite, report, or reveal seller contacts. For appeals, contact{' '}
+              <a href={`mailto:${supportEmail}`} className="underline font-bold">
+                {supportEmail}
+              </a>
+              .
             </p>
           </div>
         </div>
