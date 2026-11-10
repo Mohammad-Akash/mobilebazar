@@ -27,7 +27,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
 
   if (authError || !user) {
     return {
-      error: 'Aap logged in nahi hain. Baraye meharbani pehle login karein.',
+      error: 'You are not logged in. Please log in first.',
     }
   }
 
@@ -35,7 +35,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
   const rl = await checkRateLimit('post_ad', user.id)
   if (!rl.success) {
     return {
-      error: `Bohat zyada requests. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad try karein.`,
+      error: `Too many requests. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -48,7 +48,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
 
   if (!privateProfile?.is_phone_verified) {
     return {
-      error: 'Ad post karne ke liye pehle apna mobile number verify karein.',
+      error: 'Please verify your phone number before posting an ad.',
     }
   }
 
@@ -57,7 +57,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
   if (!validation.success) {
     const firstIssue = validation.error.issues[0]
     return {
-      error: firstIssue ? firstIssue.message : 'Validation khata: Form data durust nahi hai.',
+      error: firstIssue ? firstIssue.message : 'Validation failed: Invalid form data.',
     }
   }
 
@@ -70,7 +70,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
 
   if (hasInvalidPath) {
     return {
-      error: 'Tasweer ki security check fail ho gayi (Ghair tasdeeq shuda folder path).',
+      error: 'Image security check failed (Unauthorized folder path).',
     }
   }
 
@@ -113,27 +113,27 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     const errorMsg = adInsertError?.message || ''
     if (errorMsg.includes('permission denied') || errorMsg.includes('policy')) {
       return {
-        error: 'Ad post karne ki ijazat nahi hai. Mumkin hai aapka account restricted ya banned ho.',
+        error: 'You do not have permission to post an ad. Your account may be restricted or banned.',
       }
     }
     if (errorMsg.includes('User active ads limit exceeded')) {
       return {
-        error: 'Aapke pehle se 10 active ads hain. Mazeed ad lagane ke liye purana ad mark sold ya delete karein.',
+        error: 'You already have 10 active ads. Please mark an existing ad as sold or delete it to post more.',
       }
     }
     if (errorMsg.includes('User rate limit exceeded')) {
       return {
-        error: 'Aap 24 ghante mein ziyada se ziyada 5 ads post kar sakte hain. Kal dobara koshish karein.',
+        error: 'You can post a maximum of 5 ads per 24 hours. Please try again tomorrow.',
       }
     }
     if (errorMsg.includes('chk_ad_warranty')) {
       return {
-        error: 'Warranty ki maloomat durust nahi hain.',
+        error: 'Invalid warranty information provided.',
       }
     }
 
     return {
-      error: 'Ad create karne mein masla aaya: ' + (adInsertError?.message || 'Unknown database error'),
+      error: 'Failed to create ad: ' + (adInsertError?.message || 'Unknown database error'),
     }
   }
 
@@ -155,10 +155,10 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
 
     const imgMsg = imagesError.message || ''
     if (imgMsg.includes('Maximum 8 images allowed')) {
-      return { error: 'Ek ad par ziyada se ziyada 8 tasweerein shamil ki ja sakti hain.' }
+      return { error: 'A maximum of 8 images can be uploaded per ad.' }
     }
     return {
-      error: 'Tasweerein save karne mein masla aaya. Ad rollback kar diya gaya hai. Baraye meharbani dobara try karein.',
+      error: 'Failed to save photos. Ad was rolled back. Please try again.',
     }
   }
 
@@ -173,7 +173,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
       console.error('Error inserting IMEI, executing rollback:', imeiError)
       await supabase.rpc('delete_ad', { p_ad_id: createdAdId })
       return {
-        error: 'IMEI number save karne mein masla aaya. Ad rollback kar diya gaya hai.',
+        error: 'Failed to save IMEI number. Ad creation has been rolled back.',
       }
     }
   }

@@ -26,7 +26,7 @@ export async function markAdSoldAction(adId: string): Promise<ActionResult> {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Authentication required. Baraye meharbani login karein.' }
+    return { error: 'Authentication required. Please log in.' }
   }
 
   // 2. Call RPC mark_ad_sold
@@ -34,7 +34,7 @@ export async function markAdSoldAction(adId: string): Promise<ActionResult> {
 
   if (error) {
     console.error('Error in mark_ad_sold RPC:', error)
-    return { error: error.message || 'Ad ko sold mark karne mein masla aaya.' }
+    return { error: error.message || 'Failed to mark ad as sold.' }
   }
 
   // 3. Revalidate paths
@@ -59,14 +59,14 @@ export async function deleteAdAction(adId: string): Promise<ActionResult> {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Authentication required. Baraye meharbani login karein.' }
+    return { error: 'Authentication required. Please log in.' }
   }
 
   const { error } = await supabase.rpc('delete_ad', { p_ad_id: adId })
 
   if (error) {
     console.error('Error in delete_ad RPC:', error)
-    return { error: error.message || 'Ad delete karne mein masla aaya.' }
+    return { error: error.message || 'Failed to delete ad.' }
   }
 
   revalidatePath('/dashboard')
@@ -90,7 +90,7 @@ export async function renewAdAction(adId: string): Promise<ActionResult> {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Authentication required. Baraye meharbani login karein.' }
+    return { error: 'Authentication required. Please log in.' }
   }
 
   const { error } = await supabase.rpc('renew_ad', { p_ad_id: adId })
@@ -101,10 +101,10 @@ export async function renewAdAction(adId: string): Promise<ActionResult> {
     if (msg.includes('Maximum 10 active ads allowed')) {
       return {
         error:
-          'Aapke pehle se 10 active ads hain. Mazeed ad repost karne ke liye purana ad sold ya delete karein.',
+          'You already have 10 active ads. Please mark an existing ad as sold or delete it before reposting.',
       }
     }
-    return { error: msg || 'Ad repost karne mein masla aaya.' }
+    return { error: msg || 'Failed to repost ad.' }
   }
 
   revalidatePath('/dashboard')
@@ -133,7 +133,7 @@ export async function updateAdAction(
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Authentication required. Baraye meharbani login karein.' }
+    return { error: 'Authentication required. Please log in.' }
   }
 
   // 2. Validate with full zod schema
@@ -152,15 +152,15 @@ export async function updateAdAction(
     .single()
 
   if (fetchError || !existingAd) {
-    return { error: 'Ad nahi mila.' }
+    return { error: 'Ad not found.' }
   }
 
   if (existingAd.seller_id !== user.id) {
-    return { error: 'Permission denied: Aap sirf apna ad edit kar sakte hain.' }
+    return { error: 'Permission denied: You can only edit your own ad.' }
   }
 
   if (existingAd.status !== 'active') {
-    return { error: 'Sirf active ad ko edit kiya ja sakta hai. Repost karein pehle.' }
+    return { error: 'Only active ads can be edited. Please repost the ad first.' }
   }
 
   // 4. Update core ad fields (status, seller_id, dates are strictly omitted)
@@ -195,7 +195,7 @@ export async function updateAdAction(
 
   if (adUpdateError) {
     console.error('Error updating ad row:', adUpdateError)
-    return { error: 'Ad update karne mein masla aaya: ' + adUpdateError.message }
+    return { error: 'Failed to update ad: ' + adUpdateError.message }
   }
 
   // 5. Replace images atomically via replace_ad_images RPC
@@ -210,7 +210,7 @@ export async function updateAdAction(
 
     if (imgError) {
       console.error('Error in replace_ad_images RPC:', imgError)
-      return { error: 'Photos update karne mein masla aaya: ' + imgError.message }
+      return { error: 'Failed to update photos: ' + imgError.message }
     }
 
     // Delete removed paths from storage bucket (including _md and _sm variants)

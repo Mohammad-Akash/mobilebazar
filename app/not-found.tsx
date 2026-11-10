@@ -19,10 +19,10 @@ export default function NotFound() {
 
         <div className="space-y-2">
           <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight">
-            Page Nahi Mila (404)
+            Page Not Found (404)
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-            Aap jo page dhoond rahe hain wo shayad delete ho chuka hai ya URL ghalat hai.
+            The page you are looking for may have been removed or the URL is incorrect.
           </p>
         </div>
 
@@ -31,13 +31,13 @@ export default function NotFound() {
             href="/"
             className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-medium text-sm text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm"
           >
-            Home par jayein
+            Go to Home
           </Link>
           <Link
             href="/ads"
             className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-medium text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
-            Tamam Ads dekhein
+            Browse All Ads
           </Link>
         </div>
 

@@ -80,10 +80,10 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Mobile chunein (Select Phone)
+          Select Phone
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Apne phone ka brand aur model select karein
+          Select the brand and model of your phone
         </p>
       </div>
 
@@ -103,7 +103,7 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
             errors.brand_id ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
           }`}
         >
-          <option value="">-- Brand Muntakhib Karein --</option>
+          <option value="">-- Select Brand --</option>
           {brands.map((b) => (
             <option key={b.id} value={b.id}>
               {b.name}
@@ -133,10 +133,10 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
         >
           <option value="">
             {!selectedBrandId
-              ? '-- Pehle Brand Chunein --'
+              ? '-- Select Brand First --'
               : loadingModels
-              ? 'Models load ho rahe hain...'
-              : '-- Model Muntakhib Karein --'}
+              ? 'Loading models...'
+              : '-- Select Model --'}
           </option>
           {models.map((m) => (
             <option key={m.id} value={m.id}>

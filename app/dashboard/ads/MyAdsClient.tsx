@@ -20,7 +20,7 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
 
   // Mark Sold Handler
   const handleMarkSold = (ad: MyAdItem) => {
-    if (!confirm(`Kya aap waqai "${ad.title}" ko SOLD mark karna chahte hain?`)) return
+    if (!confirm(`Are you sure you want to mark "${ad.title}" as SOLD?`)) return
     setActionError(null)
 
     startTransition(async () => {
@@ -29,14 +29,14 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
         setActionError(res.error)
       } else {
         setAds((prev) => prev.filter((item) => item.id !== ad.id))
-        setSuccessMessage(`"${ad.title}" kamyabi se SOLD mark ho gaya!`)
+        setSuccessMessage(`"${ad.title}" has been marked as SOLD.`)
       }
     })
   }
 
   // Delete Ad Handler
   const handleDelete = (ad: MyAdItem) => {
-    if (!confirm(`Kya aap waqai "${ad.title}" ko DELETE karna chahte hain? Yeh ad khatam ho jayega.`)) return
+    if (!confirm(`Are you sure you want to DELETE "${ad.title}"? This cannot be undone.`)) return
     setActionError(null)
 
     startTransition(async () => {
@@ -45,14 +45,14 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
         setActionError(res.error)
       } else {
         setAds((prev) => prev.filter((item) => item.id !== ad.id))
-        setSuccessMessage(`"${ad.title}" delete kar diya gaya hai.`)
+        setSuccessMessage(`"${ad.title}" has been deleted.`)
       }
     })
   }
 
   // Repost / Renew Ad Handler
   const handleRenew = (ad: MyAdItem) => {
-    if (!confirm(`Kya aap "${ad.title}" ko dobara 30 din ke liye live (Active) karna chahte hain?`)) return
+    if (!confirm(`Do you want to renew "${ad.title}" for another 30 days?`)) return
     setActionError(null)
 
     startTransition(async () => {
@@ -61,7 +61,7 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
         setActionError(res.error)
       } else {
         setAds((prev) => prev.filter((item) => item.id !== ad.id))
-        setSuccessMessage(`"${ad.title}" kamyabi se dobara repost (Active) ho gaya!`)
+        setSuccessMessage(`"${ad.title}" has been renewed and is now active.`)
       }
     })
   }
@@ -77,19 +77,19 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-12 text-center space-y-4">
         <span className="text-4xl">📱</span>
         <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
-          Koi {currentStatus.toUpperCase()} Ad Nahi Mila
+          No {currentStatus.replace('_', ' ').toUpperCase()} Ads Found
         </h3>
         <p className="text-xs text-zinc-500 max-w-sm mx-auto">
           {currentStatus === 'active'
-            ? 'Aapke pass abhi koi active ad nahi hai. Naya ad lagayein!'
-            : `Aapke pass koi ${currentStatus} ad mojood nahi hai.`}
+            ? 'You do not have any active ads. Post a new ad now!'
+            : `You have no ${currentStatus.replace('_', ' ')} ads.`}
         </p>
         {currentStatus === 'active' && (
           <Link
             href="/post-ad"
             className="inline-block mt-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md"
           >
-            + Pehla Ad Post Karein
+            + Post an Ad
           </Link>
         )}
       </div>
@@ -144,12 +144,12 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                     </span>
                     {isUnderReview && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300">
-                        🛡️ Under Review (Jaiza Liya Ja Raha Hai)
+                        🛡️ Under Review
                       </span>
                     )}
                     {isExpiringSoon && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300">
-                        ⏳ {daysLeft === 0 ? 'Aaj expire hoga' : `${daysLeft} din mein expire hoga`}
+                        ⏳ {daysLeft === 0 ? 'Expires today' : `Expires in ${daysLeft} days`}
                       </span>
                     )}
                   </div>
@@ -173,7 +173,7 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
 
                   {isUnderReview && (
                     <p className="text-[11px] text-amber-700 dark:text-amber-400 pt-0.5">
-                      Yeh ishtehaar reports ya security jaizay ki waja se temporarily public view se chhupa diya gaya hai.
+                      This ad is temporarily hidden from public view for security or moderation review.
                     </p>
                   )}
                 </div>
@@ -208,7 +208,7 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                     onClick={() => handleRenew(ad)}
                     className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors disabled:opacity-50"
                   >
-                    🔄 Repost (Renew)
+                    🔄 Renew Ad
                   </button>
                 )}
 

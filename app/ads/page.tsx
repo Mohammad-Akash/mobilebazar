@@ -86,10 +86,10 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-100">
-            Dastiyab Mobiles (Mobiles for Sale)
+            Mobiles for Sale
           </h1>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Poore Pakistan mein daryaft karein
+            Explore verified mobile phones across Pakistan
           </p>
         </div>
 

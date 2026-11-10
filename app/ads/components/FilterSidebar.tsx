@@ -189,7 +189,7 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
         >
           <option value="">
             {!selectedBrand
-              ? '-- Pehle Brand Chunein --'
+              ? '-- Select Brand First --'
               : loadingModels
               ? 'Loading models...'
               : 'All Models'}
@@ -213,7 +213,7 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
           }}
           className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
-          <option value="">Poora Pakistan (All Cities)</option>
+          <option value="">All Pakistan (All Cities)</option>
           {cities.map((c) => (
             <option key={c.id} value={c.slug}>
               {c.name}
@@ -233,7 +233,7 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
         >
           <option value="">
             {!selectedCity
-              ? '-- Pehle City Chunein --'
+              ? '-- Select City First --'
               : loadingAreas
               ? 'Loading areas...'
               : 'All Areas'}
@@ -292,8 +292,8 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
           className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option value="">All Conditions</option>
-          <option value="used">Used (Istemal Shuda)</option>
-          <option value="new">Brand New (Naya)</option>
+          <option value="used">Used</option>
+          <option value="new">Brand New</option>
         </select>
       </div>
 

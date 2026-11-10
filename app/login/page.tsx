@@ -22,7 +22,7 @@ function LoginForm() {
           MobileBazar Login
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Apne account mein dakhil hon / Sign in to your account
+          Sign in to your account
         </p>
       </div>
 
@@ -44,7 +44,7 @@ function LoginForm() {
             name="email"
             required
             autoComplete="email"
-            placeholder="apka-email@example.com"
+            placeholder="you@example.com"
             className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           {state?.fieldErrors?.email && (
@@ -74,17 +74,17 @@ function LoginForm() {
           disabled={isPending}
           className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium rounded-lg transition duration-150 shadow-sm"
         >
-          {isPending ? 'Checking details...' : 'Login Karein'}
+          {isPending ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
 
       <div className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Account nahi hai?{' '}
+        Don&apos;t have an account?{' '}
         <Link
           href={`/signup${next !== '/' ? `?next=${encodeURIComponent(next)}` : ''}`}
           className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
         >
-          Naya Account Banayein (Signup)
+          Sign Up
         </Link>
       </div>
     </div>

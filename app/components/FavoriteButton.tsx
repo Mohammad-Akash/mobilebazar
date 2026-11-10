@@ -58,7 +58,7 @@ export function FavoriteButton({
       type="button"
       onClick={handleToggle}
       disabled={isPending}
-      title={isFavorited ? 'Favorites se hatayein' : 'Favorites mein shamil karein'}
+      title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
       className={`p-2 rounded-full transition-all active:scale-90 flex items-center justify-center ${
         isFavorited
           ? 'bg-rose-50 dark:bg-rose-950/80 text-rose-500 shadow-sm'

@@ -48,17 +48,17 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Phone ki Tafseelat (Specifications)
+          Phone Specifications
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Phone ki halat, storage aur PTA status darj karein
+          Enter the condition, storage, and PTA status of your phone
         </p>
       </div>
 
       {/* 1. Condition (Large touch buttons) */}
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Condition (Halat) <span className="text-red-500">*</span>
+          Condition <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
           {(['used', 'new'] as const).map((c) => (
@@ -182,7 +182,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
           htmlFor="color"
           className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
         >
-          Rang (Color) <span className="text-xs text-zinc-400">(Optional)</span>
+          Color <span className="text-xs text-zinc-400">(Optional)</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {COLOR_OPTIONS.slice(0, 10).map((c) => (
@@ -199,7 +199,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
         <input
           id="color"
           type="text"
-          placeholder="Ya apna color likhein (e.g. Deep Purple, Space Grey)"
+          placeholder="Or enter your custom color (e.g. Deep Purple, Space Grey)"
           {...register('color')}
           className="w-full mt-2 px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
@@ -214,7 +214,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
               htmlFor="battery_health"
               className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
             >
-              Battery Health (%): <span className="text-xs text-zinc-400">(Used phones ke liye)</span>
+              Battery Health (%): <span className="text-xs text-zinc-400">(For used phones)</span>
             </label>
             <span className="text-xs font-mono text-zinc-500">
               {watch('battery_health') ? `${watch('battery_health')}%` : 'Not specified'}
@@ -248,7 +248,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
               : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
           }`}
         >
-          <span>📦 Dabba (Original Box)</span>
+          <span>📦 Original Box</span>
           <span>{hasBox ? '✅' : '⚪'}</span>
         </button>
 
@@ -261,7 +261,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
               : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
           }`}
         >
-          <span>🔌 Saman (Accessories)</span>
+          <span>🔌 Accessories Included</span>
           <span>{hasAccessories ? '✅' : '⚪'}</span>
         </button>
       </div>
@@ -299,7 +299,7 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
               htmlFor="warranty_months"
               className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
             >
-              Baqi Warranty (Maah / Months) <span className="text-red-500">*</span>
+              Remaining Warranty (Months) <span className="text-red-500">*</span>
             </label>
             <input
               id="warranty_months"

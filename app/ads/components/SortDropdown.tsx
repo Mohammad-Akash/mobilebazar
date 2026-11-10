@@ -24,9 +24,9 @@ export function SortDropdown() {
         onChange={handleSortChange}
         className="px-3 py-1.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
-        <option value="newest">Taza Tareen (Newest)</option>
-        <option value="price_asc">Qeemat: Kam se Ziyada (Price Low-High)</option>
-        <option value="price_desc">Qeemat: Ziyada se Kam (Price High-Low)</option>
+        <option value="newest">Newest First</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
       </select>
     </div>
   )

@@ -19,7 +19,7 @@ export function SafetyTips({ adId, adTitle }: SafetyTipsProps) {
       try {
         await navigator.share({
           title: adTitle,
-          text: `MobileBazar par ye ad dekhein: ${adTitle}`,
+          text: `Check out this ad on MobileBazar: ${adTitle}`,
           url: currentUrl,
         })
         return
@@ -42,12 +42,12 @@ export function SafetyTips({ adId, adTitle }: SafetyTipsProps) {
       <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-3xl p-5 space-y-2.5">
         <h4 className="font-bold text-amber-900 dark:text-amber-200 text-xs sm:text-sm flex items-center gap-1.5">
           <span>🛡️</span>
-          <span>Khareedari Ke Zaroori Hifazati Mashwaray</span>
+          <span>Important Safety Tips for Buyers</span>
         </h4>
         <ul className="text-xs text-amber-800 dark:text-amber-300 space-y-1.5 list-disc list-inside">
-          <li>Phone lene se pehle kisi pur-aman aam jagah (public place) par milein.</li>
-          <li>Kharidne se pehle *#06# mila kar IMEI aur PTA status tasdeeq karein.</li>
-          <li>Phone check kiye baghair peshgi raqam (advance payment) hargiz na dein.</li>
+          <li>Meet the seller in a safe, public place.</li>
+          <li>Verify IMEI and PTA status by dialing *#06# before purchasing.</li>
+          <li>Never send advance payments without physically inspecting the phone.</li>
         </ul>
       </div>
 

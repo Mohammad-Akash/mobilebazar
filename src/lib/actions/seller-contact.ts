@@ -47,7 +47,7 @@ export async function getSellerContactAction(
 
   if (!user) {
     return {
-      error: 'Rabta number dekhne ke liye pehle login karein.',
+      error: 'Please log in to view seller contact details.',
       requiresLogin: true,
     }
   }
@@ -60,7 +60,7 @@ export async function getSellerContactAction(
   if (error || !data || data.length === 0) {
     console.error('Error in get_seller_contact RPC:', error)
     return {
-      error: error?.message || 'Seller ka rabta number hasil nahi ho saka.',
+      error: error?.message || 'Failed to retrieve seller contact details.',
     }
   }
 
@@ -79,7 +79,7 @@ export async function getSellerContactAction(
   if (rawWhatsapp) {
     const intlNumber = normalizeToPkInternational(rawWhatsapp)
     const textMsg = encodeURIComponent(
-      `Assalam-o-Alaikum, main MobileBazar par aapka ad dekh raha hoon: "${adTitle}" (${adUrl})`
+      `Assalam-o-Alaikum, I am contacting you regarding your ad on MobileBazar: "${adTitle}" (${adUrl})`
     )
     whatsappUrl = `https://wa.me/${intlNumber}?text=${textMsg}`
   }

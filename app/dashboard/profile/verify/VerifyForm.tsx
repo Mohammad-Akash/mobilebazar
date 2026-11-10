@@ -87,9 +87,9 @@ export function VerifyPhoneForm() {
           <span className="text-3xl">✅</span>
         </div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Phone Verify Ho Gaya!
+          Phone Verified Successfully!
         </h2>
-        <p className="text-sm text-zinc-500">Redirect ho raha hai…</p>
+        <p className="text-sm text-zinc-500">Redirecting…</p>
       </div>
     )
   }
@@ -108,10 +108,10 @@ export function VerifyPhoneForm() {
         <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
           <div>
             <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
-              Phone Number Verify Karein
+              Verify Phone Number
             </h1>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Aap ka Pakistani mobile number darj karein. Ek verification code SMS se aayega.
+              Enter your Pakistani mobile number. A 6-digit verification code will be sent via SMS.
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export function VerifyPhoneForm() {
                 className="flex-1 rounded-r-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
-            <p className="mt-1 text-xs text-zinc-400">Sirf Pakistani numbers (+92) allowed hain</p>
+            <p className="mt-1 text-xs text-zinc-400">Only Pakistani numbers (+92) are supported</p>
           </div>
 
           {error && (
@@ -148,7 +148,7 @@ export function VerifyPhoneForm() {
             disabled={isPending || !phone}
             className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isPending ? 'Bhej raha hai…' : 'OTP Code Bhejein'}
+            {isPending ? 'Sending…' : 'Send Verification Code'}
           </button>
         </form>
       )}
@@ -158,14 +158,14 @@ export function VerifyPhoneForm() {
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-5">
           <div>
             <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
-              Code Darj Karein
+              Enter Verification Code
             </h1>
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              6-digit code{' '}
+              A 6-digit code was sent to{' '}
               <span className="font-medium text-zinc-700 dark:text-zinc-300">
                 {phone.replace(/(\d{4})(\d+)/, '$1****')}
               </span>{' '}
-              par SMS se bheja gaya hai.
+              via SMS.
             </p>
           </div>
 
@@ -196,14 +196,14 @@ export function VerifyPhoneForm() {
             disabled={isPending || otp.length !== 6}
             className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isPending ? 'Verify ho raha hai…' : 'Verify Karein'}
+            {isPending ? 'Verifying…' : 'Verify & Continue'}
           </button>
 
           {/* Resend */}
           <div className="text-center text-sm text-zinc-500">
-            Code nahi aaya?{' '}
+            Didn&apos;t receive the code?{' '}
             {cooldown > 0 ? (
-              <span className="text-zinc-400">{cooldown}s mein dobara bhejein</span>
+              <span className="text-zinc-400">Resend in {cooldown}s</span>
             ) : (
               <button
                 type="button"
@@ -211,7 +211,7 @@ export function VerifyPhoneForm() {
                 disabled={isPending}
                 className="text-emerald-600 hover:underline font-medium disabled:opacity-50"
               >
-                Dobara Bhejein
+                Resend Code
               </button>
             )}
           </div>
@@ -221,7 +221,7 @@ export function VerifyPhoneForm() {
             onClick={() => { setStep('phone'); setOtp(''); setError('') }}
             className="text-xs text-zinc-400 hover:text-zinc-600 text-center"
           >
-            ← Number badlein
+            ← Change phone number
           </button>
         </form>
       )}

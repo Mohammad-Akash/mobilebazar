@@ -46,10 +46,10 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Qeemat aur Tafseel (Price & Description)
+          Price & Description
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Qeemat tay karein aur phone ki munasib tafseel darj karein
+          Set your price and write a detailed description of your phone
         </p>
       </div>
 
@@ -59,7 +59,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           htmlFor="price"
           className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
         >
-          Qeemat / Price (PKR) <span className="text-red-500">*</span>
+          Price (PKR) <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-zinc-400">
@@ -94,7 +94,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
               className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-zinc-300"
             />
             <span className="text-sm text-zinc-700 dark:text-zinc-300">
-              Qeemat mein kami peshi mumkin hai (Negotiable)
+              Price is negotiable
             </span>
           </label>
         </div>
@@ -127,7 +127,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           }`}
         />
         <div className="flex justify-between text-xs text-zinc-400">
-          <span>{AD_LIMITS.MIN_TITLE_LENGTH} se {AD_LIMITS.MAX_TITLE_LENGTH} characters</span>
+          <span>{AD_LIMITS.MIN_TITLE_LENGTH} to {AD_LIMITS.MAX_TITLE_LENGTH} characters</span>
           <span>{title.length}/{AD_LIMITS.MAX_TITLE_LENGTH}</span>
         </div>
         {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title.message}</p>}
@@ -139,19 +139,19 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           htmlFor="description"
           className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
         >
-          Phone ki Mukammal Tafseel (Description) <span className="text-red-500">*</span>
+          Description <span className="text-red-500">*</span>
         </label>
         <textarea
           id="description"
           rows={5}
-          placeholder="Phone ki condition, koi scratch ya issue, sath kya samaan hai, waghaira wazahat se likhein..."
+          placeholder="Describe the phone condition, any scratches, battery health, included accessories, etc..."
           {...register('description')}
           className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
             errors.description ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
           }`}
         />
         <div className="flex justify-between text-xs text-zinc-400">
-          <span>Kam az kam {AD_LIMITS.MIN_DESC_LENGTH} characters</span>
+          <span>Minimum {AD_LIMITS.MIN_DESC_LENGTH} characters</span>
           <span>{description.length}/{AD_LIMITS.MAX_DESC_LENGTH}</span>
         </div>
         {errors.description && (
@@ -168,10 +168,10 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
               htmlFor="imei"
               className="text-sm font-semibold text-zinc-800 dark:text-zinc-200"
             >
-              IMEI Number (15 Digits) <span className="text-xs text-zinc-400">(Ikhtiyari / Optional)</span>
+              IMEI Number (15 Digits) <span className="text-xs text-zinc-400">(Optional)</span>
             </label>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Yeh number public ko kabhi nazar nahi aayega, sirf PTA verification aur safety ke liye Mehfooz rehta hai.
+              This number is never shown publicly. It is stored securely only for verification and safety.
             </p>
           </div>
         </div>

@@ -12,12 +12,12 @@ interface ReportModalProps {
 }
 
 const REPORT_REASONS = [
-  { value: 'fake_ad', label: 'Jaali / Fake Ad ya tasweerein' },
-  { value: 'fraud_scam', label: 'Fraud ya Scam (Pehle advance maang raha hai)' },
-  { value: 'already_sold', label: 'Yeh phone bik chuka hai' },
-  { value: 'wrong_info', label: 'Ghalat qeemat ya specs (Wrong info)' },
-  { value: 'prohibited_item', label: 'Ghair qanooni ya chori ka samaan' },
-  { value: 'other', label: 'Koi doosri waja (Other)' },
+  { value: 'fake_ad', label: 'Fake ad or misleading photos' },
+  { value: 'fraud_scam', label: 'Fraud or scam (Asking for advance payment)' },
+  { value: 'already_sold', label: 'Device already sold' },
+  { value: 'wrong_info', label: 'Incorrect price or specifications' },
+  { value: 'prohibited_item', label: 'Prohibited, stolen, or illegal item' },
+  { value: 'other', label: 'Other reason' },
 ] as const
 
 export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps) {
@@ -69,7 +69,7 @@ export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps
           <div className="flex items-center gap-2">
             <span className="text-xl">🚩</span>
             <h3 className="font-extrabold text-base text-zinc-900 dark:text-zinc-100">
-              Ishtehaar Report Karein
+              Report Ad
             </h3>
           </div>
           <button
@@ -85,10 +85,10 @@ export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps
           <div className="py-6 text-center space-y-2">
             <span className="text-4xl block">✅</span>
             <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
-              Shukriya, aap ki report darj kar li gayi hai.
+              Thank you, your report has been submitted.
             </h4>
             <p className="text-xs text-zinc-500">
-              Humari team is ishtehaar ka jaiza legi.
+              Our moderation team will review this listing.
             </p>
           </div>
         ) : (
@@ -106,7 +106,7 @@ export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps
             {/* Reason Radio Group */}
             <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Waja chunein (Reason)
+                Select Reason
               </label>
               <div className="space-y-1.5">
                 {REPORT_REASONS.map((item) => (
@@ -135,14 +135,14 @@ export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps
             {/* Additional details */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">
-                Mazeed Tafseel (Optional)
+                Additional Details (Optional)
               </label>
               <textarea
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 maxLength={500}
                 rows={3}
-                placeholder="Agar koi wazahat karni ho to yahan likhein (max 500 chars)..."
+                placeholder="Provide any relevant details here (max 500 characters)..."
                 className="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
               />
               <div className="text-right text-[10px] text-zinc-400 mt-0.5">
@@ -165,7 +165,7 @@ export function ReportModal({ adId, adTitle, isOpen, onClose }: ReportModalProps
                 disabled={isPending}
                 className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-extrabold shadow-sm transition-all"
               >
-                {isPending ? 'Bhej rahe hain...' : 'Submit Report'}
+                {isPending ? 'Submitting...' : 'Submit Report'}
               </button>
             </div>
           </form>

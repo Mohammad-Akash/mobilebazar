@@ -18,12 +18,12 @@ const reportSchema = z.object({
   adId: z.string().uuid({ message: 'Invalid Ad ID' }),
   reason: z.enum(
     ['fake_ad', 'already_sold', 'fraud_scam', 'wrong_info', 'prohibited_item', 'other'],
-    { message: 'Waja select karein (Please select a valid reason)' }
+    { message: 'Please select a valid reason' }
   ),
   details: z
     .string()
     .trim()
-    .max(500, { message: 'Tafseel 500 characters se zyada nahi ho sakti' })
+    .max(500, { message: 'Details cannot exceed 500 characters' })
     .optional(),
 })
 
@@ -48,7 +48,7 @@ export async function submitReportAction(
   if (!user) {
     return {
       requiresLogin: true,
-      error: 'Report karne ke liye pehle login karein.',
+      error: 'Please log in to report this ad.',
     }
   }
 
@@ -56,7 +56,7 @@ export async function submitReportAction(
   const rl = await checkRateLimit('report')
   if (!rl.success) {
     return {
-      error: `Bohat zyada reports submit ki gayi hain. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad try karein.`,
+      error: `Too many reports submitted. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -64,7 +64,7 @@ export async function submitReportAction(
   const validation = reportSchema.safeParse(formData)
   if (!validation.success) {
     return {
-      error: validation.error.issues[0]?.message || 'Ghalat information darj ki gayi hai.',
+      error: validation.error.issues[0]?.message || 'Invalid input provided.',
     }
   }
 
@@ -83,13 +83,13 @@ export async function submitReportAction(
     // Unique violation (already reported by this user)
     if (insertError.code === '23505' || insertError.message.includes('unique')) {
       return {
-        error: 'Aap pehle hi is ishtehaar ko report kar chuke hain.',
+        error: 'You have already reported this ad.',
       }
     }
 
     // Trigger validation error messages (from check_report_eligibility trigger in 022)
     return {
-      error: insertError.message || 'Report submit karne mein masla pesh aaya.',
+      error: insertError.message || 'Failed to submit report. Please try again.',
     }
   }
 

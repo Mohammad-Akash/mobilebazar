@@ -8,19 +8,19 @@ import { checkRateLimit } from '@/src/lib/rate-limit'
 
 // Validation Schemas with Zod
 const loginSchema = z.object({
-  email: z.string().email('Sahi email address likhein / Please enter a valid email'),
-  password: z.string().min(8, 'Password kam az kam 8 characters ka hona chahiye / Minimum 8 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
 const signupSchema = z
   .object({
-    fullName: z.string().min(2, 'Pura naam likhein / Full name is required (min 2 chars)'),
-    email: z.string().email('Sahi email address likhein / Please enter a valid email'),
-    password: z.string().min(8, 'Password kam az kam 8 characters ka hona chahiye / Minimum 8 characters'),
+    fullName: z.string().min(2, 'Full name is required (min 2 characters)'),
+    email: z.string().email('Please enter a valid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Dono passwords match nahi kar rahe / Passwords do not match',
+    message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
 
@@ -29,7 +29,7 @@ const profileSchema = z.object({
   cityId: z.string().uuid().or(z.literal('')).optional(),
   whatsappNumber: z
     .string()
-    .regex(/^(\+923[0-9]{9}|03[0-9]{9})$/, 'Pakistani format zaroori hai (e.g. 03001234567 ya +923001234567)')
+    .regex(/^(\+923[0-9]{9}|03[0-9]{9})$/, 'Please enter a valid Pakistani number (e.g. 03001234567 or +923001234567)')
     .or(z.literal(''))
     .optional(),
 })
@@ -55,7 +55,7 @@ export async function loginAction(
   const rl = await checkRateLimit('login')
   if (!rl.success) {
     return {
-      error: `Bohat zyada koshishein. ${rl.retryAfterSeconds || 60} seconds baad dobara try karein.`,
+      error: `Too many attempts. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -66,7 +66,7 @@ export async function loginAction(
   const validated = loginSchema.safeParse({ email, password })
   if (!validated.success) {
     return {
-      error: 'Data sahi nahi bhara gaya / Invalid input',
+      error: 'Invalid input',
       fieldErrors: validated.error.flatten().fieldErrors,
     }
   }
@@ -80,9 +80,9 @@ export async function loginAction(
   if (error) {
     let message = error.message
     if (error.message.includes('Invalid login credentials')) {
-      message = 'Email ya password ghalat hai / Invalid email or password'
+      message = 'Invalid email or password'
     } else if (error.message.includes('Email not confirmed')) {
-      message = 'Email confirm nahi hui. Apni inbox check karein / Email not confirmed'
+      message = 'Please check your inbox to confirm your email address'
     }
     return { error: message }
   }
@@ -99,7 +99,7 @@ export async function signupAction(
   const rl = await checkRateLimit('signup')
   if (!rl.success) {
     return {
-      error: `Sign up limit. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad try karein.`,
+      error: `Too many signup attempts. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -117,7 +117,7 @@ export async function signupAction(
 
   if (!validated.success) {
     return {
-      error: 'Form mein galtiyan hain / Please fix form errors',
+      error: 'Please fix the errors in the form',
       fieldErrors: validated.error.flatten().fieldErrors,
     }
   }
@@ -136,9 +136,9 @@ export async function signupAction(
   if (error) {
     let message = error.message
     if (error.message.includes('User already registered')) {
-      message = 'Yeh email pehle se registered hai / Email already in use'
+      message = 'This email is already registered'
     } else if (error.message.includes('Password should be')) {
-      message = 'Password kamzor hai / Password is too weak'
+      message = 'Password is too weak'
     }
     return { error: message }
   }

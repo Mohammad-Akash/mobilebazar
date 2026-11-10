@@ -131,7 +131,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
       )
     } catch (err: unknown) {
       console.error('Photo upload failed:', err)
-      const msg = err instanceof Error ? err.message : 'Upload nakam raha'
+      const msg = err instanceof Error ? err.message : 'Upload failed'
       setPhotos((prev) =>
         prev.map((p) =>
           p.id === item.id
@@ -150,7 +150,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
 
     const remainingSlots = AD_LIMITS.MAX_PHOTOS - photos.length
     if (remainingSlots <= 0) {
-      setGeneralError(`Aap ziyada se ziyada ${AD_LIMITS.MAX_PHOTOS} tasweerein shamil kar sakte hain.`)
+      setGeneralError(`You can upload up to ${AD_LIMITS.MAX_PHOTOS} photos.`)
       return
     }
 
@@ -158,12 +158,12 @@ export function Step4Photos({ form, userId }: Step4Props) {
     for (const file of files.slice(0, remainingSlots)) {
       // Validate file size (15 MB max before compression)
       if (file.size > 15 * 1024 * 1024) {
-        setGeneralError(`"${file.name}" ka size 15 MB se ziyada hai. Baraye meharbani choti file chunein.`)
+        setGeneralError(`"${file.name}" exceeds 15 MB. Please select a smaller file.`)
         continue
       }
       // Validate MIME type
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        setGeneralError(`"${file.name}" tasweer format theek nahi hai. Sirf JPG, PNG, aur WebP chalengi.`)
+        setGeneralError(`"${file.name}" has an invalid format. Only JPG, PNG, and WebP are supported.`)
         continue
       }
       validFiles.push(file)
@@ -281,10 +281,10 @@ export function Step4Photos({ form, userId }: Step4Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Phone ki Tasweerein (Photos)
+          Phone Photos
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          1 se 8 tasweerein shamil karein. Tasweerein khud ba khud compress ho kar fast load hongi.
+          Upload 1 to 8 photos. Images are automatically optimized for fast loading.
         </p>
       </div>
 
@@ -314,10 +314,10 @@ export function Step4Photos({ form, userId }: Step4Props) {
               📸
             </div>
             <p className="text-sm sm:text-base font-semibold text-zinc-800 dark:text-zinc-200">
-              Tasweerein chunein (Camera ya Gallery)
+              Choose Photos (Camera or Gallery)
             </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-              JPG, PNG, WebP (Har tasweer 15 MB se kam). {AD_LIMITS.MAX_PHOTOS - photos.length} baqi hain.
+              JPG, PNG, WebP (Max 15 MB per image). {AD_LIMITS.MAX_PHOTOS - photos.length} slots remaining.
             </p>
           </label>
         </div>
@@ -372,7 +372,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                       <>
                         <span className="text-base text-red-400">⚠️</span>
                         <span className="text-[10px] text-red-200 mt-0.5 leading-tight line-clamp-2">
-                          {item.errorMessage || 'Nakam raha'}
+                          {item.errorMessage || 'Upload failed'}
                         </span>
                         <button
                           type="button"
@@ -384,7 +384,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                       </>
                     )}
                     {item.status === 'idle' && (
-                      <span className="text-[11px] font-medium">Tayar...</span>
+                      <span className="text-[11px] font-medium">Ready...</span>
                     )}
                   </div>
                 )}
@@ -396,7 +396,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                       <button
                         type="button"
                         onClick={() => handleMoveLeft(index)}
-                        title="Peeche karein"
+                        title="Move left"
                         className="w-6 h-6 rounded bg-white/20 hover:bg-white/40 flex items-center justify-center"
                       >
                         ←
@@ -406,7 +406,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                       <button
                         type="button"
                         onClick={() => handleMoveRight(index)}
-                        title="Aage karein"
+                        title="Move right"
                         className="w-6 h-6 rounded bg-white/20 hover:bg-white/40 flex items-center justify-center"
                       >
                         →
@@ -416,7 +416,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                       <button
                         type="button"
                         onClick={() => handleMakeCover(index)}
-                        title="Cover banayein"
+                        title="Make cover"
                         className="px-1.5 h-6 rounded bg-emerald-600/80 hover:bg-emerald-600 text-[10px] font-semibold"
                       >
                         Cover
@@ -445,8 +445,8 @@ export function Step4Photos({ form, userId }: Step4Props) {
 
       {formImages.length > 0 && (
         <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
-          <span>✓ {formImages.length} photo(s) tayar hain</span>
-          <span className="text-[11px] text-zinc-500">Pehli photo cover ke taur par dikhayi jayegi</span>
+          <span>✓ {formImages.length} photo(s) ready</span>
+          <span className="text-[11px] text-zinc-500">First photo will be used as the cover</span>
         </div>
       )}
     </div>

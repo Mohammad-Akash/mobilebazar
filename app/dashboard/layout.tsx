@@ -56,10 +56,10 @@ export default async function DashboardLayout({
           <span className="text-3xl">🚫</span>
           <div>
             <p className="font-extrabold text-sm sm:text-base">
-              Aapka Account Suspend / Banned Hai
+              Your Account Has Been Suspended
             </p>
             <p className="text-xs text-red-700 dark:text-red-300 mt-0.5">
-              Rules ki khilaf-warzi ki wajah se aapka account block kar diya gaya hai. Aap naye ads post, edit ya renew nahi kar sakte.
+              Your account has been suspended due to policy violations. You cannot post, edit, or renew ads.
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default async function DashboardLayout({
           href="/post-ad"
           className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95"
         >
-          + Naya Ad Post Karein
+          + Post New Ad
         </Link>
       </div>
 
@@ -105,13 +105,13 @@ export default async function DashboardLayout({
           href="/dashboard/ads"
           className="px-5 py-3 text-xs sm:text-sm font-extrabold border-b-2 border-emerald-600 text-emerald-600 dark:text-emerald-400 whitespace-nowrap"
         >
-          📱 Mere Ads (My Ads)
+          📱 My Ads
         </Link>
         <Link
           href="/dashboard/favorites"
           className="px-5 py-3 text-xs sm:text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap"
         >
-          ❤️ Saved Ads (Favorites)
+          ❤️ Saved Ads
         </Link>
         <Link
           href="/dashboard/profile"

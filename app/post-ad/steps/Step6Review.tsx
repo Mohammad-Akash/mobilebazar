@@ -34,10 +34,10 @@ export function Step6Review({
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Ad ka Jaiza (Review Your Ad)
+          Review Your Ad
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Ad post karne se pehle apni tamam tafseelat tasdeeq kar lein
+          Please review all details before publishing your ad
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export function Step6Review({
             onClick={() => onJumpToStep(1)}
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
           >
-            Tabdeel Karein (Edit)
+            Edit
           </button>
         </div>
 
@@ -115,14 +115,14 @@ export function Step6Review({
             <span className="text-xs text-zinc-400 block">Warranty:</span>
             <span className="font-medium text-zinc-800 dark:text-zinc-200">
               {values.warranty_type === 'in_warranty'
-                ? `${values.warranty_months_remaining} Maah Baqi`
+                ? `${values.warranty_months_remaining} Month(s) Remaining`
                 : 'No Warranty'}
             </span>
           </div>
           <div>
             <span className="text-xs text-zinc-400 block">Box & Accessories:</span>
             <span className="font-medium text-zinc-800 dark:text-zinc-200">
-              {values.has_box ? 'Box ✓' : 'No Box'} | {values.has_accessories ? 'Saman ✓' : 'No Saman'}
+              {values.has_box ? 'Box ✓' : 'No Box'} | {values.has_accessories ? 'Accessories ✓' : 'No Accessories'}
             </span>
           </div>
         </div>
@@ -139,13 +139,13 @@ export function Step6Review({
             onClick={() => onJumpToStep(3)}
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
           >
-            Tabdeel Karein (Edit)
+            Edit
           </button>
         </div>
 
         <div className="space-y-3 text-sm">
           <div className="flex items-baseline justify-between">
-            <span className="text-xs text-zinc-400">Qeemat:</span>
+            <span className="text-xs text-zinc-400">Price:</span>
             <div className="text-right">
               <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                 Rs {Number(values.price || 0).toLocaleString('en-PK')}
@@ -162,7 +162,7 @@ export function Step6Review({
             </p>
           </div>
           <div>
-            <span className="text-xs text-zinc-400 block">Tafseel:</span>
+            <span className="text-xs text-zinc-400 block">Description:</span>
             <p className="text-xs text-zinc-600 dark:text-zinc-300 whitespace-pre-line mt-1 bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800">
               {values.description}
             </p>
@@ -189,12 +189,12 @@ export function Step6Review({
             onClick={() => onJumpToStep(4)}
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
           >
-            Tabdeel Karein (Edit)
+            Edit
           </button>
         </div>
         <div className="space-y-2">
           <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            {values.images?.length || 0} tasweer(ain) shamil hain (Pehli photo cover hai).
+            {values.images?.length || 0} photo(s) uploaded (First photo is cover).
           </p>
           {values.images && values.images.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
@@ -237,18 +237,18 @@ export function Step6Review({
             onClick={() => onJumpToStep(5)}
             className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
           >
-            Tabdeel Karein (Edit)
+            Edit
           </button>
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="text-xs text-zinc-400 block">Shehar / City:</span>
+            <span className="text-xs text-zinc-400 block">City:</span>
             <span className="font-medium text-zinc-800 dark:text-zinc-200">
               {city?.name || '—'}
             </span>
           </div>
           <div>
-            <span className="text-xs text-zinc-400 block">Rabta Tareeqa:</span>
+            <span className="text-xs text-zinc-400 block">Contact Preference:</span>
             <span className="font-medium text-zinc-800 dark:text-zinc-200">
               {CONTACT_PREF_LABELS[values.contact_preference] || values.contact_preference}
             </span>

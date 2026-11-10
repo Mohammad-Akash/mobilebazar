@@ -14,7 +14,7 @@ function SignupForm() {
     <div className="w-full max-w-md p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-          MobileBazar Par Naya Account
+          Create an Account
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
           Sign up to post ads and contact sellers
@@ -30,7 +30,7 @@ function SignupForm() {
       <form action={formAction} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Poora Naam / Full Name
+            Full Name
           </label>
           <input
             type="text"
@@ -54,7 +54,7 @@ function SignupForm() {
             name="email"
             required
             autoComplete="email"
-            placeholder="apka-email@example.com"
+            placeholder="you@example.com"
             className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
           {state?.fieldErrors?.email && (
@@ -64,7 +64,7 @@ function SignupForm() {
 
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Password (Kam az kam 8 characters)
+            Password (At least 8 characters)
           </label>
           <input
             type="password"
@@ -81,7 +81,7 @@ function SignupForm() {
 
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Password Dobara Likhein / Confirm Password
+            Confirm Password
           </label>
           <input
             type="password"
@@ -101,17 +101,17 @@ function SignupForm() {
           disabled={isPending}
           className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium rounded-lg transition duration-150 shadow-sm"
         >
-          {isPending ? 'Account banaya ja raha hai...' : 'Register Karein'}
+          {isPending ? 'Creating account...' : 'Sign Up'}
         </button>
       </form>
 
       <div className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Pehle se account hai?{' '}
+        Already have an account?{' '}
         <Link
           href="/login"
           className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
         >
-          Login Karein
+          Sign In
         </Link>
       </div>
     </div>

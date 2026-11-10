@@ -20,8 +20,8 @@ const verifyOtpSchema = z.object({
   phone: z.string().min(1),
   token: z
     .string()
-    .length(6, 'Code 6 digits ka hona chahiye')
-    .regex(/^\d{6}$/, 'Sirf numbers allowed hain'),
+    .length(6, 'Verification code must be 6 digits')
+    .regex(/^\d{6}$/, 'Only numbers are allowed'),
 })
 
 // ── Result Types ─────────────────────────────────────────────────────────────
@@ -36,13 +36,13 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
 
   // 1. Auth check
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Pehle login karein.' }
+  if (!user) return { error: 'Please log in first.' }
 
   // 1.5 Rate limit check (IP & User)
   const rl = await checkRateLimit('otp_send', user.id)
   if (!rl.success) {
     return {
-      error: `Bohat zyada OTP requests. Baraye meharbani ${rl.retryAfterSeconds || 60} seconds baad koshish karein.`,
+      error: `Too many OTP requests. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -53,7 +53,7 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
   // 3. Normalize to E.164
   const normalized = normalizePakistaniPhone(parsed.data.phone)
   if (!normalized) {
-    return { error: 'Sahih Pakistani mobile number darj karein (e.g. 0300-1234567)' }
+    return { error: 'Please enter a valid Pakistani mobile number (e.g. 0300-1234567)' }
   }
 
   // 4. Call Supabase — this triggers the Send SMS Hook
@@ -63,10 +63,10 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
     console.error('[sendOtp Error]:', error.message, error)
     // Map Supabase error codes to friendly messages
     if (error.message?.includes('already registered') || error.message?.includes('unique')) {
-      return { error: 'Ye number kisi doosre account se linked hai.' }
+      return { error: 'This phone number is already linked to another account.' }
     }
     if (error.message?.includes('rate') || error.message?.includes('limit')) {
-      return { error: 'Bohat zyada requests. Thodi der baad try karein.' }
+      return { error: 'Too many requests. Please try again shortly.' }
     }
     if (
       error.message?.toLowerCase().includes('disabled') ||
@@ -75,7 +75,7 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
     ) {
       return {
         error:
-          'Supabase mein Phone Provider on nahi hai. Dashboard > Authentication > Providers > Phone enable karein.',
+          'Phone provider is not enabled in Supabase. Please enable it under Dashboard > Authentication > Providers > Phone.',
       }
     }
     return { error: `OTP error: ${error.message}` }
@@ -90,13 +90,13 @@ export async function verifyOtp(formData: { phone: string; token: string }): Pro
 
   // 1. Auth check
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'Pehle login karein.' }
+  if (!user) return { error: 'Please log in first.' }
 
   // 1.5 Rate limit check
   const rl = await checkRateLimit('otp_verify', user.id)
   if (!rl.success) {
     return {
-      error: `Bohat zyada ghalat attempts. ${rl.retryAfterSeconds || 60} seconds baad koshish karein.`,
+      error: `Too many incorrect attempts. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
     }
   }
 
@@ -106,7 +106,7 @@ export async function verifyOtp(formData: { phone: string; token: string }): Pro
 
   // 3. Normalize phone
   const normalized = normalizePakistaniPhone(parsed.data.phone)
-  if (!normalized) return { error: 'Phone number format galat hai.' }
+  if (!normalized) return { error: 'Invalid phone number format.' }
 
   // 4. Verify OTP with Supabase
   const { error } = await supabase.auth.verifyOtp({
@@ -117,15 +117,15 @@ export async function verifyOtp(formData: { phone: string; token: string }): Pro
 
   if (error) {
     if (error.message?.includes('expired')) {
-      return { error: 'Code expire ho gaya. Naya code mangwayein.' }
+      return { error: 'Verification code has expired. Please request a new code.' }
     }
     if (error.message?.includes('invalid')) {
-      return { error: 'Code galat hai. Dobara check karein.' }
+      return { error: 'Invalid verification code. Please check and try again.' }
     }
     if (error.message?.includes('attempts')) {
-      return { error: 'Bohat zyada ghalat koshishein. Naya code mangwayein.' }
+      return { error: 'Too many failed attempts. Please request a new code.' }
     }
-    return { error: 'Verification fail hui. Dobara koshish karein.' }
+    return { error: 'Verification failed. Please try again.' }
   }
 
   // DB trigger (sync_phone_verification) will now automatically set:

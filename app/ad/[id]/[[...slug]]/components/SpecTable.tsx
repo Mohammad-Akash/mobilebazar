@@ -26,10 +26,10 @@ export function SpecTable({ ad }: SpecTableProps) {
       value: ad.battery_health != null ? `${ad.battery_health}%` : '—',
       hide: ad.condition === 'new' && ad.battery_health == null,
     },
-    { label: 'Original Box', value: ad.has_box ? 'Yes (Sath hai) ✓' : 'No' },
+    { label: 'Original Box', value: ad.has_box ? 'Yes ✓' : 'No' },
     {
       label: 'Accessories',
-      value: ad.has_accessories ? 'Yes (Saman mojood hai) ✓' : 'No',
+      value: ad.has_accessories ? 'Yes ✓' : 'No',
     },
     {
       label: 'Warranty',
@@ -41,7 +41,7 @@ export function SpecTable({ ad }: SpecTableProps) {
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-4">
       <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
         <span>⚙️</span>
-        <span>Phone ki Tafseelat (Specifications)</span>
+        <span>Phone Specifications</span>
       </h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6 text-sm">

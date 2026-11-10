@@ -47,10 +47,10 @@ export default async function PostAdPage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
-          Naya Mobile Ad Post Karein
+          Post a New Mobile Ad
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Chand aasan steps mein apne phone ka ishtehaar lagayein
+          List your mobile phone for sale in a few easy steps
         </p>
       </div>
 

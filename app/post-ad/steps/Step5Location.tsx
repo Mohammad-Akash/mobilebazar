@@ -70,10 +70,10 @@ export function Step5Location({ form, cities }: Step5Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Shehar aur Rabta (Location & Contact)
+          Location & Contact
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Apna shehar, ilaqa aur rabte ka pasandeeda tareeqa chunein
+          Select your city, area, and preferred contact method
         </p>
       </div>
 
@@ -83,7 +83,7 @@ export function Step5Location({ form, cities }: Step5Props) {
           htmlFor="city_id"
           className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
         >
-          Shehar / City <span className="text-red-500">*</span>
+          City <span className="text-red-500">*</span>
         </label>
         <select
           id="city_id"
@@ -93,7 +93,7 @@ export function Step5Location({ form, cities }: Step5Props) {
             errors.city_id ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
           }`}
         >
-          <option value="">-- Shehar Muntakhib Karein --</option>
+          <option value="">-- Select City --</option>
           {cities.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -111,7 +111,7 @@ export function Step5Location({ form, cities }: Step5Props) {
           htmlFor="area_id"
           className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
         >
-          Ilaqa / Area <span className="text-xs text-zinc-400">(Optional)</span>
+          Area <span className="text-xs text-zinc-400">(Optional)</span>
         </label>
         <select
           id="area_id"
@@ -121,12 +121,12 @@ export function Step5Location({ form, cities }: Step5Props) {
         >
           <option value="">
             {!selectedCityId
-              ? '-- Pehle Shehar Chunein --'
+              ? '-- Select City First --'
               : loadingAreas
-              ? 'Ilaqe load ho rahe hain...'
+              ? 'Loading areas...'
               : areas.length === 0
-              ? 'Is shehar ke ilaqe shamil nahi hain (Chorr sakte hain)'
-              : '-- Ilaqa Chunein (Optional) --'}
+              ? 'No specific areas listed for this city (Optional)'
+              : '-- Select Area (Optional) --'}
           </option>
           {areas.map((a) => (
             <option key={a.id} value={a.id}>
@@ -139,7 +139,7 @@ export function Step5Location({ form, cities }: Step5Props) {
       {/* Contact Preference */}
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Buyers kaise rabta karein? (Contact Preference) <span className="text-red-500">*</span>
+          Contact Preference <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {(['both', 'phone', 'whatsapp'] as const).map((pref) => (

@@ -119,7 +119,7 @@ export function ContactButtons({
       </div>
 
       <p className="text-[11px] text-zinc-400 text-center">
-        🔒 Security Note: Seller ka phone number dekhne ke liye login lazmi hai.
+        🔒 Security Note: Login is required to view seller&apos;s phone number.
       </p>
     </div>
   )

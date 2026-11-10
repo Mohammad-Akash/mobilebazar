@@ -204,9 +204,9 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
         <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-2xl text-amber-900 dark:text-amber-200 flex items-center gap-3 shadow-sm">
           <span className="text-2xl">⚠️</span>
           <div>
-            <p className="font-bold text-sm">Yeh Ad Ab Dastiyab Nahi Hai (Not Active)</p>
+            <p className="font-bold text-sm">This Ad is No Longer Active</p>
             <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-              Yeh phone bik chuka hai ya iska waqt khatam ho chuka hai ({ad.status}).
+              This phone has been sold or the listing has expired ({ad.status}).
             </p>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-3">
             <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
               <span>📝</span>
-              <span>Seller ki Tafseel (Description)</span>
+              <span>Seller Description</span>
             </h3>
             <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
               {ad.description}
@@ -323,13 +323,13 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
         <section className="pt-10 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-              Mutaliqa Phones (Similar Ads)
+              Similar Phones
             </h2>
             <Link
               href={`/ads?brand=${ad.brand_slug}&city=${ad.city_slug}`}
               className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
             >
-              Mazeed Dekhein &rarr;
+              View More &rarr;
             </Link>
           </div>
 

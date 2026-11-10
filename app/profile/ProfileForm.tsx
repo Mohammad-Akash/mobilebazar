@@ -38,9 +38,9 @@ export function ProfileForm({
         <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-800 dark:text-amber-200 flex items-start gap-3">
           <span className="text-xl">⚠️</span>
           <div>
-            <p className="font-semibold">Phone ya WhatsApp number zaroori hai</p>
+            <p className="font-semibold">Phone verification required</p>
             <p className="text-xs mt-0.5 text-amber-700 dark:text-amber-300">
-              Ad post karne se pehle apna rabta number darj karein taake buyers aap se rabta kar sakein.
+              Please verify your phone number before posting ads so buyers can reach you.
             </p>
           </div>
         </div>
@@ -48,10 +48,10 @@ export function ProfileForm({
       <div className="flex items-center justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            Mera Profile / My Profile
+            My Profile
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Apni contact details aur shehar update karein
+            Update your contact details and city
           </p>
         </div>
         <div className="text-right">
@@ -62,7 +62,7 @@ export function ProfileForm({
 
       {state?.success && (
         <div className="my-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-lg text-sm text-emerald-700 dark:text-emerald-300">
-          Profile kamyabi se update ho gaya hai! (Profile saved successfully)
+          Profile saved successfully!
         </div>
       )}
 
@@ -75,7 +75,7 @@ export function ProfileForm({
       <form action={formAction} className="mt-6 space-y-5">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Poora Naam / Full Name
+            Full Name
           </label>
           <input
             type="text"
@@ -91,14 +91,14 @@ export function ProfileForm({
 
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Shehar / City
+            City
           </label>
           <select
             name="cityId"
             defaultValue={initialData.cityId || ''}
             className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">Shehar muntakhib karein (Select City)</option>
+            <option value="">Select City</option>
             {cities.map((city) => (
               <option key={city.id} value={city.id}>
                 {city.name}
@@ -127,7 +127,7 @@ export function ProfileForm({
               type="tel"
               value={initialData.phone || ''}
               readOnly
-              placeholder="Number verify nahi hai"
+              placeholder="Phone not verified"
               className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 cursor-not-allowed focus:outline-none"
             />
             <Link
@@ -138,7 +138,7 @@ export function ProfileForm({
             </Link>
           </div>
           <p className="text-xs text-zinc-500 mt-1">
-            Security aur spam rokne ke liye phone number sirf SMS OTP se update hota hai.
+            To prevent spam and protect your account, phone numbers can only be updated via SMS OTP verification.
           </p>
         </div>
 

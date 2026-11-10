@@ -27,10 +27,10 @@ export default async function PostAdSuccessPage({ searchParams }: SuccessPagePro
         </div>
 
         <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100">
-          Ad Kamyabi Se Post Ho Gaya!
+          Ad Posted Successfully!
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
-          Aapka ishtehaar ab buyers ke dekhne ke liye live hai.
+          Your ad is now live for buyers across Pakistan.
         </p>
 
         {adId && (
@@ -44,14 +44,14 @@ export default async function PostAdSuccessPage({ searchParams }: SuccessPagePro
             href="/dashboard"
             className="w-full block py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-colors"
           >
-            📊 Mera Dashboard (View My Ads)
+            📊 View My Ads (Dashboard)
           </Link>
 
           <Link
             href="/post-ad"
             className="w-full block py-3 px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-sm transition-colors"
           >
-            + Ek Aur Ad Post Karein (Post Another)
+            + Post Another Ad
           </Link>
         </div>
       </div>

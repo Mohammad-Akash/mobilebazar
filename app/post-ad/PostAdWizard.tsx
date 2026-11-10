@@ -161,7 +161,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
             Step {currentStep} of {STEP_TITLES.length}: {STEP_TITLES[currentStep - 1]}
           </span>
-          <span className="text-xs font-medium text-zinc-500">{progressPercentage}% Mukammal</span>
+          <span className="text-xs font-medium text-zinc-500">{progressPercentage}% Complete</span>
         </div>
 
         {/* Progress Bar */}
@@ -212,7 +212,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
           <span className="text-xl">⚠️</span>
           <div>
-            <p className="font-semibold">Ad Post Karne Mein Masla Aaya</p>
+            <p className="font-semibold">Failed to Post Ad</p>
             <p className="text-xs mt-0.5">{serverError}</p>
           </div>
         </div>
@@ -274,7 +274,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 disabled={isPending}
                 className="px-5 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-300 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
               >
-                ← Peeche (Back)
+                ← Back
               </button>
             ) : (
               <div />
@@ -287,7 +287,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 disabled={isPending}
                 className="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-base shadow-sm transition-all text-center"
               >
-                Aage Barhein (Next) →
+                Next →
               </button>
             ) : (
               <button
@@ -295,7 +295,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 disabled={isPending}
                 className="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-base shadow-lg shadow-emerald-600/20 transition-all text-center disabled:opacity-50"
               >
-                {isPending ? 'Ad Post Ho Raha Hai...' : '🚀 Ad Post Karein (Submit)'}
+                {isPending ? 'Posting ad...' : '🚀 Submit Ad'}
               </button>
             )}
           </div>

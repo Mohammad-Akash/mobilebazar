@@ -5,7 +5,7 @@ import { createClient } from '@/src/lib/supabase/server'
 import { VerifyPhoneForm } from './VerifyForm'
 
 export const metadata: Metadata = {
-  title: 'Phone Verify Karein',
+  title: 'Verify Phone Number',
   robots: { index: false, follow: false },
 }
 

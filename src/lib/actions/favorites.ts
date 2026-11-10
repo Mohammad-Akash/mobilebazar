@@ -27,7 +27,7 @@ export async function toggleFavoriteAction(adId: string): Promise<ToggleFavorite
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { requiresLogin: true, error: 'Save karne ke liye login lazmi hai.' }
+    return { requiresLogin: true, error: 'Please log in to save this ad.' }
   }
 
   // 2. Check if already favorited
@@ -48,7 +48,7 @@ export async function toggleFavoriteAction(adId: string): Promise<ToggleFavorite
 
     if (deleteError) {
       console.error('Error removing favorite:', deleteError)
-      return { error: 'Favorite remove karne mein masla aaya.' }
+      return { error: 'Failed to remove from saved ads.' }
     }
 
     revalidatePath('/dashboard/favorites')
@@ -64,12 +64,12 @@ export async function toggleFavoriteAction(adId: string): Promise<ToggleFavorite
     if (insertError) {
       console.error('Error adding favorite:', insertError)
       const msg = insertError.message || ''
-      if (msg.includes('200 se zyada')) {
+      if (msg.includes('200') || msg.includes('limit')) {
         return {
-          error: 'Aap 200 se zyada ads favorite nahi kar sakte. Purane favorites hataein.',
+          error: 'You cannot save more than 200 ads. Please remove older saved ads first.',
         }
       }
-      return { error: 'Favorite add karne mein masla aaya.' }
+      return { error: 'Failed to save ad.' }
     }
 
     revalidatePath('/dashboard/favorites')

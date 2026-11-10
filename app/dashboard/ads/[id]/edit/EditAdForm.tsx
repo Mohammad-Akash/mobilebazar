@@ -76,10 +76,10 @@ export function EditAdForm({
       <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <div>
           <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-100">
-            Ad Edit Karein (Edit Ad)
+            Edit Ad
           </h1>
           <p className="text-xs text-zinc-500 mt-0.5">
-            Phone ki qeemat, tafseelat aur tasweerein tabdeel karein
+            Update your phone price, details, and photos
           </p>
         </div>
         <Link
@@ -140,7 +140,7 @@ export function EditAdForm({
             disabled={isPending}
             className="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm shadow-md transition-all disabled:opacity-50"
           >
-            {isPending ? 'Save Ho Raha Hai...' : '💾 Tabdeeliyan Save Karein (Save Changes)'}
+            {isPending ? 'Saving changes...' : '💾 Save Changes'}
           </button>
         </div>
       </form>

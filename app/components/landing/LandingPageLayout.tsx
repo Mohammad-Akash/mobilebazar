@@ -107,19 +107,19 @@ export function LandingPageLayout({
         <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-3xl leading-relaxed">
           {stats.adCount > 0 ? (
             <>
-              Dastiyab <strong className="text-zinc-900 dark:text-zinc-100">{stats.adCount} verified ads</strong>
-              {cityName && ` in ${cityName}`}. Market price range{' '}
+              Showing <strong className="text-zinc-900 dark:text-zinc-100">{stats.adCount} verified ads</strong>
+              {cityName && ` in ${cityName}`}. Market price ranges from{' '}
               <strong className="text-emerald-600 dark:text-emerald-400">
                 {formatPrice(stats.minPrice || 0)}
               </strong>{' '}
-              se{' '}
+              to{' '}
               <strong className="text-emerald-600 dark:text-emerald-400">
                 {formatPrice(stats.maxPrice || 0)}
-              </strong>{' '}
-              ke darmiyan hai{stats.medianPrice ? ` (Ausat / Median qeemat: ${formatPrice(stats.medianPrice)})` : ''}.
+              </strong>
+              {stats.medianPrice ? ` (Median price: ${formatPrice(stats.medianPrice)})` : ''}.
             </>
           ) : (
-            `Abhi is category mein koi ad mojood nahi hai. Pehle seller banein aur muft ad lagayein!`
+            `No ads currently available in this category. Be the first to post a free ad!`
           )}
         </p>
 
@@ -173,7 +173,7 @@ export function LandingPageLayout({
                 }).toString()}`}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-sm hover:opacity-90 transition-opacity"
               >
-                Mazeed Filters aur Ads Dekhein &rarr;
+                View More Ads & Filters &rarr;
               </Link>
             </div>
           </>
@@ -182,17 +182,17 @@ export function LandingPageLayout({
           <div className="bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-12 text-center space-y-4">
             <span className="text-4xl block">📱</span>
             <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-              Is waqt koi active ad dastiyab nahi hai
+              No active ads available at the moment
             </h2>
             <p className="text-sm text-zinc-500 max-w-md mx-auto">
-              Aap is category mein pehle seller ban sakte hain! Apna ishtehaar muft post karein.
+              Be the first seller in this category! Post your ad for free today.
             </p>
             <div className="pt-2">
               <Link
                 href="/post-ad"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-500 transition-colors shadow-sm"
               >
-                + Muft Ad Lagayein
+                + Post a Free Ad
               </Link>
             </div>
           </div>
@@ -203,27 +203,27 @@ export function LandingPageLayout({
       {stats.adCount > 0 && (
         <section className="border-t border-zinc-200 dark:border-zinc-800 pt-8 space-y-4">
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-            Aham Sawalat aur Maloomat (FAQ)
+            Frequently Asked Questions (FAQ)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl space-y-2">
               <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                {modelName || brandName || 'Mobile'} ki {cityName ? `${cityName} mein ` : 'Pakistan mein '}qeemat kya hai?
+                What is the price of {modelName || brandName || 'mobiles'} in {cityName || 'Pakistan'}?
               </h3>
               <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
-                MobileBazar par mojood verified ads ke mutabiq kam se kam qeemat{' '}
-                <strong>{formatPrice(stats.minPrice || 0)}</strong> aur zyada se zyada qeemat{' '}
-                <strong>{formatPrice(stats.maxPrice || 0)}</strong> hai, jabke ausat qeemat takreeban{' '}
-                <strong>{stats.medianPrice ? formatPrice(stats.medianPrice) : 'N/A'}</strong> hai.
+                According to verified listings on MobileBazar, prices range from{' '}
+                <strong>{formatPrice(stats.minPrice || 0)}</strong> to{' '}
+                <strong>{formatPrice(stats.maxPrice || 0)}</strong>, with a median market price of{' '}
+                <strong>{stats.medianPrice ? formatPrice(stats.medianPrice) : 'N/A'}</strong>.
               </p>
             </div>
 
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl space-y-2">
               <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                Khareedte waqt fraud se kaise bachein?
+                How to avoid scams when buying a used phone?
               </h3>
               <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
-                Hamesha seller se public maqam par milein, phone ka IMEI aur PTA status mauqay par check karein, aur phone tasalli se check karne se pehle advance payment na dein.
+                Always meet the seller in person in a safe public location. Verify IMEI and PTA status on the spot, and never send advance payment before inspecting the phone.
               </p>
             </div>
           </div>
@@ -234,7 +234,7 @@ export function LandingPageLayout({
       {relatedLinks.length > 0 && (
         <section className="border-t border-zinc-200 dark:border-zinc-800 pt-8 space-y-6">
           <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-            Mutaliqa Searches & Popular Links
+            Related Searches & Popular Links
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs">
@@ -242,7 +242,7 @@ export function LandingPageLayout({
             {relatedCities.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  Doosre Shehron Mein:
+                  In Other Cities:
                 </h3>
                 <ul className="space-y-1.5">
                   {relatedCities.map((c) => {
@@ -270,7 +270,7 @@ export function LandingPageLayout({
             {relatedModels.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  {brandName || 'Brand'} ke Doosre Models:
+                  Other {brandName || 'Brand'} Models:
                 </h3>
                 <ul className="space-y-1.5">
                   {relatedModels.map((m) => {
@@ -296,7 +296,7 @@ export function LandingPageLayout({
             {relatedBrands.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  Doosre Brands {cityName ? `(${cityName})` : ''}:
+                  Other Brands {cityName ? `(${cityName})` : ''}:
                 </h3>
                 <ul className="space-y-1.5">
                   {relatedBrands.map((b) => {

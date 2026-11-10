@@ -59,7 +59,7 @@ export function AdsListingClient({
       const nextParams = new URLSearchParams(searchParams.toString())
       nextParams.set('cursor', cursor)
       const res = await fetch(`/api/ads?${nextParams.toString()}`)
-      if (!res.ok) throw new Error('Agla page load karne mein masla aaya.')
+      if (!res.ok) throw new Error('Failed to load next page.')
       const json = await res.json()
       const newAds: ActiveAdRow[] = json.ads || []
       setAds((prev) => {
@@ -71,7 +71,7 @@ export function AdsListingClient({
       setHasNextPage(Boolean(json.hasNextPage))
     } catch (err: unknown) {
       console.error('Failed to load more ads:', err)
-      setError(err instanceof Error ? err.message : 'Ads load nahi ho sake')
+      setError(err instanceof Error ? err.message : 'Failed to load ads.')
     } finally {
       setIsLoadingMore(false)
       isFetchingRef.current = false
@@ -97,9 +97,9 @@ export function AdsListingClient({
     return (
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-12 text-center space-y-4">
         <span className="text-4xl">🔍</span>
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Koi Ad Nahi Mila (No Ads Found)</h3>
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">No Ads Found</h3>
         <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-          Aapke muntakhib karda filters ke mutabiq koi phone dastiyab nahi hai. Baraye meharbani filters kam karein ya clear karein.
+          No phones match your selected filters. Please adjust or clear your filters to see more results.
         </p>
       </div>
     )
@@ -126,7 +126,7 @@ export function AdsListingClient({
         <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-center space-y-2">
           <p className="text-xs text-red-700 dark:text-red-300 font-medium">{error}</p>
           <button type="button" onClick={loadNextPage} className="px-4 py-1.5 rounded-lg bg-red-600 text-white font-bold text-xs">
-            Dobara Koshish Karein (Retry)
+            Retry
           </button>
         </div>
       )}
@@ -140,13 +140,13 @@ export function AdsListingClient({
             onClick={loadNextPage}
             className="px-6 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 disabled:opacity-50 transition-colors shadow-sm"
           >
-            {isLoadingMore ? 'Ads Load Ho Rahe Hain...' : 'Mazeed Ads Dekhein (Load More) ↓'}
+            {isLoadingMore ? 'Loading ads...' : 'Load More Ads ↓'}
           </button>
         </div>
       )}
 
       {!hasNextPage && ads.length > 0 && (
-        <div className="pt-8 pb-4 text-center text-xs text-zinc-400 font-medium">✓ Tamam ads dekh liye gaye hain (End of results)</div>
+        <div className="pt-8 pb-4 text-center text-xs text-zinc-400 font-medium">✓ You have viewed all available ads</div>
       )}
     </div>
   )

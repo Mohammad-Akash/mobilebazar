@@ -11,8 +11,8 @@ import { AD_LIMITS } from '@/src/lib/constants/ad-options'
 // Step 1: Phone (Brand & Model)
 // ------------------------------------------------------------------------------
 export const step1PhoneSchema = z.object({
-  brand_id: z.string().uuid({ message: 'Baraye meharbani Brand select karein' }),
-  model_id: z.string().uuid({ message: 'Baraye meharbani Model select karein' }),
+  brand_id: z.string().uuid({ message: 'Please select a brand' }),
+  model_id: z.string().uuid({ message: 'Please select a model' }),
 })
 
 export type Step1PhoneData = z.infer<typeof step1PhoneSchema>
@@ -23,39 +23,39 @@ export type Step1PhoneData = z.infer<typeof step1PhoneSchema>
 export const step2SpecsSchema = z
   .object({
     condition: z.enum(['new', 'used'], {
-      message: 'Phone ki condition select karein',
+      message: 'Please select the phone condition',
     }),
     pta_status: z.enum(['pta_approved', 'non_pta', 'jv', 'unknown'], {
-      message: 'PTA status select karein',
+      message: 'Please select PTA status',
     }),
     storage_gb: z
       .number()
       .int()
-      .positive({ message: 'Storage 0 se zyada honi chahiye' }),
+      .positive({ message: 'Storage must be greater than 0 GB' }),
     ram_gb: z
       .number()
       .int()
-      .positive({ message: 'RAM 0 se zyada honi chahiye' })
+      .positive({ message: 'RAM must be greater than 0 GB' })
       .nullable()
       .optional(),
-    color: z.string().trim().max(50, { message: 'Color 50 characters se bara nahi ho sakta' }).optional(),
+    color: z.string().trim().max(50, { message: 'Color cannot exceed 50 characters' }).optional(),
     battery_health: z
       .number()
       .int()
-      .min(0, { message: 'Battery health kam az kam 0% honi chahiye' })
-      .max(100, { message: 'Battery health 100% se zyada nahi ho sakti' })
+      .min(0, { message: 'Battery health must be at least 0%' })
+      .max(100, { message: 'Battery health cannot exceed 100%' })
       .nullable()
       .optional(),
     has_box: z.boolean().default(false),
     has_accessories: z.boolean().default(false),
     warranty_type: z.enum(['none', 'in_warranty'], {
-      message: 'Warranty status select karein',
+      message: 'Please select warranty status',
     }),
     warranty_months_remaining: z
       .number()
       .int()
       .min(0)
-      .max(36, { message: 'Warranty 36 maah se zyada nahi ho sakti' })
+      .max(36, { message: 'Warranty cannot exceed 36 months' })
       .default(0),
   })
   .superRefine((data, ctx) => {
@@ -63,7 +63,7 @@ export const step2SpecsSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['warranty_months_remaining'],
-        message: 'Baqi warranty ke maah darj karein (kam az kam 1 maah)',
+        message: 'Please specify remaining warranty months (minimum 1 month)',
       })
     }
   })
@@ -98,20 +98,20 @@ export const step3PriceSchema = z
   .object({
     price: z
       .number()
-      .int({ message: 'Qeemat poori raqam honi chahiye' })
-      .min(AD_LIMITS.MIN_PRICE, { message: `Qeemat kam az kam Rs ${AD_LIMITS.MIN_PRICE.toLocaleString()} honi chahiye` })
-      .max(AD_LIMITS.MAX_PRICE, { message: `Qeemat Rs ${AD_LIMITS.MAX_PRICE.toLocaleString()} se zyada nahi ho sakti` }),
+      .int({ message: 'Price must be a valid whole number' })
+      .min(AD_LIMITS.MIN_PRICE, { message: `Price must be at least Rs ${AD_LIMITS.MIN_PRICE.toLocaleString()}` })
+      .max(AD_LIMITS.MAX_PRICE, { message: `Price cannot exceed Rs ${AD_LIMITS.MAX_PRICE.toLocaleString()}` }),
     is_negotiable: z.boolean().default(true),
     title: z
       .string()
       .trim()
-      .min(AD_LIMITS.MIN_TITLE_LENGTH, { message: `Title kam az kam ${AD_LIMITS.MIN_TITLE_LENGTH} characters ka ho` })
-      .max(AD_LIMITS.MAX_TITLE_LENGTH, { message: `Title ${AD_LIMITS.MAX_TITLE_LENGTH} characters se lamba na ho` }),
+      .min(AD_LIMITS.MIN_TITLE_LENGTH, { message: `Title must be at least ${AD_LIMITS.MIN_TITLE_LENGTH} characters` })
+      .max(AD_LIMITS.MAX_TITLE_LENGTH, { message: `Title cannot exceed ${AD_LIMITS.MAX_TITLE_LENGTH} characters` }),
     description: z
       .string()
       .trim()
-      .min(AD_LIMITS.MIN_DESC_LENGTH, { message: `Tafseel kam az kam ${AD_LIMITS.MIN_DESC_LENGTH} characters ki ho` })
-      .max(AD_LIMITS.MAX_DESC_LENGTH, { message: `Tafseel ${AD_LIMITS.MAX_DESC_LENGTH} characters se lambi na ho` }),
+      .min(AD_LIMITS.MIN_DESC_LENGTH, { message: `Description must be at least ${AD_LIMITS.MIN_DESC_LENGTH} characters` })
+      .max(AD_LIMITS.MAX_DESC_LENGTH, { message: `Description cannot exceed ${AD_LIMITS.MAX_DESC_LENGTH} characters` }),
     imei: z
       .string()
       .trim()
@@ -124,14 +124,14 @@ export const step3PriceSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['title'],
-        message: 'Title mein phone number dena mana hai. Buyers "Contact" button se rabta karenge.',
+        message: 'Phone numbers are not allowed in the title. Buyers will contact you via the Contact button.',
       })
     }
     if (containsPhoneNumber(data.description)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['description'],
-        message: 'Tafseel mein phone number dena mana hai. Buyers "Contact" button se rabta karenge.',
+        message: 'Phone numbers are not allowed in the description. Buyers will contact you via the Contact button.',
       })
     }
 
@@ -140,14 +140,14 @@ export const step3PriceSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['title'],
-        message: 'Title mein links ya websites dena mana hai.',
+        message: 'Website links and URLs are not allowed in the title.',
       })
     }
     if (containsUrl(data.description)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['description'],
-        message: 'Tafseel mein links ya websites dena mana hai.',
+        message: 'Website links and URLs are not allowed in the description.',
       })
     }
 
@@ -157,13 +157,13 @@ export const step3PriceSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['imei'],
-          message: 'IMEI number theek 15 digits ka hona chahiye',
+          message: 'IMEI number must be exactly 15 digits',
         })
       } else if (!validateIMEI(clean)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['imei'],
-          message: 'Ghalat IMEI number (Luhn check fail)',
+          message: 'Invalid IMEI number (failed Luhn checksum)',
         })
       }
     }
@@ -176,9 +176,9 @@ export type Step3PriceData = z.infer<typeof step3PriceSchema>
 // ------------------------------------------------------------------------------
 export const step4PhotosSchema = z.object({
   images: z
-    .array(z.string().min(1, { message: 'Tasweer ka path lazmi hai' }))
-    .min(AD_LIMITS.MIN_PHOTOS, { message: `Kam az kam ${AD_LIMITS.MIN_PHOTOS} tasweer lagana lazmi hai` })
-    .max(AD_LIMITS.MAX_PHOTOS, { message: `Ziyada se ziyada ${AD_LIMITS.MAX_PHOTOS} tasweerein laga sakte hain` }),
+    .array(z.string().min(1, { message: 'Image path is required' }))
+    .min(AD_LIMITS.MIN_PHOTOS, { message: `Please upload at least ${AD_LIMITS.MIN_PHOTOS} photo` })
+    .max(AD_LIMITS.MAX_PHOTOS, { message: `You can upload up to ${AD_LIMITS.MAX_PHOTOS} photos` }),
 })
 
 export type Step4PhotosData = z.infer<typeof step4PhotosSchema>
@@ -187,10 +187,10 @@ export type Step4PhotosData = z.infer<typeof step4PhotosSchema>
 // Step 5: Location & Contact Preference
 // ------------------------------------------------------------------------------
 export const step5LocationSchema = z.object({
-  city_id: z.string().uuid({ message: 'Shehar select karein' }),
+  city_id: z.string().uuid({ message: 'Please select a city' }),
   area_id: z.string().uuid().nullable().optional(),
   contact_preference: z.enum(['phone', 'whatsapp', 'both'], {
-    message: 'Rabta karne ka tareeqa chunein',
+    message: 'Please select your preferred contact method',
   }),
 })
 
@@ -202,13 +202,13 @@ export type Step5LocationData = z.infer<typeof step5LocationSchema>
 export const fullAdSchema = z
   .object({
     // Step 1
-    brand_id: z.string().uuid({ message: 'Brand select karein' }),
-    model_id: z.string().uuid({ message: 'Model select karein' }),
+    brand_id: z.string().uuid({ message: 'Please select a brand' }),
+    model_id: z.string().uuid({ message: 'Please select a model' }),
 
     // Step 2
     condition: z.enum(['new', 'used']),
     pta_status: z.enum(['pta_approved', 'non_pta', 'jv', 'unknown']),
-    storage_gb: z.number().int().positive({ message: 'Storage positive integer honi chahiye' }),
+    storage_gb: z.number().int().positive({ message: 'Storage must be a positive integer' }),
     ram_gb: z.number().int().positive().nullable().optional(),
     color: z.string().trim().max(50).optional(),
     battery_health: z.number().int().min(0).max(100).nullable().optional(),
@@ -231,7 +231,7 @@ export const fullAdSchema = z
       .max(AD_LIMITS.MAX_PHOTOS),
 
     // Step 5
-    city_id: z.string().uuid({ message: 'City select karein' }),
+    city_id: z.string().uuid({ message: 'Please select a city' }),
     area_id: z.string().uuid().nullable().optional(),
     contact_preference: z.enum(['phone', 'whatsapp', 'both']),
   })
@@ -241,14 +241,14 @@ export const fullAdSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['title'],
-        message: 'Title mein phone number dena mana hai.',
+        message: 'Phone numbers are not allowed in the title.',
       })
     }
     if (containsPhoneNumber(data.description)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['description'],
-        message: 'Tafseel mein phone number dena mana hai.',
+        message: 'Phone numbers are not allowed in the description.',
       })
     }
 
@@ -257,14 +257,14 @@ export const fullAdSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['title'],
-        message: 'Title mein links ya websites dena mana hai.',
+        message: 'Website links and URLs are not allowed in the title.',
       })
     }
     if (containsUrl(data.description)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['description'],
-        message: 'Tafseel mein links ya websites dena mana hai.',
+        message: 'Website links and URLs are not allowed in the description.',
       })
     }
 
@@ -273,7 +273,7 @@ export const fullAdSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['warranty_months_remaining'],
-        message: 'Baqi warranty ke maah darj karein (kam az kam 1 maah)',
+        message: 'Please specify remaining warranty months (minimum 1 month)',
       })
     }
 
@@ -284,13 +284,13 @@ export const fullAdSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['imei'],
-          message: 'IMEI number theek 15 digits ka hona chahiye',
+          message: 'IMEI number must be exactly 15 digits',
         })
       } else if (!validateIMEI(clean)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['imei'],
-          message: 'Ghalat IMEI number (Luhn check fail)',
+          message: 'Invalid IMEI number (failed Luhn checksum)',
         })
       }
     }

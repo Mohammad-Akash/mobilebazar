@@ -31,22 +31,22 @@ export const COLOR_OPTIONS = [
   'Other',
 ] as const
 
-// Friendly labels for enums (English + Roman Urdu)
+// Friendly labels for enums (English)
 export const CONDITION_LABELS: Record<string, string> = {
-  new: 'Brand New (Bilkul Naya)',
-  used: 'Used (Istemal Shuda)',
+  new: 'Brand New',
+  used: 'Used',
 }
 
 export const PTA_STATUS_LABELS: Record<string, string> = {
   pta_approved: 'PTA Approved ✅',
   non_pta: 'Non-PTA (Not Registered)',
   jv: 'JV (Joint Venture / Patched)',
-  unknown: 'Unknown / Pata Nahi',
+  unknown: 'Unknown',
 }
 
 export const WARRANTY_LABELS: Record<string, string> = {
   none: 'No Warranty',
-  in_warranty: 'In Warranty (Warranty Baqi Hai)',
+  in_warranty: 'In Warranty',
 }
 
 export const CONTACT_PREF_LABELS: Record<string, string> = {
