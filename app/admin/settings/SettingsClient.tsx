@@ -243,3 +243,4 @@ export function SettingsClient({ initialSettings, recentChanges }: SettingsClien
     </div>
   )
 }
+

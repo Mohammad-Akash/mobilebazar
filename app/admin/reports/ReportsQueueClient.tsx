@@ -134,3 +134,4 @@ export function ReportsQueueClient({ initialReports, initialCursor }: ReportsQue
     </div>
   )
 }
+

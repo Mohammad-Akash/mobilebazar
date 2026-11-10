@@ -187,23 +187,48 @@ export function SecurityClient({ currentAal, factors }: SecurityClientProps) {
 
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {qrCodeSvg && (
-              <div
-                className="w-48 h-48 bg-white p-3 rounded-2xl border border-zinc-200 shadow-md shrink-0 flex items-center justify-center"
-                dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
-              />
+              <div className="w-52 h-52 bg-white p-3 rounded-2xl border border-zinc-200 shadow-md shrink-0 flex items-center justify-center overflow-hidden">
+                {qrCodeSvg.startsWith('<svg') ? (
+                  <div
+                    className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+                    dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+                  />
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={qrCodeSvg}
+                    alt="Authenticator QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
             )}
 
             <div className="space-y-3 text-xs text-zinc-600 dark:text-zinc-400">
-              <p>
+              <p className="font-semibold text-zinc-900 dark:text-zinc-100">
                 1. Open your Authenticator app (Google Authenticator, Microsoft Authenticator, Authy).
               </p>
-              <p>2. Scan this QR code.</p>
-              <p>
-                Or enter this secret key manually:
-              </p>
-              <code className="block p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-mono text-zinc-900 dark:text-zinc-100 select-all font-bold">
-                {secret}
-              </code>
+              <p>2. Scan this QR code with your phone camera.</p>
+              <div className="pt-2">
+                <p className="mb-1 text-zinc-500">Or enter this secret key manually:</p>
+                <div className="flex items-center gap-2">
+                  <code className="block flex-1 p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg font-mono text-zinc-900 dark:text-zinc-100 select-all font-bold text-xs break-all">
+                    {secret}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (secret) {
+                        navigator.clipboard.writeText(secret)
+                        alert('Secret copied to clipboard!')
+                      }
+                    }}
+                    className="px-3 py-2 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-800 dark:text-zinc-200 rounded-lg text-xs font-semibold shrink-0"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

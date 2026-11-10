@@ -336,3 +336,4 @@ export function TermsClient({ initialTerms }: TermsClientProps) {
     </div>
   )
 }
+

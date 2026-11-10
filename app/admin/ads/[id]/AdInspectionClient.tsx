@@ -402,3 +402,4 @@ export function AdInspectionClient({ initialData }: AdInspectionProps) {
     </div>
   )
 }
+

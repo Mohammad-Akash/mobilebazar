@@ -104,3 +104,4 @@ export function FlagsQueueClient({ initialFlags, initialCursor }: FlagsQueueClie
     </div>
   )
 }
+
