@@ -10,6 +10,7 @@
 -- 1. admin_list_ads
 -- Keyset pagination for moderator queues (no PII, no IMEI)
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.admin_list_ads(public.ad_status, TEXT, UUID, TIMESTAMPTZ, UUID, INT);
 CREATE OR REPLACE FUNCTION public.admin_list_ads(
     p_status            public.ad_status DEFAULT NULL,
     p_search            TEXT DEFAULT NULL,
@@ -20,14 +21,14 @@ CREATE OR REPLACE FUNCTION public.admin_list_ads(
 )
 RETURNS TABLE (
     id              UUID,
-    title           VARCHAR(120),
+    title           TEXT,
     price           NUMERIC,
     status          public.ad_status,
     seller_id       UUID,
-    seller_name     VARCHAR(120),
-    city_name       VARCHAR(100),
-    brand_name      VARCHAR(100),
-    model_name      VARCHAR(100),
+    seller_name     TEXT,
+    city_name       TEXT,
+    brand_name      TEXT,
+    model_name      TEXT,
     cover_image     TEXT,
     reports_count   BIGINT,
     max_flag_score  INT,
@@ -241,6 +242,7 @@ GRANT EXECUTE ON FUNCTION public.admin_get_ad(UUID) TO authenticated;
 -- 3. admin_list_reports
 -- Grouped by ad, oldest pending first with distinct reporter count
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.admin_list_reports(public.report_status, TIMESTAMPTZ, UUID, INT);
 CREATE OR REPLACE FUNCTION public.admin_list_reports(
     p_status            public.report_status DEFAULT 'pending',
     p_cursor_created_at TIMESTAMPTZ DEFAULT NULL,
@@ -249,9 +251,9 @@ CREATE OR REPLACE FUNCTION public.admin_list_reports(
 )
 RETURNS TABLE (
     ad_id               UUID,
-    ad_title            VARCHAR(120),
+    ad_title            TEXT,
     ad_status           public.ad_status,
-    seller_name         VARCHAR(120),
+    seller_name         TEXT,
     pending_count       BIGINT,
     distinct_reporters  BIGINT,
     reasons             TEXT[],
@@ -282,11 +284,11 @@ BEGIN
     JOIN public.ads a ON a.id = r.ad_id
     JOIN public.profiles p ON p.id = a.seller_id
     WHERE (p_status IS NULL OR r.status = p_status)
-      AND (
-          p_cursor_created_at IS NULL
-          OR (MIN(r.created_at), a.id) < (p_cursor_created_at, p_cursor_ad_id)
-      )
     GROUP BY a.id, a.title, a.status, p.full_name
+    HAVING (
+        p_cursor_created_at IS NULL
+        OR (MIN(r.created_at), a.id) < (p_cursor_created_at, p_cursor_ad_id)
+    )
     ORDER BY oldest_report_at ASC, a.id ASC
     LIMIT v_actual_limit;
 END;
@@ -300,6 +302,7 @@ GRANT EXECUTE ON FUNCTION public.admin_list_reports(public.report_status, TIMEST
 -- 4. admin_list_flags
 -- Unresolved spam signals ordered by score descending
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.admin_list_flags(BOOLEAN, TIMESTAMPTZ, UUID, INT);
 CREATE OR REPLACE FUNCTION public.admin_list_flags(
     p_unresolved_only   BOOLEAN DEFAULT true,
     p_cursor_created_at TIMESTAMPTZ DEFAULT NULL,
@@ -309,9 +312,9 @@ CREATE OR REPLACE FUNCTION public.admin_list_flags(
 RETURNS TABLE (
     id          UUID,
     ad_id       UUID,
-    ad_title    VARCHAR(120),
+    ad_title    TEXT,
     ad_status   public.ad_status,
-    seller_name VARCHAR(120),
+    seller_name TEXT,
     flag_type   TEXT,
     detail      TEXT,
     score       INT,
@@ -368,6 +371,7 @@ GRANT EXECUTE ON FUNCTION public.admin_list_flags(BOOLEAN, TIMESTAMPTZ, UUID, IN
 -- 5. admin_list_users
 -- Keyset pagination. Masks phone for moderators. Admin can search email/phone.
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.admin_list_users(TEXT, TIMESTAMPTZ, UUID, INT);
 CREATE OR REPLACE FUNCTION public.admin_list_users(
     p_search            TEXT DEFAULT NULL,
     p_cursor_created_at TIMESTAMPTZ DEFAULT NULL,
@@ -376,7 +380,7 @@ CREATE OR REPLACE FUNCTION public.admin_list_users(
 )
 RETURNS TABLE (
     id                UUID,
-    full_name         VARCHAR(120),
+    full_name         TEXT,
     role              user_role,
     is_phone_verified BOOLEAN,
     is_banned         BOOLEAN,
@@ -700,6 +704,7 @@ GRANT EXECUTE ON FUNCTION public.admin_dashboard_stats(INT) TO authenticated;
 -- 9. admin_list_actions
 -- Admin ONLY. Audit trail log with keyset pagination
 -- ------------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.admin_list_actions(UUID, TEXT, TEXT, TIMESTAMPTZ, BIGINT, INT);
 CREATE OR REPLACE FUNCTION public.admin_list_actions(
     p_actor_id          UUID DEFAULT NULL,
     p_action            TEXT DEFAULT NULL,
@@ -711,7 +716,7 @@ CREATE OR REPLACE FUNCTION public.admin_list_actions(
 RETURNS TABLE (
     id          BIGINT,
     actor_id    UUID,
-    actor_name  VARCHAR(120),
+    actor_name  TEXT,
     action      TEXT,
     target_type TEXT,
     target_id   TEXT,

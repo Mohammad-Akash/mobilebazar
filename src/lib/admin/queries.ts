@@ -37,7 +37,12 @@ export async function getAdminAds(params: {
   })
 
   if (error) {
-    console.error('[getAdminAds Error]:', error)
+    console.error('[getAdminAds Error]:', {
+      message: error.message,
+      details: error.details,
+      code: error.code,
+      hint: error.hint,
+    })
     return { ads: [], nextCursor: null }
   }
 
@@ -87,7 +92,12 @@ export async function getAdminReports(params?: {
   })
 
   if (error) {
-    console.error('[getAdminReports Error]:', error)
+    console.error('[getAdminReports Error]:', {
+      message: error.message,
+      details: error.details,
+      code: error.code,
+      hint: error.hint,
+    })
     return { reports: [], nextCursor: null }
   }
 
@@ -120,7 +130,12 @@ export async function getAdminFlags(params?: {
   })
 
   if (error) {
-    console.error('[getAdminFlags Error]:', error)
+    console.error('[getAdminFlags Error]:', {
+      message: error.message,
+      details: error.details,
+      code: error.code,
+      hint: error.hint,
+    })
     return { flags: [], nextCursor: null }
   }
 
