@@ -212,7 +212,11 @@ ALTER TABLE public.profile_private
 -- ------------------------------------------------------------------------------
 
 DO $$ BEGIN
-    IF NOT EXISTS (
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+          AND table_name = 'ad_flags'
+    ) AND NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
         WHERE table_schema = 'public' 
           AND table_name = 'ad_flags' 
@@ -235,7 +239,15 @@ CREATE INDEX IF NOT EXISTS reports_pending_ad_group_idx
     ON public.reports (ad_id, created_at ASC)
     WHERE status = 'pending';
 
-CREATE INDEX IF NOT EXISTS ad_flags_unresolved_queue_idx
-    ON public.ad_flags (score DESC, created_at ASC)
-    WHERE resolved_at IS NULL;
+DO $$ BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+          AND table_name = 'ad_flags'
+    ) THEN
+        CREATE INDEX IF NOT EXISTS ad_flags_unresolved_queue_idx
+            ON public.ad_flags (score DESC, created_at ASC)
+            WHERE resolved_at IS NULL;
+    END IF;
+END $$;
 
