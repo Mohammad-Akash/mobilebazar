@@ -78,6 +78,18 @@ export async function sendOtp(formData: { phone: string }): Promise<OtpResult> {
           'Phone provider is not enabled in Supabase. Please enable it under Dashboard > Authentication > Providers > Phone.',
       }
     }
+    if (error.message?.includes('status code returned from hook: 500')) {
+      return {
+        error:
+          'SMS gateway delivery failed. Please check SendPK account status or API key.',
+      }
+    }
+    if (error.message?.includes('status code returned from hook: 422')) {
+      return {
+        error:
+          'Invalid phone number format. Please enter a valid Pakistani mobile number (03XXXXXXXXX).',
+      }
+    }
     return { error: `OTP error: ${error.message}` }
   }
 
