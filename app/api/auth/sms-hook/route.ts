@@ -5,6 +5,11 @@
 // Supabase calls this endpoint when it needs to send an OTP SMS.
 // We verify the Standard Webhooks signature, validate the recipient,
 // and dispatch the SMS via SendPK (or configured SMS adapter).
+//
+// IMPORTANT NOTE ON SUPABASE PAYLOAD:
+// - During signInWithOtp / signUp: phone is in `payload.user.phone`
+// - During updateUser (phone_change): destination phone is in `payload.user.new_phone`!
+// - OTP is located in `payload.sms.otp`
 // ==============================================================================
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -16,11 +21,13 @@ interface SmsHookPayload {
     id?: string
     email?: string | null
     phone?: string | null
+    new_phone?: string | null
   }
   sms?: {
     otp: string
     channel?: string
     reason?: string
+    phone?: string | null
   }
   otp?: string
   token_hash?: string
@@ -58,7 +65,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── 3. Extract OTP & User ──────────────────────────────────────────────────
+  // ── 3. Extract OTP ─────────────────────────────────────────────────────────
   const user = payload.user
   const otp = payload.sms?.otp || payload.otp
 
@@ -67,20 +74,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing OTP in payload' }, { status: 400 })
   }
 
-  // ── 4. Pakistani Number Check ──────────────────────────────────────────────
-  const rawPhone = user?.phone ?? ''
+  // ── 4. Target Phone Extraction (handles user.new_phone for updateUser) ─────
+  const rawPhone =
+    user?.new_phone ||
+    user?.phone ||
+    (payload as any)?.phone ||
+    payload.sms?.phone ||
+    ''
+
   const digits = rawPhone.replace(/\D/g, '')
-  const isPakistani = /^923[0-9]{9}$/.test(digits) || /^03[0-9]{9}$/.test(digits)
-
-  if (!isPakistani) {
-    console.warn(`[sms-hook] Rejected: non-Pakistani number: ${rawPhone}`)
-    return NextResponse.json(
-      { error: 'Only Pakistani (+923...) mobile numbers are allowed.' },
-      { status: 422 }
-    )
-  }
-
-  const formattedPhone = digits.startsWith('92') ? `+${digits}` : `+92${digits.slice(1)}`
+  const formattedPhone = digits.startsWith('92')
+    ? `+${digits}`
+    : digits.startsWith('03')
+    ? `+92${digits.slice(1)}`
+    : `+${digits}`
 
   // ── 5. Compose SMS message ─────────────────────────────────────────────────
   const message =
