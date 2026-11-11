@@ -1,20 +1,15 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
 import { MobileBottomNav } from "@/app/components/MobileBottomNav";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
   display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 import { SITE_CONFIG } from "@/src/lib/seo/site";
@@ -82,10 +77,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 pb-16 md:pb-0">
-        <Suspense fallback={<header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />}>
+      <body className="min-h-full flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-16 md:pb-0 transition-colors duration-200">
+        <Suspense fallback={<header className="h-16 border-b border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF]/80 dark:bg-[#17152B]/80" />}>
           <Header />
         </Suspense>
         <main className="flex-1">{children}</main>

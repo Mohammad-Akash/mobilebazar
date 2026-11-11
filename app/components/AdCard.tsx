@@ -6,7 +6,7 @@ import { ActiveAdRow } from '@/src/lib/data/ads'
 import { formatPrice, formatStorage, formatRelativeTime, formatPtaBadge } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'
-import { ShieldCheck, MapPin, Clock, Cpu, Sparkles } from 'lucide-react'
+import { ShieldCheck, MapPin, Sparkles } from 'lucide-react'
 
 interface AdCardProps {
   ad: ActiveAdRow
@@ -29,24 +29,25 @@ export function AdCard({ ad, initialIsFavorited = false }: AdCardProps) {
   })
   const adHref = buildAdCanonicalPath(ad.id || '', slug)
 
-  // Format RAM + Storage spec label
-  const specLabel = [
-    ad.ram_gb ? `${ad.ram_gb}GB RAM` : null,
-    ad.storage_gb ? formatStorage(ad.storage_gb) : null,
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  // Clean unboxed metadata string
+  const specItems: string[] = []
+  if (ad.storage_gb) specItems.push(formatStorage(ad.storage_gb))
+  if (ad.ram_gb) specItems.push(`${ad.ram_gb}GB RAM`)
+  if (ad.battery_health) specItems.push(`${ad.battery_health}% Batt`)
 
   return (
-    <div className="group relative flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs hover:shadow-md card-hover-effect hover:border-blue-400 dark:hover:border-blue-600 transition-all">
+    <article className="group relative flex flex-col bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF]/50 dark:hover:border-[#8A6FFF]/50 rounded-2xl overflow-hidden editorial-card shadow-[0_2px_8px_rgba(23,21,43,0.03)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
       {/* 1. Phone Photo Viewport */}
-      <Link href={adHref} className="relative w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800/60 overflow-hidden block">
+      <Link
+        href={adHref}
+        className="relative w-full aspect-[4/3] bg-[#F7F6F2] dark:bg-[#211E38] overflow-hidden block"
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
           alt={ad.title || 'Smartphone'}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
           onError={(e) => {
             const target = e.currentTarget as HTMLImageElement
             if (!target.dataset.fallback) {
@@ -56,97 +57,90 @@ export function AdCard({ ad, initialIsFavorited = false }: AdCardProps) {
           }}
         />
 
-        {/* Featured Flagship Ribbon */}
-        {ad.is_featured && (
-          <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-xs flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
+        {/* Minimal Editorial Kicker (Top Left: Featured or Condition) */}
+        {ad.is_featured ? (
+          <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-[#C7F36B] text-[#17152B] font-bold text-[10px] tracking-tight flex items-center gap-1 shadow-sm">
+            <Sparkles className="w-3 h-3 fill-current" />
             <span>Featured</span>
           </div>
-        )}
-
-        {/* Condition Chip */}
-        <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md bg-slate-900/80 backdrop-blur-md text-white font-semibold text-[10px] tracking-tight">
-          {ad.condition === 'new' ? 'Brand New' : 'Verified Used'}
-        </div>
-
-        {/* Battery Health Indicator if available */}
-        {ad.battery_health && (
-          <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-emerald-950/80 backdrop-blur-md text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
-            {ad.battery_health}% Batt
+        ) : (
+          <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-[#17152B]/80 text-[#F7F6F2] font-medium text-[10px] backdrop-blur-md">
+            {ad.condition === 'new' ? 'Brand New' : 'Verified Used'}
           </div>
         )}
       </Link>
 
-      {/* Favorite Button (Floating Top Right) */}
+      {/* Floating Save Action (Top Right) */}
       {ad.id && (
-        <div className="absolute top-2.5 right-2.5 z-10">
+        <div className="absolute top-3 right-3 z-10">
           <FavoriteButton adId={ad.id} initialIsFavorited={initialIsFavorited} />
         </div>
       )}
 
-      {/* 2. Product Details */}
-      <div className="p-4 flex flex-col flex-1 justify-between gap-3">
+      {/* 2. Editorial Product Body */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
         <div>
-          {/* Brand & Model Kicker */}
-          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-            <span className="uppercase tracking-wider">{ad.brand_name || 'Smartphone'}</span>
+          {/* Brand & Market Header */}
+          <div className="flex items-center justify-between text-[11px] font-semibold text-[#77758A] dark:text-[#9B98B2] tracking-wider uppercase">
+            <span>{ad.brand_name || 'Smartphone'}</span>
             {ad.is_negotiable && (
-              <span className="text-blue-600 dark:text-blue-400 font-medium text-[10px]">
-                Negotiable
+              <span className="text-[#7657FF] dark:text-[#8A6FFF] font-medium lowercase tracking-normal">
+                negotiable
               </span>
             )}
           </div>
 
-          {/* Price */}
-          <div className="mt-0.5 flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
+          {/* Model Title */}
+          <Link href={adHref} className="block mt-1">
+            <h3 className="text-sm sm:text-base font-bold text-[#17152B] dark:text-[#F7F6F2] group-hover:text-[#7657FF] dark:group-hover:text-[#8A6FFF] transition-colors line-clamp-1 leading-snug">
+              {ad.title}
+            </h3>
+          </Link>
+
+          {/* Clean Unboxed Specs Row (Zero-Pill Discipline) */}
+          <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[#77758A] dark:text-[#9B98B2] flex-wrap">
+            {specItems.map((spec, i) => (
+              <span key={spec} className="inline-flex items-center gap-1.5">
+                {i > 0 && <span aria-hidden="true" className="text-[#77758A]/50">·</span>}
+                <span>{spec}</span>
+              </span>
+            ))}
+            {specItems.length > 0 && <span aria-hidden="true" className="text-[#77758A]/50">·</span>}
+            <span
+              className={`inline-flex items-center gap-1 font-semibold ${
+                pta.isApproved
+                  ? 'text-[#159B72]'
+                  : 'text-[#77758A] dark:text-[#9B98B2]'
+              }`}
+            >
+              {pta.isApproved && <ShieldCheck className="w-3 h-3 text-[#159B72]" />}
+              <span>{pta.label}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Pricing & Footer Location */}
+        <div className="pt-3 border-t border-[#E9E7EF] dark:border-[#2D2947] flex items-end justify-between gap-2">
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-[#77758A] dark:text-[#9B98B2] font-medium block">
+              Price
+            </span>
+            <span className="text-lg sm:text-xl font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight">
               {formatPrice(ad.price || 0)}
             </span>
           </div>
 
-          {/* Title */}
-          <Link href={adHref}>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 line-clamp-2 mt-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {ad.title}
-            </h3>
-          </Link>
-        </div>
-
-        {/* Specs Badges: RAM/Storage & PTA Status */}
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-            {specLabel && (
-              <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium flex items-center gap-1">
-                <Cpu className="w-3 h-3 text-slate-400" />
-                <span>{specLabel}</span>
-              </span>
-            )}
-
-            <span
-              className={`px-2 py-0.5 rounded-md font-bold text-[10px] flex items-center gap-1 ${
-                pta.isApproved
-                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-              }`}
-            >
-              {pta.isApproved && <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />}
-              <span>{pta.label}</span>
+          <div className="text-right text-[11px] text-[#77758A] dark:text-[#9B98B2] space-y-0.5">
+            <span className="flex items-center justify-end gap-1 font-medium truncate max-w-[120px]">
+              <MapPin className="w-3 h-3 text-[#7657FF] shrink-0" />
+              <span className="truncate">{ad.city_name}</span>
             </span>
-          </div>
-
-          {/* Location & Time Footer */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
-            <span className="flex items-center gap-1 truncate max-w-[130px] sm:max-w-[160px]" title={`${ad.city_name || ''}${ad.area_name ? `, ${ad.area_name}` : ''}`}>
-              <MapPin className="w-3 h-3 shrink-0 text-slate-400" />
-              <span className="truncate">{ad.city_name}{ad.area_name ? `, ${ad.area_name}` : ''}</span>
-            </span>
-            <span className="flex items-center gap-1 shrink-0 whitespace-nowrap">
-              <Clock className="w-2.5 h-2.5 text-slate-400" />
-              <span>{relativeTime}</span>
+            <span className="block text-[10px] text-[#77758A]/80">
+              {relativeTime}
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

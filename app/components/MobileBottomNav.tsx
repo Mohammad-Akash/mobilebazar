@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, PlusCircle, Heart, User } from 'lucide-react'
+import { Home, Compass, PlusCircle, MessageSquare, User } from 'lucide-react'
 
 export function MobileBottomNav() {
   const pathname = usePathname()
@@ -16,16 +16,16 @@ export function MobileBottomNav() {
     { label: 'Home', href: '/', icon: Home },
     { label: 'Explore', href: '/ads', icon: Compass },
     { label: 'Sell Phone', href: '/post-ad', icon: PlusCircle, isCta: true },
-    { label: 'Saved', href: '/favorites', icon: Heart },
+    { label: 'Chats', href: '/inbox', icon: MessageSquare },
     { label: 'Account', href: '/dashboard', icon: User },
   ]
 
   return (
     <nav
       aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 shadow-lg safe-area-bottom"
+      className="md:hidden fixed bottom-3 left-4 right-4 z-50 bg-[#FFFFFF]/92 dark:bg-[#17152B]/92 backdrop-blur-xl border border-[#E9E7EF] dark:border-[#2D2947] rounded-2xl px-3 py-2 shadow-xl safe-area-bottom"
     >
-      <div className="flex items-center justify-around max-w-md mx-auto">
+      <div className="flex items-center justify-between max-w-sm mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href)
@@ -35,12 +35,12 @@ export function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center justify-center -mt-5 min-w-[56px] min-h-[56px]"
+                className="flex flex-col items-center justify-center -mt-6 min-w-[48px] min-h-[48px]"
               >
-                <div className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center justify-center transition-transform active:scale-95 border-2 border-white dark:border-slate-900">
-                  <Icon className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white shadow-md flex items-center justify-center transition-transform active:scale-95 border-2 border-[#FFFFFF] dark:border-[#17152B]">
+                  <Icon className="w-5 h-5 stroke-[2.2]" />
                 </div>
-                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-0.5">
+                <span className="text-[10px] font-bold text-[#7657FF] dark:text-[#8A6FFF] mt-0.5">
                   Sell
                 </span>
               </Link>
@@ -53,11 +53,11 @@ export function MobileBottomNav() {
               href={item.href}
               className={`flex flex-col items-center justify-center min-w-[48px] min-h-[44px] py-1 transition-colors ${
                 isActive
-                  ? 'text-blue-600 dark:text-blue-400 font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'text-[#7657FF] dark:text-[#8A6FFF] font-bold'
+                  : 'text-[#77758A] dark:text-[#9B98B2] hover:text-[#17152B] dark:hover:text-[#F7F6F2]'
               }`}
             >
-              <Icon className="w-5 h-5 mb-0.5" />
+              <Icon className="w-4 h-4 mb-0.5" />
               <span className="text-[10px] tracking-tight">{item.label}</span>
             </Link>
           )

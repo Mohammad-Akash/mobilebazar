@@ -65,23 +65,23 @@ export function ActiveFilterChips({
 
   return (
     <div className="flex flex-wrap items-center gap-2 pt-1 pb-4">
-      <span className="text-xs font-bold text-slate-400">Active:</span>
+      <span className="text-xs font-bold text-[#77758A] dark:text-[#9B98B2]">Active Filters:</span>
       {chips.map((chip) => (
         <button
           key={chip.key}
           type="button"
           onClick={() => removeParam(chip.removeKey)}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-[#FFFFFF] dark:bg-[#17152B] text-[#17152B] dark:text-[#F7F6F2] border border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF] transition-colors cursor-pointer shadow-xs"
         >
           <span>{chip.label}</span>
-          <X className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+          <X className="w-3 h-3 text-[#7657FF]" />
         </button>
       ))}
 
       <button
         type="button"
         onClick={clearAll}
-        className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline ml-1 cursor-pointer"
+        className="text-xs font-bold text-[#E45858] hover:underline ml-1 cursor-pointer"
       >
         Clear All
       </button>

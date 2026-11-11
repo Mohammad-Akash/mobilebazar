@@ -6,6 +6,7 @@ import { formatPrice, formatRelativeTime } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'
 import { SITE_CONFIG, absoluteUrl } from '@/src/lib/seo/site'
+import { createClient } from '@/src/lib/supabase/server'
 import {
   JsonLd,
   buildProductJsonLd,
@@ -104,6 +105,15 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
 
   if (!ad || ad.status === 'deleted') {
     notFound()
+  }
+
+  let currentUserId: string | null = null
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    currentUserId = user?.id || null
+  } catch {
+    // offline or session error
   }
 
   const canonicalSlug = buildAdSlug({
@@ -313,8 +323,10 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           <ContactButtons
             adId={adId}
             adTitle={ad.title || 'Smartphone'}
+            adPrice={ad.price || 0}
             adStatus={ad.status || 'active'}
             contactPreference={ad.contact_preference || 'both'}
+            isOwner={currentUserId ? currentUserId === ad.seller_id : false}
           />
 
           {/* Seller Profile Card */}

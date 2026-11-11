@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toggleFavoriteAction } from '@/src/lib/actions/favorites'
 
+import { Heart } from 'lucide-react'
+
 interface FavoriteButtonProps {
   adId: string
   initialIsFavorited?: boolean
@@ -43,7 +45,6 @@ export function FavoriteButton({
       if (res.error) {
         // Rollback
         setIsFavorited(!nextState)
-        alert(res.error)
         return
       }
 
@@ -58,16 +59,19 @@ export function FavoriteButton({
       type="button"
       onClick={handleToggle}
       disabled={isPending}
-      title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-      className={`p-2 rounded-full transition-all active:scale-90 flex items-center justify-center ${
+      title={isFavorited ? 'Saved to collection' : 'Save handset'}
+      aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+      className={`w-8 h-8 rounded-full transition-all duration-200 active:scale-90 flex items-center justify-center cursor-pointer ${
         isFavorited
-          ? 'bg-rose-50 dark:bg-rose-950/80 text-rose-500 shadow-sm'
-          : 'bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm'
+          ? 'bg-[#FFFFFF] dark:bg-[#17152B] text-[#E45858] shadow-md border border-[#E9E7EF] dark:border-[#2D2947]'
+          : 'bg-[#17152B]/40 hover:bg-[#17152B]/70 text-white backdrop-blur-md'
       } ${className}`}
     >
-      <span className="text-base leading-none select-none">
-        {isFavorited ? '❤️' : '🤍'}
-      </span>
+      <Heart
+        className={`w-4 h-4 transition-transform duration-200 ${
+          isFavorited ? 'fill-current scale-105' : 'stroke-[2]'
+        }`}
+      />
     </button>
   )
 }

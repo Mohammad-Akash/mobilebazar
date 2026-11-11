@@ -3,14 +3,12 @@ import { connection } from 'next/server'
 import { createClient } from '@/src/lib/supabase/server'
 import { logoutAction } from '@/app/auth/actions'
 import { ThemeToggle } from '@/app/components/ThemeToggle'
+import { HeaderChatBadge } from '@/app/components/HeaderChatBadge'
 import {
   Smartphone,
   Search,
   Plus,
-  Heart,
   User,
-  ShieldCheck,
-  Compass,
 } from 'lucide-react'
 
 export async function Header() {
@@ -36,113 +34,111 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Brand Wordmark & Exclusively Smartphones Tag */}
-        <div className="flex items-center gap-6 shrink-0">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs group-hover:bg-blue-700 transition-colors">
-              <Smartphone className="w-5 h-5" />
+    <header className="sticky top-0 z-40 bg-[#FFFFFF]/85 dark:bg-[#17152B]/85 backdrop-blur-md border-b border-[#E9E7EF] dark:border-[#2D2947] transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
+        {/* Zone 1: Brand Wordmark (Single Element) */}
+        <div className="flex items-center gap-8 shrink-0">
+          <Link
+            href="/"
+            className="flex items-center gap-2 group whitespace-nowrap text-lg font-black tracking-tight text-[#17152B] dark:text-[#F7F6F2]"
+          >
+            <div className="w-8 h-8 rounded-xl bg-[#7657FF] flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
+              <Smartphone className="w-4 h-4 stroke-[2.2]" />
             </div>
-            <div className="flex flex-col">
-              <span className="font-black text-lg tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-1">
-                Mobile<span className="text-blue-600">Bazar</span>
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase -mt-1 hidden sm:block">
-                Smartphones Only
-              </span>
-            </div>
+            <span>
+              Mobile<span className="text-[#7657FF]">Bazar</span>
+            </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+          {/* Zone 2: Editorial Navigation Links (Quiet, Single-Line, Clean Text) */}
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-[#77758A] dark:text-[#9B98B2]">
             <Link
               href="/ads"
-              className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap"
             >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Explore Phones</span>
+              Browse Catalog
+            </Link>
+            <Link
+              href="/ads?min_price=150000"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap"
+            >
+              Flagship Tier
             </Link>
             <Link
               href="/ads?pta=pta_approved"
-              className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>PTA Approved</span>
+              PTA Certified
             </Link>
             <Link
               href="/favorites"
-              className="flex items-center gap-1.5 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap"
             >
-              <Heart className="w-3.5 h-3.5 text-rose-500" />
-              <span>Saved</span>
+              Saved Units
             </Link>
           </nav>
         </div>
 
-        {/* Desktop Quick Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-md mx-2">
+        {/* Search Experience (Editorial Minimalist Bar) */}
+        <div className="hidden md:flex flex-1 max-w-sm mx-auto">
           <form
             action="/ads"
             method="GET"
             className="w-full relative flex items-center"
           >
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-[#77758A] absolute left-3.5 pointer-events-none" />
             <input
               type="text"
               name="q"
-              placeholder="Search iPhone, Samsung, Xiaomi..."
-              className="w-full h-10 pl-10 pr-4 text-xs bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200/60 dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-transparent focus:border-blue-600 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none transition-all shadow-2xs"
+              placeholder="Search by model, brand, or specs..."
+              className="w-full h-9 pl-9 pr-4 text-xs bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#F0EEE7] dark:hover:bg-[#29263D] focus:bg-[#FFFFFF] dark:focus:bg-[#17152B] border border-transparent focus:border-[#7657FF] rounded-xl text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] focus:outline-none transition-all"
             />
           </form>
         </div>
 
-        {/* Right Action Controls: ThemeToggle, Sell Button, User Profile */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        {/* Zone 3: Controls & Primary Action */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <ThemeToggle />
-
-          <Link
-            href="/post-ad"
-            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Sell Phone</span>
-            <span className="sm:hidden">Sell</span>
-          </Link>
+          {user && <HeaderChatBadge />}
 
           {user ? (
             <div className="flex items-center gap-2">
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:text-[#7657FF] dark:hover:text-[#8A6FFF] py-1.5 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] transition-colors"
               >
-                <User className="w-3.5 h-3.5 text-blue-600" />
+                <User className="w-3.5 h-3.5 text-[#7657FF]" />
                 <span className="max-w-[100px] truncate">{fullName}</span>
               </Link>
               <form action={logoutAction} className="hidden sm:block">
                 <button
                   type="submit"
-                  className="text-xs font-semibold text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 py-1.5 px-2.5 rounded-xl transition-colors cursor-pointer"
+                  className="text-xs font-medium text-[#77758A] hover:text-[#E45858] dark:text-[#9B98B2] dark:hover:text-[#E45858] py-1.5 px-2 transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
               </form>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 py-1.5 px-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:text-[#7657FF] py-1.5 px-2.5 transition-colors"
               >
                 Sign In
               </Link>
-              <Link
-                href="/signup"
-                className="hidden sm:inline-block text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline py-1.5 px-2"
-              >
-                Register
-              </Link>
             </div>
           )}
+
+          {/* Primary CTA Button: Sell Smartphone */}
+          <Link
+            href="/post-ad"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span className="hidden sm:inline">Post Smartphone</span>
+            <span className="sm:hidden">Sell</span>
+          </Link>
         </div>
       </div>
     </header>

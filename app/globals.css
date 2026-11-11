@@ -2,59 +2,76 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f8fafc;
-  --card: #ffffff;
-  --card-subtle: #f1f5f9;
-  --foreground: #0f172a;
-  --secondary: #64748b;
-  --border: #e2e8f0;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --accent: #f59e0b;
-  --success: #10b981;
+  --background: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface-subtle: #F0EEE7;
+  --foreground: #17152B;
+  --text-muted: #77758A;
+  --border: #E9E7EF;
+  --border-subtle: #E2DFE8;
+  --primary: #7657FF;
+  --primary-hover: #6343ED;
+  --accent-lime: #C7F36B;
+  --accent-dark: #29263D;
+  --success: #159B72;
+  --error: #E45858;
 }
 
 .dark {
-  --background: #090d16;
-  --card: #0f172a;
-  --card-subtle: #1e293b;
-  --foreground: #f8fafc;
-  --secondary: #94a3b8;
-  --border: #1e293b;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --accent: #fbbf24;
-  --success: #10b981;
+  --background: #0E0D1A;
+  --surface: #17152B;
+  --surface-subtle: #211E38;
+  --foreground: #F7F6F2;
+  --text-muted: #9B98B2;
+  --border: #2D2947;
+  --border-subtle: #25223D;
+  --primary: #8A6FFF;
+  --primary-hover: #7657FF;
+  --accent-lime: #C7F36B;
+  --accent-dark: #121024;
+  --success: #159B72;
+  --error: #E45858;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Custom editorial selection */
+::selection {
+  background-color: #7657FF;
+  color: #FFFFFF;
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #D5D1DF;
   border-radius: 9999px;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #2D2947;
 }
 
-/* Card hover animation */
-.card-hover-effect {
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+/* Editorial card interactions */
+.editorial-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
 }
-.card-hover-effect:hover {
+.editorial-card:hover {
   transform: translateY(-2px);
+}
+
+/* Tabular figures for pricing and technical specs */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
