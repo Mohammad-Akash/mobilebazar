@@ -1,0 +1,5 @@
+{
+  "name": "MobileBazar",
+  "description": "Pakistan's mobile phones marketplace to buy and sell verified used and new mobile phones.",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

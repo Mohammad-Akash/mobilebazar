@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
+import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon } from 'lucide-react'
 
 interface GalleryProps {
   images: { id: string; storage_path: string; position: number }[]
@@ -38,17 +39,16 @@ export function Gallery({ images, adTitle }: GalleryProps) {
   return (
     <div className="space-y-3">
       {/* 1. Main Photo Container */}
-      <div className="relative aspect-[4/3] bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center">
+      <div className="relative aspect-[4/3] bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={getAdImageUrl(imageList[currentIndex].storage_path, 'md')}
           alt={`${adTitle} - photo ${currentIndex + 1}`}
           onClick={() => setIsFullscreen(true)}
-          className="w-full h-full object-contain cursor-zoom-in"
+          className="w-full h-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.02]"
           loading={currentIndex === 0 ? 'eager' : 'lazy'}
           fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
           onError={(e) => {
-            // Fallback to base image if _md variant returns 404 (e.g. legacy test ad)
             const target = e.currentTarget
             const fallback = getAdImageUrl(imageList[currentIndex].storage_path, 'base')
             if (target.src !== fallback) {
@@ -59,12 +59,25 @@ export function Gallery({ images, adTitle }: GalleryProps) {
 
         {/* Counter Badge */}
         {imageList.length > 1 && (
-          <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-xs font-bold">
-            {currentIndex + 1} / {imageList.length}
+          <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/70 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>
+              {currentIndex + 1} / {imageList.length}
+            </span>
           </div>
         )}
 
-        {/* Prev & Next Arrows (Visible on Desktop) */}
+        {/* Zoom Button */}
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(true)}
+          aria-label="View full screen"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-950/70 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900 transition-colors shadow-sm"
+        >
+          <Maximize2 className="w-4 h-4" />
+        </button>
+
+        {/* Prev & Next Arrows (Desktop & Tablet) */}
         {imageList.length > 1 && (
           <>
             <button
@@ -73,9 +86,9 @@ export function Gallery({ images, adTitle }: GalleryProps) {
                 setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1))
               }
               aria-label="Previous photo"
-              className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all"
+              className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95"
             >
-              ←
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               type="button"
@@ -83,15 +96,15 @@ export function Gallery({ images, adTitle }: GalleryProps) {
                 setCurrentIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0))
               }
               aria-label="Next photo"
-              className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all"
+              className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95"
             >
-              →
+              <ChevronRight className="w-5 h-5" />
             </button>
           </>
         )}
       </div>
 
-      {/* 2. Desktop Thumbnails & Mobile Scroll Strip */}
+      {/* 2. Thumbnails Strip */}
       {imageList.length > 1 && (
         <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
           {imageList.map((img, idx) => (
@@ -99,10 +112,10 @@ export function Gallery({ images, adTitle }: GalleryProps) {
               key={img.id || idx}
               type="button"
               onClick={() => setCurrentIndex(idx)}
-              className={`relative shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 transition-all snap-start ${
+              className={`relative shrink-0 w-20 h-16 rounded-2xl overflow-hidden border-2 transition-all snap-start bg-slate-100 dark:bg-slate-900 ${
                 currentIndex === idx
-                  ? 'border-emerald-600 ring-2 ring-emerald-500/40'
-                  : 'border-zinc-200 dark:border-zinc-800 opacity-60 hover:opacity-100'
+                  ? 'border-blue-600 ring-2 ring-blue-500/30'
+                  : 'border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-100'
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -129,19 +142,22 @@ export function Gallery({ images, adTitle }: GalleryProps) {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/95 flex flex-col justify-between p-4 sm:p-8"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-8"
         >
           {/* Header */}
-          <div className="flex items-center justify-between text-white">
-            <span className="text-sm font-semibold">
-              {currentIndex + 1} of {imageList.length}
-            </span>
+          <div className="flex items-center justify-between text-white max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm">
+                Photo {currentIndex + 1} of {imageList.length}
+              </span>
+              <span className="text-slate-400 text-xs hidden sm:inline">• {adTitle}</span>
+            </div>
             <button
               type="button"
               onClick={() => setIsFullscreen(false)}
-              className="text-white text-2xl font-bold px-3 py-1 bg-white/20 hover:bg-white/40 rounded-full"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
 
@@ -151,30 +167,32 @@ export function Gallery({ images, adTitle }: GalleryProps) {
             <img
               src={getAdImageUrl(imageList[currentIndex].storage_path, 'base')}
               alt="Fullscreen view"
-              className="max-h-[80vh] max-w-[95vw] object-contain"
+              className="max-h-[82vh] max-w-[95vw] object-contain rounded-2xl shadow-2xl"
             />
           </div>
 
           {/* Navigation Controls in Fullscreen */}
           {imageList.length > 1 && (
-            <div className="flex items-center justify-center gap-4 text-white">
+            <div className="flex items-center justify-center gap-4 text-white pb-2">
               <button
                 type="button"
                 onClick={() =>
                   setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1))
                 }
-                className="px-5 py-2 rounded-xl bg-white/20 hover:bg-white/30 font-bold text-sm"
+                className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 font-semibold text-sm flex items-center gap-1.5 transition-all"
               >
-                ← Peeche (Prev)
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
               </button>
               <button
                 type="button"
                 onClick={() =>
                   setCurrentIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0))
                 }
-                className="px-5 py-2 rounded-xl bg-white/20 hover:bg-white/30 font-bold text-sm"
+                className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 font-semibold text-sm flex items-center gap-1.5 transition-all"
               >
-                Aage (Next) →
+                <span>Next</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -183,4 +201,3 @@ export function Gallery({ images, adTitle }: GalleryProps) {
     </div>
   )
 }
-

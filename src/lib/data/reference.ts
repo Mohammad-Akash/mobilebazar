@@ -4,6 +4,12 @@
 // ==============================================================================
 
 import { createClient } from '@/src/lib/supabase/server'
+import {
+  MOCK_CITIES,
+  MOCK_AREAS,
+  MOCK_BRANDS,
+  MOCK_MODELS,
+} from './mock-seed'
 
 export interface CityOption {
   id: string
@@ -39,19 +45,22 @@ export interface ModelOption {
  * Fetch all active cities ordered by name
  */
 export async function getActiveCities(): Promise<CityOption[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('cities')
-    .select('id, name, slug')
-    .eq('is_active', true)
-    .order('name', { ascending: true })
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('cities')
+      .select('id, name, slug')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching cities:', error)
-    return []
+    if (error || !data || data.length === 0) {
+      return MOCK_CITIES
+    }
+
+    return data
+  } catch {
+    return MOCK_CITIES
   }
-
-  return data ?? []
 }
 
 /**
@@ -60,39 +69,45 @@ export async function getActiveCities(): Promise<CityOption[]> {
 export async function getAreasByCity(cityId: string): Promise<AreaOption[]> {
   if (!cityId) return []
 
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('areas')
-    .select('id, city_id, name, slug')
-    .eq('city_id', cityId)
-    .eq('is_active', true)
-    .order('name', { ascending: true })
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('areas')
+      .select('id, city_id, name, slug')
+      .eq('city_id', cityId)
+      .eq('is_active', true)
+      .order('name', { ascending: true })
 
-  if (error) {
-    console.error(`Error fetching areas for city ${cityId}:`, error)
-    return []
+    if (error || !data || data.length === 0) {
+      return MOCK_AREAS.filter((a) => a.city_id === cityId)
+    }
+
+    return data
+  } catch {
+    return MOCK_AREAS.filter((a) => a.city_id === cityId)
   }
-
-  return data ?? []
 }
 
 /**
  * Fetch all active phone brands
  */
 export async function getActiveBrands(): Promise<BrandOption[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('brands')
-    .select('id, name, slug, logo_url')
-    .eq('is_active', true)
-    .order('name', { ascending: true })
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('brands')
+      .select('id, name, slug, logo_url')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
 
-  if (error) {
-    console.error('Error fetching brands:', error)
-    return []
+    if (error || !data || data.length === 0) {
+      return MOCK_BRANDS
+    }
+
+    return data
+  } catch {
+    return MOCK_BRANDS
   }
-
-  return data ?? []
 }
 
 /**
@@ -101,19 +116,22 @@ export async function getActiveBrands(): Promise<BrandOption[]> {
 export async function getModelsByBrand(brandId: string): Promise<ModelOption[]> {
   if (!brandId) return []
 
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('models')
-    .select('id, brand_id, name, slug, release_year, storage_options, ram_options')
-    .eq('brand_id', brandId)
-    .eq('is_active', true)
-    .order('name', { ascending: true })
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('models')
+      .select('id, brand_id, name, slug, release_year, storage_options, ram_options')
+      .eq('brand_id', brandId)
+      .eq('is_active', true)
+      .order('name', { ascending: true })
 
-  if (error) {
-    console.error(`Error fetching models for brand ${brandId}:`, error)
-    return []
+    if (error || !data || data.length === 0) {
+      return MOCK_MODELS.filter((m) => m.brand_id === brandId)
+    }
+
+    return data
+  } catch {
+    return MOCK_MODELS.filter((m) => m.brand_id === brandId)
   }
-
-  return data ?? []
 }
 

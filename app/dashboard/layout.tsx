@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
+import { Smartphone, Heart, User, PlusCircle, AlertOctagon, ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
+  title: 'User Dashboard — MobileBazar',
   robots: {
     index: false,
     follow: false,
@@ -51,11 +52,11 @@ export default async function DashboardLayout({
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@mobilebazar.pk'
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Banned Alert Banner */}
       {isBanned && (
-        <div className="p-4 bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 rounded-2xl text-red-900 dark:text-red-200 flex items-start gap-3 shadow-md">
-          <span className="text-3xl shrink-0">🚫</span>
+        <div className="p-4 bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 rounded-3xl text-red-900 dark:text-red-200 flex items-start gap-3 shadow-md">
+          <AlertOctagon className="w-6 h-6 shrink-0 text-red-600 mt-0.5" />
           <div className="space-y-1">
             <p className="font-extrabold text-sm sm:text-base">
               Your Account Has Been Suspended
@@ -75,9 +76,9 @@ export default async function DashboardLayout({
       )}
 
       {/* User Header Summary Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-center sm:text-left">
-          <div className="relative w-16 h-16 rounded-full overflow-hidden bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-black text-2xl border-2 border-emerald-500/20 shrink-0">
+          <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-2xl border border-blue-200 dark:border-blue-900 shrink-0 shadow-xs">
             {profile?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -93,40 +94,50 @@ export default async function DashboardLayout({
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-100">
-              {profile?.full_name || 'MobileBazar User'}
-            </h1>
-            <p className="text-xs text-zinc-400 mt-0.5 font-mono">{user.email}</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                {profile?.full_name || 'MobileBazar User'}
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                <ShieldCheck className="w-3 h-3 text-blue-600" />
+                <span>Verified Seller</span>
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5 font-mono">{user.email}</p>
           </div>
         </div>
 
         <Link
           href="/post-ad"
-          className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95"
+          className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm shadow-blue-600/30 transition-all active:scale-95 flex items-center gap-2"
         >
-          + Post New Ad
+          <PlusCircle className="w-4 h-4" />
+          <span>Sell Smartphone</span>
         </Link>
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-px overflow-x-auto">
+      <nav className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-px overflow-x-auto">
         <Link
           href="/dashboard/ads"
-          className="px-5 py-3 text-xs sm:text-sm font-extrabold border-b-2 border-emerald-600 text-emerald-600 dark:text-emerald-400 whitespace-nowrap"
+          className="px-5 py-3 text-xs sm:text-sm font-bold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 whitespace-nowrap flex items-center gap-2"
         >
-          📱 My Ads
+          <Smartphone className="w-4 h-4" />
+          <span>My Phone Listings</span>
         </Link>
         <Link
-          href="/dashboard/favorites"
-          className="px-5 py-3 text-xs sm:text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap"
+          href="/favorites"
+          className="px-5 py-3 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap flex items-center gap-2"
         >
-          ❤️ Saved Ads
+          <Heart className="w-4 h-4" />
+          <span>Saved Phones</span>
         </Link>
         <Link
-          href="/dashboard/profile"
-          className="px-5 py-3 text-xs sm:text-sm font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap"
+          href="/profile"
+          className="px-5 py-3 text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors whitespace-nowrap flex items-center gap-2"
         >
-          👤 Profile & Settings
+          <User className="w-4 h-4" />
+          <span>Profile & Verification</span>
         </Link>
       </nav>
 
@@ -135,4 +146,3 @@ export default async function DashboardLayout({
     </div>
   )
 }
-

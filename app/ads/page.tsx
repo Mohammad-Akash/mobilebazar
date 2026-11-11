@@ -81,15 +81,20 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
   const activeCityName = cities.find((c) => c.slug === queryData.city)?.name
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-100">
-            Mobiles for Sale
-          </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Explore verified mobile phones across Pakistan
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              Smartphones for Sale
+            </h1>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+              {searchResult.ads.length} listings
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Browse verified smartphones with certified PTA status and transparent battery health
           </p>
         </div>
 
@@ -97,7 +102,7 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
       </div>
 
       {/* Main Content Layout (Sidebar + Results) */}
-      <div className="mt-6 flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Filter Sidebar (Desktop sidebar + Mobile drawer) */}
         <FilterSidebar brands={brands} cities={cities} />
 

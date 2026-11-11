@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { FullAdFormData } from '@/src/lib/validations/ad'
 import { BrandOption, ModelOption } from '@/src/lib/data/reference'
 import { createClient } from '@/src/lib/supabase/client'
+import { Smartphone, Check, Loader2 } from 'lucide-react'
 
 interface Step1Props {
   form: UseFormReturn<FullAdFormData>
@@ -69,41 +70,70 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
     onModelSelected?.(found || null)
   }, [selectedModelId, models, onModelSelected])
 
-  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newBrandId = e.target.value
-    setValue('brand_id', newBrandId, { shouldValidate: true })
-    // Reset dependent model field
+  const handleBrandSelect = (brandId: string) => {
+    setValue('brand_id', brandId, { shouldValidate: true })
     setValue('model_id', '', { shouldValidate: true })
   }
+
+  // Popular brands for quick tap
+  const popularBrands = brands.slice(0, 8)
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Select Phone
+        <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          <Smartphone className="w-5 h-5 text-blue-600" />
+          <span>Choose Phone Brand & Model</span>
         </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Select the brand and model of your phone
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Select the manufacturer and exact model of the smartphone you are selling.
         </p>
       </div>
 
-      {/* Brand Select */}
+      {/* Quick Brand Tap Grid */}
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+          Popular Brands
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {popularBrands.map((b) => {
+            const isSelected = selectedBrandId === b.id
+            return (
+              <button
+                type="button"
+                key={b.id}
+                onClick={() => handleBrandSelect(b.id)}
+                className={`py-3 px-3.5 rounded-2xl border text-sm font-bold text-center transition-all flex items-center justify-between active:scale-95 ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <span className="truncate">{b.name}</span>
+                {isSelected && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Full Brand Select Dropdown */}
       <div className="space-y-2">
         <label
           htmlFor="brand_id"
-          className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
+          className="block text-sm font-bold text-slate-700 dark:text-slate-300"
         >
-          Brand <span className="text-red-500">*</span>
+          All Smartphone Brands <span className="text-red-500">*</span>
         </label>
         <select
           id="brand_id"
           {...register('brand_id')}
-          onChange={handleBrandChange}
-          className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-            errors.brand_id ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+          onChange={(e) => handleBrandSelect(e.target.value)}
+          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+            errors.brand_id ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
           }`}
         >
-          <option value="">-- Select Brand --</option>
+          <option value="">-- Choose Brand --</option>
           {brands.map((b) => (
             <option key={b.id} value={b.id}>
               {b.name}
@@ -111,24 +141,32 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
           ))}
         </select>
         {errors.brand_id && (
-          <p className="text-sm text-red-600 mt-1">{errors.brand_id.message}</p>
+          <p className="text-xs text-red-600 mt-1 font-semibold">{errors.brand_id.message}</p>
         )}
       </div>
 
       {/* Model Select */}
       <div className="space-y-2">
-        <label
-          htmlFor="model_id"
-          className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
-        >
-          Model <span className="text-red-500">*</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="model_id"
+            className="block text-sm font-bold text-slate-700 dark:text-slate-300"
+          >
+            Smartphone Model <span className="text-red-500">*</span>
+          </label>
+          {loadingModels && (
+            <span className="text-xs text-blue-600 flex items-center gap-1 font-medium">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Loading models...
+            </span>
+          )}
+        </div>
         <select
           id="model_id"
           {...register('model_id')}
           disabled={!selectedBrandId || loadingModels}
-          className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            errors.model_id ? 'border-red-500' : 'border-zinc-300 dark:border-zinc-700'
+          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            errors.model_id ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
           }`}
         >
           <option value="">
@@ -136,7 +174,7 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
               ? '-- Select Brand First --'
               : loadingModels
               ? 'Loading models...'
-              : '-- Select Model --'}
+              : '-- Select Smartphone Model --'}
           </option>
           {models.map((m) => (
             <option key={m.id} value={m.id}>
@@ -145,10 +183,9 @@ export function Step1Phone({ form, brands, onModelSelected }: Step1Props) {
           ))}
         </select>
         {errors.model_id && (
-          <p className="text-sm text-red-600 mt-1">{errors.model_id.message}</p>
+          <p className="text-xs text-red-600 mt-1 font-semibold">{errors.model_id.message}</p>
         )}
       </div>
     </div>
   )
 }
-

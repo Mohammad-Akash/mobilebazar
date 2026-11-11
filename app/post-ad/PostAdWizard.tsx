@@ -13,6 +13,19 @@ import { Step3Price } from './steps/Step3Price'
 import { Step4Photos } from './steps/Step4Photos'
 import { Step5Location } from './steps/Step5Location'
 import { Step6Review } from './steps/Step6Review'
+import {
+  Smartphone,
+  Cpu,
+  BadgeDollarSign,
+  Camera,
+  MapPin,
+  CheckCircle2,
+  ArrowLeft,
+  ArrowRight,
+  Sparkles,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react'
 
 interface PostAdWizardProps {
   brands: BrandOption[]
@@ -22,12 +35,12 @@ interface PostAdWizardProps {
 }
 
 const STEP_TITLES = [
-  'Phone',
-  'Specs',
-  'Price',
-  'Photos',
-  'Location',
-  'Review',
+  { title: 'Brand & Model', icon: Smartphone },
+  { title: 'Specifications', icon: Cpu },
+  { title: 'Price & Notes', icon: BadgeDollarSign },
+  { title: 'Photos', icon: Camera },
+  { title: 'Location', icon: MapPin },
+  { title: 'Review & Publish', icon: CheckCircle2 },
 ] as const
 
 export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdWizardProps) {
@@ -154,53 +167,78 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   const progressPercentage = Math.round((currentStep / STEP_TITLES.length) * 100)
 
   return (
-    <div className="max-w-2xl mx-auto pb-28 sm:pb-12">
-      {/* Progress Header */}
-      <div className="mb-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-            Step {currentStep} of {STEP_TITLES.length}: {STEP_TITLES[currentStep - 1]}
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-32 sm:pb-16">
+      {/* Header Headline */}
+      <div className="text-center mb-8 space-y-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Post Your Smartphone</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          Sell Your Mobile in Pakistan
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          Reach thousands of genuine verified smartphone buyers with zero listing fees.
+        </p>
+      </div>
+
+      {/* Progress Card */}
+      <div className="mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+              {currentStep}
+            </span>
+            <span className="text-sm font-bold text-slate-900 dark:text-white">
+              {STEP_TITLES[currentStep - 1].title}
+            </span>
+          </div>
+          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono">
+            {progressPercentage}% Completed
           </span>
-          <span className="text-xs font-medium text-zinc-500">{progressPercentage}% Complete</span>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+        <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-emerald-600 transition-all duration-300 ease-out"
+            className="h-full bg-blue-600 transition-all duration-300 ease-out rounded-full"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
 
         {/* Step dots for desktop */}
-        <div className="hidden sm:flex justify-between items-center mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-          {STEP_TITLES.map((title, idx) => {
+        <div className="hidden sm:grid grid-cols-6 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          {STEP_TITLES.map((step, idx) => {
             const stepNum = idx + 1
             const isCompleted = stepNum < currentStep
             const isCurrent = stepNum === currentStep
+            const Icon = step.icon
+
             return (
               <div
-                key={title}
-                className={`flex items-center gap-1.5 text-xs font-medium ${
+                key={step.title}
+                className={`flex flex-col items-center gap-1 text-center ${
                   isCurrent
-                    ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                    ? 'text-blue-600 dark:text-blue-400'
                     : isCompleted
-                    ? 'text-zinc-700 dark:text-zinc-300'
-                    : 'text-zinc-400'
+                    ? 'text-slate-800 dark:text-slate-200'
+                    : 'text-slate-400 dark:text-slate-600'
                 }`}
               >
-                <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                <div
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all ${
                     isCurrent
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-blue-600 text-white shadow-xs'
                       : isCompleted
-                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
                   }`}
                 >
-                  {isCompleted ? '✓' : stepNum}
+                  {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
+                </div>
+                <span className="text-[11px] font-semibold truncate max-w-full">
+                  {step.title}
                 </span>
-                <span>{title}</span>
               </div>
             )
           })}
@@ -209,10 +247,10 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
 
       {/* Server error alert */}
       {serverError && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
-          <span className="text-xl">⚠️</span>
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs sm:text-sm text-red-700 dark:text-red-300 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
           <div>
-            <p className="font-semibold">Failed to Post Ad</p>
+            <p className="font-bold">Failed to Post Ad</p>
             <p className="text-xs mt-0.5">{serverError}</p>
           </div>
         </div>
@@ -220,7 +258,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
 
       {/* Step Form Body */}
       <form onSubmit={handleFormSubmit}>
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm">
           {currentStep === 1 && (
             <Step1Phone
               form={form}
@@ -264,17 +302,18 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
           )}
         </div>
 
-        {/* Sticky Mobile & Desktop Navigation Bar */}
-        <div className="fixed sm:static bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-t sm:border-t-0 border-zinc-200 dark:border-zinc-800 z-30 sm:mt-6 sm:p-0">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+        {/* Navigation Footer */}
+        <div className="fixed sm:static bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t sm:border-t-0 border-slate-200 dark:border-slate-800 z-30 sm:mt-6 sm:p-0">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={isPending}
-                className="px-5 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-300 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
+                className="px-5 py-3.5 rounded-2xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center gap-1.5 active:scale-95"
               >
-                ← Back
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
               </button>
             ) : (
               <div />
@@ -285,17 +324,28 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 type="button"
                 onClick={handleNext}
                 disabled={isPending}
-                className="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-base shadow-sm transition-all text-center"
+                className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] font-bold text-white text-sm sm:text-base shadow-sm shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
               >
-                Next →
+                <span>Continue</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex-1 sm:flex-none px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] font-bold text-white text-base shadow-lg shadow-emerald-600/20 transition-all text-center disabled:opacity-50"
+                className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] font-bold text-white text-sm sm:text-base shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isPending ? 'Posting ad...' : '🚀 Submit Ad'}
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Publishing Phone...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Publish Smartphone Ad</span>
+                  </>
+                )}
               </button>
             )}
           </div>

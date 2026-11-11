@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { updateProfileAction, type AuthState } from '@/app/auth/actions'
+import { User, MapPin, Phone, MessageSquare, ShieldCheck, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react'
 
 type City = {
   id: string
@@ -33,70 +34,77 @@ export function ProfileForm({
   )
 
   return (
-    <div className="w-full max-w-xl mx-auto p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+    <div className="w-full max-w-xl mx-auto p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm space-y-6">
       {warning === 'phone_required' && (
-        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-sm text-amber-800 dark:text-amber-200 flex items-start gap-3">
-          <span className="text-xl">⚠️</span>
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs sm:text-sm text-amber-900 dark:text-amber-200 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold">Phone verification required</p>
+            <p className="font-bold">Phone Verification Required</p>
             <p className="text-xs mt-0.5 text-amber-700 dark:text-amber-300">
-              Please verify your phone number before posting ads so buyers can reach you.
+              Please verify your phone number via SMS OTP before posting smartphone ads so genuine buyers can reach you.
             </p>
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800">
+
+      <div className="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            My Profile
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">
+            Seller Profile & Settings
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Update your contact details and city
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Update your public seller name, city, and verified contact number.
           </p>
         </div>
         <div className="text-right">
-          <span className="text-xs uppercase font-semibold text-zinc-400">Total Ads</span>
-          <p className="text-xl font-bold text-emerald-600">{initialData.adsCount}</p>
+          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            Total Ads
+          </span>
+          <p className="text-xl font-black text-blue-600 dark:text-blue-400">{initialData.adsCount}</p>
         </div>
       </div>
 
       {state?.success && (
-        <div className="my-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-lg text-sm text-emerald-700 dark:text-emerald-300">
-          Profile saved successfully!
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>Profile changes saved successfully!</span>
         </div>
       )}
 
       {state?.error && (
-        <div className="my-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-sm text-red-700 dark:text-red-300">
-          {state.error}
+        <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl text-xs sm:text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+          <span>{state.error}</span>
         </div>
       )}
 
-      <form action={formAction} className="mt-6 space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            Full Name
+      <form action={formAction} className="space-y-5">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5 text-blue-600" />
+            <span>Full Name</span>
           </label>
           <input
             type="text"
             name="fullName"
             defaultValue={initialData.fullName}
             required
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.fullName && (
-            <p className="text-xs text-red-600 mt-1">{state.fieldErrors.fullName[0]}</p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.fullName[0]}</p>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            City
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-blue-600" />
+            <span>Home City</span>
           </label>
           <select
             name="cityId"
             defaultValue={initialData.cityId || ''}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select City</option>
             {cities.map((city) => (
@@ -107,18 +115,20 @@ export function ProfileForm({
           </select>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Mobile Number
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-blue-600" />
+              <span>Mobile Phone Number</span>
             </label>
             {initialData.isPhoneVerified ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
-                ✓ Verified
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                <ShieldCheck className="w-3 h-3" />
+                <span>Verified</span>
               </span>
             ) : (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-                ⚠ Not Verified
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+                <span>⚠ Not Verified</span>
               </span>
             )}
           </div>
@@ -128,33 +138,34 @@ export function ProfileForm({
               value={initialData.phone || ''}
               readOnly
               placeholder="Phone not verified"
-              className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 cursor-not-allowed focus:outline-none"
+              className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-mono text-sm cursor-not-allowed focus:outline-none"
             />
             <Link
               href="/dashboard/profile/verify?return_to=/profile"
-              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white whitespace-nowrap transition-colors"
+              className="px-4 py-3 text-xs font-bold rounded-2xl bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap transition-colors active:scale-95 shadow-sm shadow-blue-600/30"
             >
-              {initialData.isPhoneVerified ? 'Change Number' : 'Verify Number'}
+              {initialData.isPhoneVerified ? 'Change Number' : 'Verify via SMS'}
             </Link>
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
-            To prevent spam and protect your account, phone numbers can only be updated via SMS OTP verification.
+          <p className="text-[11px] text-slate-400 mt-1">
+            Phone numbers are verified via SMS to maintain buyer trust and prevent fraud.
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-            WhatsApp Number (Optional)
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+            <span>WhatsApp Number (Optional)</span>
           </label>
           <input
             type="tel"
             name="whatsappNumber"
             defaultValue={initialData.whatsappNumber || ''}
             placeholder="03001234567"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.whatsappNumber && (
-            <p className="text-xs text-red-600 mt-1">{state.fieldErrors.whatsappNumber[0]}</p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.whatsappNumber[0]}</p>
           )}
         </div>
 
@@ -162,9 +173,16 @@ export function ProfileForm({
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium rounded-lg transition duration-150 shadow-sm"
+            className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
           >
-            {isPending ? 'Saving changes...' : 'Save Profile'}
+            {isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Saving Profile...</span>
+              </>
+            ) : (
+              <span>Save Profile</span>
+            )}
           </button>
         </div>
       </form>

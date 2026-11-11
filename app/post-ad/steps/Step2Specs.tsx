@@ -7,10 +7,16 @@ import {
   STORAGE_OPTIONS,
   RAM_OPTIONS,
   COLOR_OPTIONS,
-  CONDITION_LABELS,
   PTA_STATUS_LABELS,
   WARRANTY_LABELS,
 } from '@/src/lib/constants/ad-options'
+import {
+  Cpu,
+  Battery,
+  Package,
+  Wrench,
+  Check,
+} from 'lucide-react'
 
 interface Step2Props {
   form: UseFormReturn<FullAdFormData>
@@ -33,7 +39,6 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
   const hasBox = watch('has_box')
   const hasAccessories = watch('has_accessories')
 
-  // Storage and RAM lists: use model's defined options or fallback
   const availableStorage =
     selectedModel?.storage_options && selectedModel.storage_options.length > 0
       ? selectedModel.storage_options
@@ -47,91 +52,100 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Phone Specifications
+        <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+          <Cpu className="w-5 h-5 text-blue-600" />
+          <span>Handset Specifications</span>
         </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Enter the condition, storage, and PTA status of your phone
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Specify the condition, PTA compliance status, internal storage, and battery.
         </p>
       </div>
 
-      {/* 1. Condition (Large touch buttons) */}
+      {/* 1. Condition */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
           Condition <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {(['used', 'new'] as const).map((c) => (
-            <button
-              type="button"
-              key={c}
-              onClick={() => {
-                setValue('condition', c, { shouldValidate: true })
-                if (c === 'new') {
-                  setValue('battery_health', null)
-                }
-              }}
-              className={`py-3.5 px-4 rounded-xl border text-sm font-medium text-center transition-all ${
-                condition === c
-                  ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500'
-                  : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300'
-              }`}
-            >
-              {CONDITION_LABELS[c]}
-            </button>
-          ))}
+          {(['used', 'new'] as const).map((c) => {
+            const isSelected = condition === c
+            return (
+              <button
+                type="button"
+                key={c}
+                onClick={() => {
+                  setValue('condition', c, { shouldValidate: true })
+                  if (c === 'new') {
+                    setValue('battery_health', null)
+                  }
+                }}
+                className={`py-3.5 px-4 rounded-2xl border text-sm font-bold text-center transition-all flex items-center justify-center gap-2 active:scale-95 ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                }`}
+              >
+                <span>{c === 'new' ? '✨ Brand New / Box Pack' : '📱 Used Handset'}</span>
+                {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+              </button>
+            )
+          })}
         </div>
         {errors.condition && (
-          <p className="text-sm text-red-600 mt-1">{errors.condition.message}</p>
+          <p className="text-xs text-red-600 mt-1 font-semibold">{errors.condition.message}</p>
         )}
       </div>
 
       {/* 2. PTA Status */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
           PTA Status <span className="text-red-500">*</span>
         </label>
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {(['pta_approved', 'non_pta', 'jv', 'unknown'] as const).map((status) => (
-            <button
-              type="button"
-              key={status}
-              onClick={() => setValue('pta_status', status, { shouldValidate: true })}
-              className={`p-3 rounded-xl border text-xs sm:text-sm font-medium text-center transition-all ${
-                ptaStatus === status
-                  ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500'
-                  : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300'
-              }`}
-            >
-              {PTA_STATUS_LABELS[status]}
-            </button>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          {(['pta_approved', 'non_pta', 'jv', 'unknown'] as const).map((status) => {
+            const isSelected = ptaStatus === status
+            return (
+              <button
+                type="button"
+                key={status}
+                onClick={() => setValue('pta_status', status, { shouldValidate: true })}
+                className={`p-3 rounded-2xl border text-xs sm:text-sm font-bold text-center transition-all flex items-center justify-center gap-1.5 active:scale-95 ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                }`}
+              >
+                <span>{PTA_STATUS_LABELS[status]}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-blue-600" />}
+              </button>
+            )
+          })}
         </div>
         {errors.pta_status && (
-          <p className="text-sm text-red-600 mt-1">{errors.pta_status.message}</p>
+          <p className="text-xs text-red-600 mt-1 font-semibold">{errors.pta_status.message}</p>
         )}
       </div>
 
-      {/* 3. Storage (GB) & RAM (GB) */}
+      {/* 3. Storage & RAM */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Storage */}
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            Storage (GB / TB) <span className="text-red-500">*</span>
+          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
+            Internal Storage <span className="text-red-500">*</span>
           </label>
           <div className="flex flex-wrap gap-2">
             {availableStorage.map((gb) => {
-              const label = gb >= 1024 ? `${gb / 1024}TB` : `${gb}GB`
+              const label = gb >= 1024 ? `${gb / 1024} TB` : `${gb} GB`
               const isSelected = storageGb === gb
               return (
                 <button
                   type="button"
                   key={gb}
                   onClick={() => setValue('storage_gb', gb, { shouldValidate: true })}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all active:scale-95 ${
                     isSelected
-                      ? 'border-emerald-600 bg-emerald-600 text-white font-semibold'
-                      : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                   }`}
                 >
                   {label}
@@ -140,14 +154,14 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
             })}
           </div>
           {errors.storage_gb && (
-            <p className="text-sm text-red-600 mt-1">{errors.storage_gb.message}</p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">{errors.storage_gb.message}</p>
           )}
         </div>
 
         {/* RAM */}
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            RAM (GB) <span className="text-xs text-zinc-400">(Optional)</span>
+          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
+            RAM Capacity <span className="text-xs text-slate-400 font-normal">(Optional)</span>
           </label>
           <div className="flex flex-wrap gap-2">
             {availableRam.map((gb) => {
@@ -159,19 +173,19 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
                   onClick={() =>
                     setValue('ram_gb', isSelected ? null : gb, { shouldValidate: true })
                   }
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all active:scale-95 ${
                     isSelected
-                      ? 'border-emerald-600 bg-emerald-600 text-white font-semibold'
-                      : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                   }`}
                 >
-                  {gb}GB
+                  {gb} GB
                 </button>
               )
             })}
           </div>
           {errors.ram_gb && (
-            <p className="text-sm text-red-600 mt-1">{errors.ram_gb.message}</p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">{errors.ram_gb.message}</p>
           )}
         </div>
       </div>
@@ -180,17 +194,17 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
       <div className="space-y-2">
         <label
           htmlFor="color"
-          className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
+          className="block text-sm font-bold text-slate-700 dark:text-slate-300"
         >
-          Color <span className="text-xs text-zinc-400">(Optional)</span>
+          Phone Color <span className="text-xs text-slate-400 font-normal">(Optional)</span>
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {COLOR_OPTIONS.slice(0, 10).map((c) => (
             <button
               type="button"
               key={c}
               onClick={() => setValue('color', c, { shouldValidate: true })}
-              className="px-2.5 py-1 text-xs rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:border-emerald-500"
+              className="px-3 py-1 text-xs font-semibold rounded-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-500 active:scale-95 transition-all"
             >
               {c}
             </button>
@@ -199,24 +213,25 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
         <input
           id="color"
           type="text"
-          placeholder="Or enter your custom color (e.g. Deep Purple, Space Grey)"
+          placeholder="Or type custom color (e.g. Natural Titanium, Midnight, Phantom Black)"
           {...register('color')}
-          className="w-full mt-2 px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="w-full mt-2 px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        {errors.color && <p className="text-sm text-red-600 mt-1">{errors.color.message}</p>}
+        {errors.color && <p className="text-xs text-red-600 mt-1">{errors.color.message}</p>}
       </div>
 
       {/* 5. Battery Health (Only visible if condition === 'used') */}
       {condition === 'used' && (
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl space-y-2">
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
           <div className="flex items-center justify-between">
             <label
               htmlFor="battery_health"
-              className="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
+              className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
             >
-              Battery Health (%): <span className="text-xs text-zinc-400">(For used phones)</span>
+              <Battery className="w-4 h-4 text-emerald-600" />
+              <span>Battery Health %</span>
             </label>
-            <span className="text-xs font-mono text-zinc-500">
+            <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">
               {watch('battery_health') ? `${watch('battery_health')}%` : 'Not specified'}
             </span>
           </div>
@@ -225,79 +240,93 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
             type="number"
             min={0}
             max={100}
-            placeholder="e.g. 87"
+            placeholder="e.g. 88 (Especially relevant for iPhones)"
             {...register('battery_health', {
               setValueAs: (v) => (v === '' || isNaN(v) ? null : Number(v)),
             })}
-            className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.battery_health && (
-            <p className="text-sm text-red-600 mt-1">{errors.battery_health.message}</p>
+            <p className="text-xs text-red-600 mt-1 font-semibold">{errors.battery_health.message}</p>
           )}
         </div>
       )}
 
-      {/* 6. Box & Accessories (Toggles) */}
+      {/* 6. Box & Accessories Toggles */}
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => setValue('has_box', !hasBox)}
-          className={`p-3.5 rounded-xl border text-sm font-medium flex items-center justify-between transition-all ${
+          className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-between transition-all active:scale-95 ${
             hasBox
-              ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-              : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+              ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/20'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300'
           }`}
         >
-          <span>📦 Original Box</span>
-          <span>{hasBox ? '✅' : '⚪'}</span>
+          <span className="flex items-center gap-2">
+            <Package className="w-4 h-4 text-slate-500" />
+            <span>Original Box</span>
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700">
+            {hasBox ? 'Yes ✓' : 'No'}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setValue('has_accessories', !hasAccessories)}
-          className={`p-3.5 rounded-xl border text-sm font-medium flex items-center justify-between transition-all ${
+          className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-between transition-all active:scale-95 ${
             hasAccessories
-              ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-              : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+              ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/20'
+              : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300'
           }`}
         >
-          <span>🔌 Accessories Included</span>
-          <span>{hasAccessories ? '✅' : '⚪'}</span>
+          <span className="flex items-center gap-2">
+            <Wrench className="w-4 h-4 text-slate-500" />
+            <span>Accessories</span>
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700">
+            {hasAccessories ? 'Yes ✓' : 'No'}
+          </span>
         </button>
       </div>
 
       {/* 7. Warranty Selection */}
       <div className="space-y-3">
-        <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
           Warranty Status <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
-          {(['none', 'in_warranty'] as const).map((w) => (
-            <button
-              type="button"
-              key={w}
-              onClick={() => {
-                setValue('warranty_type', w, { shouldValidate: true })
-                if (w === 'none') {
-                  setValue('warranty_months_remaining', 0, { shouldValidate: true })
-                }
-              }}
-              className={`py-3 px-4 rounded-xl border text-sm font-medium text-center transition-all ${
-                warrantyType === w
-                  ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500'
-                  : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-              }`}
-            >
-              {WARRANTY_LABELS[w]}
-            </button>
-          ))}
+          {(['none', 'in_warranty'] as const).map((w) => {
+            const isSelected = warrantyType === w
+            return (
+              <button
+                type="button"
+                key={w}
+                onClick={() => {
+                  setValue('warranty_type', w, { shouldValidate: true })
+                  if (w === 'none') {
+                    setValue('warranty_months_remaining', 0, { shouldValidate: true })
+                  }
+                }}
+                className={`py-3 px-4 rounded-2xl border text-sm font-bold text-center transition-all flex items-center justify-center gap-1.5 active:scale-95 ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/30'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <span>{WARRANTY_LABELS[w]}</span>
+                {isSelected && <Check className="w-4 h-4 text-blue-600" />}
+              </button>
+            )
+          })}
         </div>
 
         {warrantyType === 'in_warranty' && (
-          <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl space-y-2">
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
             <label
               htmlFor="warranty_months"
-              className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
+              className="block text-sm font-bold text-slate-700 dark:text-slate-300"
             >
               Remaining Warranty (Months) <span className="text-red-500">*</span>
             </label>
@@ -310,10 +339,10 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
               {...register('warranty_months_remaining', {
                 valueAsNumber: true,
               })}
-              className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.warranty_months_remaining && (
-              <p className="text-sm text-red-600 mt-1">
+              <p className="text-xs text-red-600 mt-1 font-semibold">
                 {errors.warranty_months_remaining.message}
               </p>
             )}

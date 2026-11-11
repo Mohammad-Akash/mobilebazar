@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
+import { MobileBottomNav } from "@/app/components/MobileBottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 
   // Title template: child pages set their own title, it becomes "Title | MobileBazar"
   title: {
-    default: `${SITE_CONFIG.name} — Pakistan's Mobile Phones Marketplace`,
+    default: `${SITE_CONFIG.name} — Dedicated Smartphone Marketplace Pakistan`,
     template: `%s | ${SITE_CONFIG.name}`,
   },
 
@@ -83,11 +84,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-        <Suspense fallback={<header className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900" />}>
+      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 pb-16 md:pb-0">
+        <Suspense fallback={<header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />}>
           <Header />
         </Suspense>
         <main className="flex-1">{children}</main>
+        <MobileBottomNav />
       </body>
     </html>
   );

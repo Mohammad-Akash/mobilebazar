@@ -138,7 +138,7 @@ export function EditAdForm({
           <button
             type="submit"
             disabled={isPending}
-            className="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm shadow-md transition-all disabled:opacity-50"
+            className="px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-sm shadow-md shadow-blue-600/30 transition-all disabled:opacity-50"
           >
             {isPending ? 'Saving changes...' : '💾 Save Changes'}
           </button>

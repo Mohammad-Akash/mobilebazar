@@ -17,6 +17,14 @@ import { ContactButtons } from './components/ContactButtons'
 import { SafetyTips } from './components/SafetyTips'
 import { ViewCounter } from './components/ViewCounter'
 import { AdCard } from '@/app/components/AdCard'
+import {
+  MapPin,
+  Clock,
+  ShieldCheck,
+  ChevronRight,
+  AlertTriangle,
+  FileText,
+} from 'lucide-react'
 
 export const instant = false
 
@@ -48,7 +56,7 @@ export async function generateMetadata({
     ? getAdImageUrl(ad.cover_image_path, 'md')
     : absoluteUrl(SITE_CONFIG.defaultOgImage)
   const priceText = formatPrice(ad.price || 0)
-  const metaTitle = `${ad.title || 'Mobile Phone'} for Sale in ${
+  const metaTitle = `${ad.title || 'Smartphone'} for Sale in ${
     ad.city_name || 'Pakistan'
   } — ${priceText}`
   const metaDesc = ad.description
@@ -94,12 +102,10 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
   const { id, slug: slugArray } = await params
   const ad = await getAdById(id)
 
-  // 1. Not found if ad doesn't exist or is marked as deleted
   if (!ad || ad.status === 'deleted') {
     notFound()
   }
 
-  // 2. Canonical slug enforcement (Permanent 301 Redirect if slug is missing or wrong)
   const canonicalSlug = buildAdSlug({
     title: ad.title,
     brand_name: ad.brand_name,
@@ -117,14 +123,13 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
   const adId = ad.id || id
   const canonicalPath = buildAdCanonicalPath(id, canonicalSlug)
 
-  // 3. Structured Data
   const absoluteImages = (ad.images || [])
     .slice(0, 4)
     .map((img) => getAdImageUrl(img.storage_path, 'md'))
 
   const productJsonLd = buildProductJsonLd({
     id: adId,
-    title: ad.title || 'Mobile Phone',
+    title: ad.title || 'Smartphone',
     description: ad.description,
     price: ad.price || 0,
     brandName: ad.brand_name,
@@ -145,12 +150,11 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
     ...(ad.brand_slug && ad.model_slug && ad.model_name
       ? [{ name: ad.model_name, url: `/brands/${ad.brand_slug}/${ad.model_slug}` }]
       : []),
-    { name: ad.title || 'Ad', url: canonicalPath },
+    { name: ad.title || 'Phone', url: canonicalPath },
   ]
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(breadcrumbsList)
 
-  // 4. Fetch similar ads
   const similarAds =
     ad.brand_id && ad.model_id && ad.city_id
       ? await getSimilarAds({
@@ -165,30 +169,30 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
   const relativeTime = ad.published_at ? formatRelativeTime(ad.published_at) : ''
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Schemas */}
       <JsonLd data={productJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
 
-      {/* Non-blocking client-side view counter */}
+      {/* Non-blocking view counter */}
       <ViewCounter adId={adId} />
 
       {/* Visual Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="text-xs text-zinc-500 dark:text-zinc-400">
+      <nav aria-label="Breadcrumb" className="text-xs text-slate-500 dark:text-slate-400">
         <ol className="flex flex-wrap items-center gap-1.5">
           {breadcrumbsList.map((crumb, idx) => {
             const isLast = idx === breadcrumbsList.length - 1
             return (
               <li key={crumb.url} className="flex items-center gap-1.5">
-                {idx > 0 && <span>/</span>}
+                {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
                 {isLast ? (
-                  <span className="font-medium text-zinc-900 dark:text-zinc-200 truncate max-w-[200px]">
+                  <span className="font-semibold text-slate-900 dark:text-white truncate max-w-[220px]">
                     {crumb.name}
                   </span>
                 ) : (
                   <Link
                     href={crumb.url}
-                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     {crumb.name}
                   </Link>
@@ -201,12 +205,12 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
 
       {/* Inactive Ad Warning Banner */}
       {ad.status !== 'active' && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-2xl text-amber-900 dark:text-amber-200 flex items-center gap-3 shadow-sm">
-          <span className="text-2xl">⚠️</span>
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-3xl text-amber-900 dark:text-amber-200 flex items-center gap-3 shadow-xs">
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
           <div>
-            <p className="font-bold text-sm">This Ad is No Longer Active</p>
+            <p className="font-bold text-sm">This Smartphone Listing is No Longer Active</p>
             <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-              This phone has been sold or the listing has expired ({ad.status}).
+              This handset has been marked as sold or expired ({ad.status}).
             </p>
           </div>
         </div>
@@ -217,60 +221,89 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
         {/* Left Column: Photos & Details (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Photos Gallery */}
-          <Gallery images={ad.images} adTitle={ad.title || 'Mobile'} />
+          <Gallery images={ad.images} adTitle={ad.title || 'Smartphone'} />
 
           {/* Specifications Table */}
           <SpecTable ad={ad} />
 
           {/* Description Box */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-3">
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-              <span>📝</span>
-              <span>Seller Description</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span>Seller Note & Condition Details</span>
             </h3>
-            <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
+            <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
               {ad.description}
             </p>
           </div>
         </div>
 
         {/* Right Column: Price, Contact, Seller & Safety (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-20">
-          {/* Price Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+          {/* Price & Primary Card */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                {formatPrice(ad.price || 0)}
-              </span>
-              {ad.is_negotiable && (
-                <span className="text-xs font-bold text-zinc-400">
-                  (Negotiable)
+              <div>
+                <span className="text-xs uppercase tracking-wider font-bold text-slate-400 block mb-0.5">
+                  Asking Price
+                </span>
+                <span className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                  {formatPrice(ad.price || 0)}
+                </span>
+              </div>
+              {ad.is_negotiable ? (
+                <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300">
+                  Negotiable
+                </span>
+              ) : (
+                <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-500">
+                  Fixed Price
                 </span>
               )}
             </div>
 
-            <div className="space-y-1">
-              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 leading-snug">
+            <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-4">
+              <h1 className="text-xl font-black text-slate-900 dark:text-white leading-snug">
                 {ad.title}
               </h1>
-              <div className="flex items-center gap-3 text-xs text-zinc-500 pt-1">
-                <span>📍 {ad.city_name}{ad.area_name ? `, ${ad.area_name}` : ''}</span>
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                  <span>
+                    {ad.city_name}
+                    {ad.area_name ? `, ${ad.area_name}` : ''}
+                  </span>
+                </span>
                 <span>•</span>
-                <span>🕒 {relativeTime}</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{relativeTime}</span>
+                </span>
               </div>
             </div>
 
             {/* Quick Badges */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-              <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                Condition: {ad.condition === 'new' ? 'Brand New' : 'Used'}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <span className="px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {ad.condition === 'new' ? '✨ Brand New' : '📱 Used Phone'}
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                PTA: {ad.pta_status ? ad.pta_status.replace(/_/g, ' ').toUpperCase() : 'UNKNOWN'}
+              <span
+                className={`px-3 py-1 rounded-xl text-xs font-bold ${
+                  ad.pta_status === 'pta_approved'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+                }`}
+              >
+                {ad.pta_status ? ad.pta_status.replace(/_/g, ' ').toUpperCase() : 'PTA UNVERIFIED'}
               </span>
               {ad.storage_gb && (
-                <span className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Storage: {ad.storage_gb} GB
+                <span className="px-3 py-1 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900 text-xs font-bold">
+                  {ad.storage_gb} GB Storage
+                </span>
+              )}
+              {ad.battery_health != null && (
+                <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
+                  🔋 {ad.battery_health}% Battery
                 </span>
               )}
             </div>
@@ -279,57 +312,70 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           {/* Contact Seller Button */}
           <ContactButtons
             adId={adId}
-            adTitle={ad.title || 'Mobile Phone'}
+            adTitle={ad.title || 'Smartphone'}
             adStatus={ad.status || 'active'}
             contactPreference={ad.contact_preference || 'both'}
           />
 
           {/* Seller Profile Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center font-extrabold text-emerald-700 dark:text-emerald-300 text-lg">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 flex items-center justify-center font-black text-blue-600 dark:text-blue-400 text-lg">
                 {(ad.seller?.full_name || ad.seller_name || 'U')[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate">
-                    {ad.seller?.full_name || ad.seller_name || 'MobileBazar User'}
+                  <span className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                    {ad.seller?.full_name || ad.seller_name || 'MobileBazar Seller'}
                   </span>
                   {ad.seller?.is_phone_verified ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-                      <span>✓</span>
-                      <span>Phone Verified</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>Verified Phone</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                       Unverified
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Member since {ad.seller?.created_at ? new Date(ad.seller.created_at).toLocaleDateString('en-PK', { month: 'short', year: 'numeric' }) : 'Recently'} • {ad.seller?.ads_count ?? 1} Ads
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Member since{' '}
+                  {ad.seller?.created_at
+                    ? new Date(ad.seller.created_at).toLocaleDateString('en-PK', {
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : 'Recently'}{' '}
+                  • {ad.seller?.ads_count ?? 1} Phone Ads
                 </p>
               </div>
             </div>
           </div>
 
           {/* Safety Tips Card */}
-          <SafetyTips adId={adId} adTitle={ad.title || 'Mobile Phone'} />
+          <SafetyTips adId={adId} adTitle={ad.title || 'Smartphone'} />
         </div>
       </div>
 
-      {/* Similar Ads Section */}
+      {/* Similar Phones Section */}
       {similarAds.length > 0 && (
-        <section className="pt-10 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
+        <section className="pt-12 border-t border-slate-200 dark:border-slate-800 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-              Similar Phones
-            </h2>
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                Similar Smartphones
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Compare other {ad.brand_name || 'phone'} listings in {ad.city_name || 'Pakistan'}
+              </p>
+            </div>
             <Link
               href={`/ads?brand=${ad.brand_slug}&city=${ad.city_slug}`}
-              className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
+              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
-              View More &rarr;
+              <span>Explore All</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
