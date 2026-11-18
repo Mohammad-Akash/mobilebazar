@@ -40,14 +40,14 @@ export function MakeOfferModal({
     setErrorMsg(null)
 
     if (offerPrice < minAllowed || offerPrice > maxAllowed) {
-      setErrorMsg(`Offer Rs ${minAllowed.toLocaleString()} se Rs ${maxAllowed.toLocaleString()} ke darmiyan honi chahiye.`)
+      setErrorMsg(`Offer must be between Rs ${minAllowed.toLocaleString()} and Rs ${maxAllowed.toLocaleString()}.`)
       return
     }
 
     startTransition(async () => {
       const initialMessage = note.trim()
         ? `Offer: Rs ${offerPrice.toLocaleString()} - ${note.trim()}`
-        : `Mera offer hai Rs ${offerPrice.toLocaleString()}. Kya aap deal karne ke liye tayyar hain?`
+        : `My offer is Rs ${offerPrice.toLocaleString()}. Are you open to this deal?`
 
       const res = await startConversationAction(adId, initialMessage, offerPrice)
 
@@ -63,7 +63,7 @@ export function MakeOfferModal({
       }
 
       if (!res.success || !res.conversation_id) {
-        setErrorMsg(res.message || 'Offer bhejne mein masla pesh aaya.')
+        setErrorMsg(res.message || 'Failed to submit offer.')
         return
       }
 
@@ -123,7 +123,7 @@ export function MakeOfferModal({
           {/* Offer Input */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">
-              Aap Ka Offer (PKR)
+              Your Offer Amount (PKR)
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#77758A]">

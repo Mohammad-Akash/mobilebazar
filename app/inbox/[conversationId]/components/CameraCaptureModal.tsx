@@ -231,7 +231,7 @@ export function CameraCaptureModal({
             </div>
             <div>
               <h3 className="text-sm font-black text-white">Capture Photo</h3>
-              <p className="text-[11px] text-[#9B98B2]">Tasveer kheenchain aur chat mein bhein</p>
+              <p className="text-[11px] text-[#9B98B2]">Take a photo and attach it to chat</p>
             </div>
           </div>
           <button

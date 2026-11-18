@@ -91,14 +91,14 @@ export function ThreadInput({
 
     const validImages = files.filter((f) => f.type.startsWith('image/'))
     if (validImages.length === 0) {
-      alert('Baraye meharbani sirf image files select karein.')
+      alert('Please select only image files.')
       return
     }
 
     // Cap at MAX_IMAGES
     const availableSlots = MAX_IMAGES - selectedFiles.length
     if (availableSlots <= 0) {
-      alert(`Aap ek waqt mein zyada se zyada ${MAX_IMAGES} photos bhej sakte hain.`)
+      alert(`You can attach up to ${MAX_IMAGES} photos at a time.`)
       return
     }
 
@@ -132,7 +132,7 @@ export function ThreadInput({
   const handleCapturedPhoto = (file: File) => {
     const availableSlots = MAX_IMAGES - selectedFiles.length
     if (availableSlots <= 0) {
-      alert(`Aap ek waqt mein zyada se zyada ${MAX_IMAGES} photos bhej sakte hain.`)
+      alert(`You can attach up to ${MAX_IMAGES} photos at a time.`)
       return
     }
     const newPreview = URL.createObjectURL(file)
@@ -251,7 +251,7 @@ export function ThreadInput({
   if (disabled) {
     return (
       <div className="p-3 bg-[#F7F6F2] dark:bg-[#211E38] rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] text-center text-xs text-[#77758A] dark:text-[#9B98B2]">
-        {disabledReason || 'Chat abhi active nahi hai.'}
+        {disabledReason || 'Chat is currently inactive.'}
       </div>
     )
   }

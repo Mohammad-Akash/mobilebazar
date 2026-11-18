@@ -49,10 +49,10 @@ export function ContactButtons({
         <div className="space-y-1">
           <span className="text-xs font-bold text-[#7657FF] dark:text-[#8A6FFF] flex items-center justify-center gap-1.5">
             <CheckCircle className="w-4 h-4" />
-            <span>Aap ka apna handset ishtehaar hai</span>
+            <span>This is your listing</span>
           </span>
           <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2]">
-            Buyers aap se in buttons ke zariye chat, offer, ya call par rabta karenge.
+            Buyers can contact you via chat, submit offers, or call using these options.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export function ContactButtons({
 
     startTransition(async () => {
       try {
-        const res = await startConversationAction(adId, 'Assalam o Alaikum, kya ye handset abhi available hai?')
+        const res = await startConversationAction(adId, 'Hi, is this phone still available?')
 
         if (res.code === 'AUTH_REQUIRED') {
           const nextUrl = typeof window !== 'undefined' ? window.location.pathname : `/ad/${adId}`
@@ -96,7 +96,7 @@ export function ContactButtons({
         }
 
         if (!res.success || !res.conversation_id) {
-          setErrorMsg(res.message || 'Chat shuru karne mein masla pesh aaya.')
+          setErrorMsg(res.message || 'Failed to start chat.')
           setIsChatStarting(false)
           return
         }

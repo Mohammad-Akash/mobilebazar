@@ -33,7 +33,7 @@ export function BlockReportModal({
     startTransition(async () => {
       const res = await blockUserAction(otherUserId)
       if (!res.success) {
-        setErrorMsg(res.message || 'User ko block nahi kiya ja saka.')
+        setErrorMsg(res.message || 'Unable to block user.')
         return
       }
       onSuccess('blocked')
@@ -47,7 +47,7 @@ export function BlockReportModal({
     startTransition(async () => {
       const res = await reportConversationAction(conversationId, reason, detail)
       if (!res.success) {
-        setErrorMsg(res.message || 'Report submit karne mein masla pesh aaya.')
+        setErrorMsg(res.message || 'Failed to submit report.')
         return
       }
       onSuccess('reported')
@@ -89,7 +89,7 @@ export function BlockReportModal({
         {mode === 'block' ? (
           <div className="space-y-4">
             <p className="text-xs text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
-              Kya aap waqai <strong className="text-[#17152B] dark:text-[#F7F6F2]">{otherUserName}</strong> ko block karna chahte hain? Block karne ke baad yeh user aap ko koi naya message nahi bhej sake ga. Unhe pata nahi chalega ke aap ne unhe block kiya hai.
+              Are you sure you want to block <strong className="text-[#17152B] dark:text-[#F7F6F2]">{otherUserName}</strong>? Once blocked, this user will not be able to send you messages. They will not be notified that they were blocked.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -115,7 +115,7 @@ export function BlockReportModal({
         ) : (
           <form onSubmit={handleReport} className="space-y-4">
             <p className="text-xs text-[#77758A] dark:text-[#9B98B2]">
-              Aap ki report MobileBazar moderation team ko bhaiji jaye gi aur saboot ke tor par pichle messages verify kiye jayenge.
+              Your report will be sent to the MobileBazar moderation team, and recent messages will be reviewed as evidence.
             </p>
 
             <div className="space-y-1.5">

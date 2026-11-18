@@ -242,7 +242,7 @@ export function MessageBubble({
             </div>
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                {isMine ? 'Aap Ka Bheja Hua Contact' : 'Direct Contact Number'}
+                {isMine ? 'Your Shared Contact' : 'Direct Contact Number'}
               </span>
               <h4 className="text-base font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-wide">
                 {phone}
@@ -260,7 +260,7 @@ export function MessageBubble({
           <div className="grid grid-cols-2 gap-2 pt-1">
             <a
               href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
-                'Assalam-o-Alaikum, MobileBazar ad ke hawale se rabta kiya hai.'
+                'Hi, I am contacting you regarding your MobileBazar listing.'
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -313,7 +313,7 @@ export function MessageBubble({
           <div className="mt-2 pt-2 border-t border-white/20 dark:border-[#2D2947] flex items-center gap-2">
             <a
               href={`https://wa.me/92${pkPhoneMatch[0].replace(/\D/g, '').replace(/^0/, '')}?text=${encodeURIComponent(
-                'Assalam-o-Alaikum, MobileBazar ad ke hawale se rabta kiya hai.'
+                'Hi, I am contacting you regarding your MobileBazar listing.'
               )}`}
               target="_blank"
               rel="noopener noreferrer"

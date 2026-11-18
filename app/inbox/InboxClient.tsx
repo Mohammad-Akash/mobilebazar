@@ -149,12 +149,12 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-bold text-[#17152B] dark:text-[#F7F6F2]">
-              {searchQuery ? 'Koi matching conversation nahi mili' : 'Koi messages nahi hain'}
+              {searchQuery ? 'No matching conversations found' : 'No messages yet'}
             </h3>
             <p className="text-xs text-[#77758A] dark:text-[#9B98B2] max-w-sm mx-auto">
               {searchQuery
-                ? 'Apna search query change karein ya filters check karein.'
-                : 'Marketplace par smartphones browse karein aur direct sellers se chat karein.'}
+                ? 'Try adjusting your search query or switching tabs.'
+                : 'Browse smartphones on the marketplace and chat directly with sellers.'}
             </p>
           </div>
           {!searchQuery && (

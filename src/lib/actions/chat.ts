@@ -14,7 +14,7 @@ export async function startConversationAction(
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      return { success: false, code: 'AUTH_REQUIRED', message: 'Chat shuru karne ke liye pehle login karein.' }
+      return { success: false, code: 'AUTH_REQUIRED', message: 'Please login first to start a chat.' }
     }
 
     const { data, error } = await (supabase.rpc as unknown as (name: string, params: object) => Promise<{ data: StartConversationResult | null; error: Error | null }>)(
@@ -35,7 +35,7 @@ export async function startConversationAction(
       revalidatePath('/inbox')
     }
 
-    return res || { success: false, code: 'UNKNOWN_ERROR', message: 'Chat create nahi ho saki.' }
+    return res || { success: false, code: 'UNKNOWN_ERROR', message: 'Unable to start chat.' }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Server error occurred'
     return { success: false, code: 'EXCEPTION', message: msg }
@@ -53,16 +53,16 @@ export async function sendMessageAction(
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
-      return { success: false, code: 'AUTH_REQUIRED', message: 'Login zaroori hai.' }
+      return { success: false, code: 'AUTH_REQUIRED', message: 'Authentication required. Please login.' }
     }
 
     const cleanBody = body?.trim()
     if (!cleanBody || cleanBody.length === 0) {
-      return { success: false, code: 'EMPTY_BODY', message: 'Message khali nahi ho sakta.' }
+      return { success: false, code: 'EMPTY_BODY', message: 'Message cannot be empty.' }
     }
 
     if (cleanBody.length > 1000) {
-      return { success: false, code: 'TOO_LONG', message: 'Message 1000 characters se zyada nahi ho sakta.' }
+      return { success: false, code: 'TOO_LONG', message: 'Message cannot exceed 1000 characters.' }
     }
 
     const { data, error } = await (supabase.rpc as unknown as (name: string, params: object) => Promise<{ data: SendMessageResult | null; error: Error | null }>)(
@@ -80,7 +80,7 @@ export async function sendMessageAction(
     }
 
     const res = data as SendMessageResult
-    return res || { success: false, code: 'UNKNOWN_ERROR', message: 'Message deliver nahi ho saka.' }
+    return res || { success: false, code: 'UNKNOWN_ERROR', message: 'Failed to deliver message.' }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Server error'
     return { success: false, code: 'EXCEPTION', message: msg }

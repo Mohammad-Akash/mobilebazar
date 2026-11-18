@@ -234,7 +234,7 @@ export function ThreadClient({
     const res = await sendMessageAction(conversationId, text, kind, offerAmount)
 
     if (!res.success) {
-      setErrorBanner(res.message || 'Message deliver nahi ho saka.')
+      setErrorBanner(res.message || 'Failed to deliver message.')
       if (res.code === 'BLOCKED') {
         setIsBlocked(true)
       }
@@ -242,7 +242,7 @@ export function ThreadClient({
     }
 
     if (res.has_phone_number && !text.startsWith('[CONTACT]:')) {
-      setErrorBanner('Phone number detect hua hai. Hamesha safe public jagah mil kar deal karein.')
+      setErrorBanner('Phone number detected. Always meet in a safe public place to finalize the deal.')
     }
 
     setTimeout(() => scrollToBottom(true), 100)
@@ -266,13 +266,13 @@ export function ThreadClient({
 
   const handleAcceptOffer = async (amount: number) => {
     await handleSend(
-      `✅ Offer Accepted! Main Rs ${amount.toLocaleString()} par deal ke liye tayyar hun. Kab aur kahan mil sakte hain?`
+      `✅ Offer Accepted! I am ready to do the deal for Rs ${amount.toLocaleString()}. When and where can we meet?`
     )
   }
 
   const handleRejectOffer = async (amount: number) => {
     await handleSend(
-      `❌ Offer Declined: Shukriya, lekin Rs ${amount.toLocaleString()} bohot kam hai. Ye qeemat mere liye mumkin nahi.`
+      `❌ Offer Declined: Thank you, but Rs ${amount.toLocaleString()} is too low for this device.`
     )
   }
 
@@ -289,9 +289,9 @@ export function ThreadClient({
   const handleActionSuccess = (action: 'blocked' | 'reported') => {
     if (action === 'blocked') {
       setIsBlocked(true)
-      setErrorBanner('Aap ne is user ko block kar diya hai.')
+      setErrorBanner('You have blocked this user.')
     } else {
-      setErrorBanner('Aap ki report submit ho chuki hai. MobileBazar moderation team jald review kare gi.')
+      setErrorBanner('Your report has been submitted. The MobileBazar moderation team will review it shortly.')
     }
   }
 
@@ -359,10 +359,10 @@ export function ThreadClient({
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
             <p className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">
-              Yeh conversation shuru ho gayi hai
+              Conversation started
             </p>
             <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] max-w-xs">
-              Handset ki condition, PTA status, battery health aur physical meeting ke bare mein baat karein.
+              Discuss phone condition, PTA approval status, battery health, and arrange a safe in-person meeting.
             </p>
           </div>
         ) : (
@@ -405,7 +405,7 @@ export function ThreadClient({
           currentUserId={currentUserId}
           conversationId={conversationId}
           disabled={isBlocked}
-          disabledReason={isBlocked ? 'Aap ne is user ko block kiya hua hai.' : undefined}
+          disabledReason={isBlocked ? 'You have blocked this user.' : undefined}
         />
       </div>
 

@@ -7,16 +7,16 @@ interface QuickRepliesProps {
 
 export function QuickReplies({ onSelect, isBuyer }: QuickRepliesProps) {
   const buyerChips = [
-    'Kya ye handset abhi available hai?',
-    'Last final qeemat kitni hogi?',
-    'Kahan mil kar check kar sakte hain?',
-    'Battery health kitni hai?',
+    'Is this phone still available?',
+    'What is your final price?',
+    'Where can we meet to inspect it?',
+    'What is the battery health?',
   ]
 
   const sellerChips = [
-    'Ji bilkul, handset available hai.',
-    'Price final hai bhai, mazeed gunjaish nahi.',
-    'Aap kal din ke waqt mil kar check kar lein.',
+    'Yes, it is available.',
+    'Price is firm and final.',
+    'We can meet during the day to inspect it.',
   ]
 
   const chips = isBuyer ? buyerChips : sellerChips

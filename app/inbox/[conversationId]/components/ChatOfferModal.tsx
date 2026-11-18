@@ -57,13 +57,13 @@ export function ChatOfferModal({
     setErrorMsg(null)
 
     if (!offerPrice || offerPrice <= 0) {
-      setErrorMsg('Baraye meharbani durust raqam darj karein.')
+      setErrorMsg('Please enter a valid amount.')
       return
     }
 
     if (offerPrice < minAllowed || offerPrice > maxAllowed) {
       setErrorMsg(
-        `Offer Rs ${minAllowed.toLocaleString()} se Rs ${maxAllowed.toLocaleString()} ke darmiyan honi chahiye.`
+        `Offer must be between Rs ${minAllowed.toLocaleString()} and Rs ${maxAllowed.toLocaleString()}.`
       )
       return
     }
@@ -72,7 +72,7 @@ export function ChatOfferModal({
     try {
       const defaultNote = isCounter
         ? `Counter Offer: Rs ${offerPrice.toLocaleString()}`
-        : `Mera offer hai Rs ${offerPrice.toLocaleString()}`
+        : `My offer is Rs ${offerPrice.toLocaleString()}`
       const finalNote = note.trim() ? `${defaultNote} — ${note.trim()}` : defaultNote
 
       const success = await onSendOffer(offerPrice, finalNote)
@@ -80,7 +80,7 @@ export function ChatOfferModal({
         setNote('')
         onClose()
       } else {
-        setErrorMsg('Offer send nahi ho saki. Dobara koshish karein.')
+        setErrorMsg('Failed to send offer. Please try again.')
       }
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Error sending offer')
@@ -142,7 +142,7 @@ export function ChatOfferModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-[#17152B] dark:text-[#F7F6F2] mb-1.5">
-              {isCounter ? 'Aap Ki Counter Qeemat (PKR)' : 'Aap Ki Offer Qeemat (PKR)'}
+              {isCounter ? 'Your Counter Offer (PKR)' : 'Your Offer Amount (PKR)'}
             </label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-extrabold text-[#77758A] dark:text-[#9B98B2]">
@@ -198,7 +198,7 @@ export function ChatOfferModal({
               maxLength={300}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g. Aaj cash in hand le sakta hun, kya deal ho sakti hai?"
+              placeholder="e.g. I can pick it up today with cash in hand. Deal?"
               className="w-full p-3 rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#121120] text-xs text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] outline-none focus:border-[#7657FF] dark:focus:border-[#8A6FFF] resize-none leading-relaxed"
             />
           </div>

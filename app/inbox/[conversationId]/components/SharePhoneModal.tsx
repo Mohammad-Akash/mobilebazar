@@ -11,7 +11,7 @@ interface SharePhoneModalProps {
 
 export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModalProps) {
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [note, setNote] = useState('Call ya WhatsApp par rabta karein.')
+  const [note, setNote] = useState('Contact me via call or WhatsApp.')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
 
@@ -28,7 +28,7 @@ export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModa
     const isValid = /^(03\d{9}|(\+92|92)3\d{9})$/.test(cleaned)
 
     if (!isValid) {
-      setErrorMsg('Baraye meharbani durust Pakistani mobile number darj karein (e.g. 03001234567).')
+      setErrorMsg('Please enter a valid Pakistani mobile number (e.g. 03001234567).')
       return
     }
 
@@ -44,7 +44,7 @@ export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModa
       if (success) {
         onClose()
       } else {
-        setErrorMsg('Number share nahi ho saka. Dobara koshish karein.')
+        setErrorMsg('Failed to share phone number. Please try again.')
       }
     } finally {
       setIsSending(false)
@@ -70,7 +70,7 @@ export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModa
                 Share Contact Number
               </h3>
               <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2]">
-                Direct call ya WhatsApp ke liye apna number bhein
+                Send your number for direct calls or WhatsApp
               </p>
             </div>
           </div>
@@ -87,7 +87,7 @@ export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModa
         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-[11px] text-amber-800 dark:text-amber-300">
           <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
           <span>
-            Hamesha safe transaction karein. Kisi ko advance payment na bhejein aur deal public jagah mil kar final karein.
+            Always practice safe transactions. Never send advance deposits and finalize deals in a public place.
           </span>
         </div>
 
@@ -119,7 +119,7 @@ export function SharePhoneModal({ isOpen, onClose, onSendPhone }: SharePhoneModa
               type="text"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g. Call ya WhatsApp par rabta karein"
+              placeholder="e.g. Call or WhatsApp me anytime"
               className="w-full px-4 py-2.5 rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#121120] text-xs text-[#17152B] dark:text-[#F7F6F2] outline-none focus:border-[#7657FF] transition-colors"
             />
           </div>

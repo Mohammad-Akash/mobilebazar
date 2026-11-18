@@ -45,7 +45,7 @@ export function OfferCard({
     if (onAccept) {
       onAccept(amount)
     } else if (onQuickResponse) {
-      onQuickResponse(`✅ Offer Accepted! Main Rs ${amount.toLocaleString()} par deal ke liye tayyar hun. Kab aur kahan mil sakte hain?`)
+      onQuickResponse(`✅ Offer Accepted! I am ready to do the deal for Rs ${amount.toLocaleString()}. When and where can we meet?`)
     }
   }
 
@@ -54,7 +54,7 @@ export function OfferCard({
     if (onReject) {
       onReject(amount)
     } else if (onQuickResponse) {
-      onQuickResponse(`❌ Offer Declined: Shukriya, lekin Rs ${amount.toLocaleString()} bohot kam hai. Ye qeemat mere liye mumkin nahi.`)
+      onQuickResponse(`❌ Offer Declined: Thank you, but Rs ${amount.toLocaleString()} is too low for this device.`)
     }
   }
 
@@ -62,7 +62,7 @@ export function OfferCard({
     if (onCounter) {
       onCounter(amount)
     } else if (onQuickResponse) {
-      onQuickResponse(`Shukriya, lekin Rs ${amount.toLocaleString()} par deal nahi ho sakti. Thora behtar offer karein.`)
+      onQuickResponse(`Thank you, but I cannot accept Rs ${amount.toLocaleString()}. Please make a reasonable counter offer.`)
     }
   }
 
@@ -98,7 +98,7 @@ export function OfferCard({
           </div>
           <div>
             <span className="text-[10px] font-black uppercase tracking-wider text-[#7657FF] dark:text-[#8A6FFF]">
-              {isMine ? 'Aap Ka Bheja Hua Offer' : 'Offer Received'}
+              {isMine ? 'Your Submitted Offer' : 'Offer Received'}
             </span>
             <h4 className="text-xl font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight">
               Rs {amount.toLocaleString()}
@@ -123,22 +123,22 @@ export function OfferCard({
       {/* Description text */}
       <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
         {isMine
-          ? 'Seller ko aap ka offer bhej diya gaya hai. Unke response ka intezar karein.'
-          : 'Buyer is qeemat par handset khareedne ke liye tayyar hai.'}
+          ? 'Your offer has been sent to the seller. Waiting for their response.'
+          : 'The buyer is ready to purchase the device at this price.'}
       </p>
 
       {/* Status Badges for completed responses */}
       {respondedStatus === 'accepted' && (
         <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs font-bold text-emerald-700 dark:text-emerald-300">
           <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-          <span>✅ Offer Accepted (Deal Tayyar)</span>
+          <span>✅ Offer Accepted</span>
         </div>
       )}
 
       {respondedStatus === 'rejected' && (
         <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs font-bold text-red-700 dark:text-red-300">
           <XCircle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
-          <span>❌ Offer Declined (Inkar)</span>
+          <span>❌ Offer Declined</span>
         </div>
       )}
 
@@ -174,7 +174,7 @@ export function OfferCard({
             className="w-full py-1.5 px-3 rounded-xl bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#E9E7EF] dark:hover:bg-[#2D2947] active:scale-95 text-[#7657FF] dark:text-[#8A6FFF] text-xs font-bold border border-[#E9E7EF] dark:border-[#2D2947] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <ArrowRightLeft className="w-3.5 h-3.5 stroke-[2]" />
-            <span>Counter Offer Bhejein</span>
+            <span>Make Counter Offer</span>
           </button>
         </div>
       )}

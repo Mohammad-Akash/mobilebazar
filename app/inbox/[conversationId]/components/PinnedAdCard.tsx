@@ -84,7 +84,7 @@ export function PinnedAdCard({ ad, onOpenOfferModal }: PinnedAdCardProps) {
       {isInactive && (
         <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span>Yeh handset ab available nahi hai ({ad.status}). Aap purani conversation continue kar sakte hain.</span>
+          <span>This phone is no longer active ({ad.status}). You can still continue your conversation.</span>
         </div>
       )}
     </div>
