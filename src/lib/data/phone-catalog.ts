@@ -11,112 +11,112 @@ export interface ExtendedBrandOption extends BrandOption {
 
 export const CATALOG_BRANDS: ExtendedBrandOption[] = [
   {
-    "id": "b1010000-0000-4000-8000-000000000001",
+    "id": "89ef2b03-0aea-4b7c-ae2a-1301cf370dd7",
     "name": "Apple",
     "slug": "apple",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000002",
+    "id": "2abb2ec7-c3ae-4a0f-9cb7-0f08f790829f",
     "name": "Samsung",
     "slug": "samsung",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000003",
+    "id": "8a84f385-71b3-4cf6-84a8-8c7615394ef4",
     "name": "Xiaomi",
     "slug": "xiaomi",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000004",
+    "id": "5fcb1c16-f5d4-48c1-b6bb-026519fff71c",
     "name": "Redmi",
     "slug": "redmi",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000005",
+    "id": "11fa418e-efaa-41cb-befe-3297781ea839",
     "name": "Poco",
     "slug": "poco",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000006",
+    "id": "84611d19-7c00-43bc-93b6-5f3a43f45802",
     "name": "Infinix",
     "slug": "infinix",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000007",
+    "id": "299b7d5f-b004-4107-b12e-94e7229dad1a",
     "name": "Tecno",
     "slug": "tecno",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000008",
+    "id": "7f29a504-fb6f-4b51-bfa3-4e7ff591b45f",
     "name": "Oppo",
     "slug": "oppo",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000009",
+    "id": "f3589e55-3989-4a17-af11-c3d0dafbe1a9",
     "name": "Vivo",
     "slug": "vivo",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000a",
+    "id": "a4f542ff-f5ea-4f92-88e3-04683a6f0826",
     "name": "Realme",
     "slug": "realme",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000b",
+    "id": "401fab0b-85de-42e0-afff-f1c43287c336",
     "name": "Huawei",
     "slug": "huawei",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000c",
+    "id": "227b66ea-def5-4e58-85ee-1604d97dbf8f",
     "name": "Honor",
     "slug": "honor",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000d",
-    "name": "Google",
-    "slug": "google",
+    "id": "d4a8a33a-b8a8-4d17-b207-8613b906e132",
+    "name": "Google Pixel",
+    "slug": "google-pixel",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000e",
+    "id": "7bd86084-3520-4085-88d8-34832adc16c6",
     "name": "OnePlus",
     "slug": "oneplus",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-00000000000f",
+    "id": "d0719159-403e-4954-a910-955e0eec5b85",
     "name": "Motorola",
     "slug": "motorola",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000010",
+    "id": "98f30eac-8a5f-453c-96d6-b134b6a4e11e",
     "name": "Nokia",
     "slug": "nokia",
     "tier": 1,
@@ -130,14 +130,14 @@ export const CATALOG_BRANDS: ExtendedBrandOption[] = [
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000012",
+    "id": "53d50a13-6775-4037-acb4-e2b6446b6c02",
     "name": "Itel",
     "slug": "itel",
     "tier": 1,
     "logo_url": null
   },
   {
-    "id": "b1010000-0000-4000-8000-000000000013",
+    "id": "7d55f673-5b6c-4e36-80cf-a127b182bd16",
     "name": "Nothing",
     "slug": "nothing",
     "tier": 1,
@@ -8010,6 +8010,75 @@ const BRAND_HEX_CODES: Record<string, string> = {
   'vgo-tel': '26',
 };
 
+// Exact Supabase Database UUIDs for the 54 initial models
+export const KNOWN_DB_MODELS: Record<string, string> = {
+  // Apple (89ef2b03-0aea-4b7c-ae2a-1301cf370dd7)
+  'iphone-16-pro-max': 'd80fcc51-82a4-42ed-93f7-23592b963cea',
+  'iphone-16-pro': 'aa65bf21-d78b-49e9-8e47-c41c2c20ce54',
+  'iphone-16': 'eff9ef1d-03ab-4d0d-8d7f-d975467ccd11',
+  'iphone-15-pro-max': '1bdf8815-3024-4e7b-b022-1a62e2a924ce',
+  'iphone-15-pro': 'dde09ecf-139f-461d-bf63-d60688a8299a',
+  'iphone-15': 'e1bdf0b6-427e-48da-b6b7-3b92dccaf6de',
+  'iphone-14-pro-max': '4cc441ca-cb9a-4145-930b-c44003c4b746',
+  'iphone-14-pro': 'f5aca1e7-450a-4211-82cf-e89ba97b64dc',
+  'iphone-14': 'c6096eb2-9366-4910-818b-c0a3bd2ba6cb',
+  'iphone-13-pro-max': '49a61894-d270-49c2-bd94-4fbc135a3051',
+  'iphone-13': '21014574-2b89-4a06-a32b-452cbe05b39d',
+  'iphone-12': 'f7db0a48-c3dc-4467-8288-c6b52bbe9c3d',
+  'iphone-11': '43dd552c-301c-4681-876f-cde6c0ae263f',
+
+  // Samsung (2abb2ec7-c3ae-4a0f-9cb7-0f08f790829f)
+  'galaxy-s24-ultra': '891f25b4-8cd8-47df-a524-c32d840bec1a',
+  'galaxy-s24-plus': 'c876be6a-e401-415f-8b29-a6d11c7e13b0',
+  'galaxy-s24': '1f5686b3-d195-4689-9c8b-c34c82f8630a',
+  'galaxy-s23-ultra': 'f1100fcc-c15f-44cb-9559-4a9bb103d100',
+  'galaxy-s23-fe': '6e02dd1e-77ff-4d75-bced-b4f60f02a621',
+  'galaxy-s22-ultra': '8fedb391-30a0-4623-9588-83c1cea7f6da',
+  'galaxy-a55-5g': '08c3867f-fdfc-48b8-88b5-c7d19b0fc719',
+  'galaxy-a54-5g': '6c68f9a9-2145-4f18-b525-c28a5b78c156',
+  'galaxy-a35-5g': '55c76e12-6d4f-4c14-872a-823231d7dd9a',
+  'galaxy-a15': '54f26579-7b4a-4ff1-b55b-3f7616c4c1ca',
+  'galaxy-z-fold-6': '6df9b4f3-b5cd-48a8-a8fd-d2b5845e77a7',
+  'galaxy-z-flip-6': 'c6b4886b-398c-4e66-8d67-3b448ac4ddb3',
+
+  // Xiaomi & Redmi (8a84f385-71b3-4cf6-84a8-8c7615394ef4)
+  'xiaomi-14-ultra': 'bcddbcad-9bcc-4f40-ab86-3c302aca0599',
+  'xiaomi-14': '67e9cb20-2219-49b3-9178-10a6ed4fd010',
+  'xiaomi-13t-pro': 'dd80d12f-dd17-4129-a7d5-b3997a787a06',
+  'redmi-note-13-pro-plus': '3c3e0b6f-8173-4cb2-9434-a156e2b45176',
+  'redmi-note-13-pro': 'cfebca88-1bb8-4653-abd3-431d15abe54a',
+  'redmi-note-13': '09df5541-e158-4ce7-a24e-17fbd110d32d',
+  'redmi-13c': 'd8e9d3bb-d8a6-4379-b87a-b6b759c509c7',
+
+  // Infinix (84611d19-7c00-43bc-93b6-5f3a43f45802)
+  'zero-30-5g': '089eba67-88f0-46e7-a2c7-2f4a6b429f90',
+  'note-40-pro': '24bb62b5-4ce4-4b78-a398-9753fbad2a56',
+  'note-40': '10882c41-86fd-4355-8a1e-b65f985265b4',
+  'note-30-pro': '2774aa36-381e-4f8e-90d7-f662599f8b79',
+  'hot-40-pro': 'c7967467-1723-4f4e-aee9-6c9109898188',
+  'hot-30': '44754563-253e-4fa6-a813-1f641be94a12',
+  'smart-8': '751bea11-9f7b-422d-8d66-9ebc727e99d5',
+
+  // Tecno (299b7d5f-b004-4107-b12e-94e7229dad1a)
+  'camon-30-premier': '075f2f05-5d80-4b9b-8b1e-3ae26e415879',
+  'camon-30-pro-5g': '137d5a3d-47df-456d-9b2f-2192580ef2a7',
+  'camon-30': '7714099f-052e-4105-b694-32175430bc77',
+  'spark-20-pro-plus': '80916793-e049-4389-a301-34ff85657646',
+  'spark-20': '6652b41a-94b3-40cc-9b1d-009b15cb2a60',
+  'pova-6-pro-5g': '9dae2e4d-a94f-4b37-ba7c-326621b89de7',
+
+  // Google Pixel (d4a8a33a-b8a8-4d17-b207-8613b906e132)
+  'pixel-9-pro-xl': '69322d56-2e03-449d-b39d-beb6799ffa0c',
+  'pixel-9-pro': '65da67d3-8bf5-4aee-9716-ae2b5fb7ef0a',
+  'pixel-9': 'f00b17a8-e13a-45a6-bc46-9655f86c3552',
+  'pixel-8-pro': '81a40f2e-2822-4699-9db4-d2f966b530e9',
+  'pixel-8': '3decdc95-ddd3-4474-aad3-60350a024a6c',
+  'pixel-7-pro': '2765656c-a9fd-4969-a900-e6da54703440',
+  'pixel-7': '095853bd-7673-40f8-bfe8-00e1408f72b2',
+  'pixel-6-pro': 'c89e7a93-d658-4dd2-8910-e8c60c42e182',
+  'pixel-6': 'f5a600ee-7279-4f62-a8e5-4769f8212cf0',
+};
+
 /**
  * Standard deterministic RFC 4122 v4 UUID helper for catalog models
  */
@@ -8071,7 +8140,7 @@ export function getCatalogModelsForBrand(
   const resolvedBrandId = actualBrandId || 'b1010000-0000-4000-8000-000000000001';
 
   return modelsList.map((m, idx) => ({
-    id: makeCatalogModelId(key, idx + 1),
+    id: KNOWN_DB_MODELS[m.slug] || makeCatalogModelId(key, idx + 1),
     brand_id: resolvedBrandId,
     name: m.name,
     slug: m.slug,

@@ -196,9 +196,9 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
         error: 'Your account has been restricted from posting ads. Please contact support.',
       }
     }
-    if (errorMsg.includes('phone') || errorMsg.includes('verified')) {
+    if (errorMsg.includes('current_user_phone_verified')) {
       return {
-        error: 'Please verify your phone number before posting an ad.',
+        error: 'Please verify your phone number in your profile before posting an ad.',
       }
     }
     if (errorMsg.includes('User active ads limit exceeded')) {
@@ -223,7 +223,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     }
     if (errorMsg.includes('permission denied') || errorMsg.includes('policy')) {
       return {
-        error: 'You do not have permission to post an ad. Please make sure your phone number is verified in your profile.',
+        error: `Database permission error: ${adInsertError.message}. Please execute migration 035 in Supabase SQL editor.`,
       }
     }
 
