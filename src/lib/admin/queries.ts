@@ -401,7 +401,18 @@ export async function getAdminUsers(params: {
   })
 
   if (!error && data) {
-    const users = (data as unknown as AdminUserListItem[]) || []
+    const rawUsers = (data as any[]) || []
+    const users: AdminUserListItem[] = rawUsers.map((u: any) => ({
+      id: u.id,
+      full_name: u.full_name || 'User',
+      email: u.email && u.email !== 'No email' ? u.email : null,
+      role: u.role || 'user',
+      is_phone_verified: u.is_phone_verified ?? false,
+      is_banned: u.is_banned ?? false,
+      masked_phone: u.masked_phone || 'No phone',
+      ads_count: u.ads_count ?? 0,
+      created_at: u.created_at,
+    }))
     let nextCursor: { createdAt: string; id: string } | null = null
 
     if (users.length > 0 && users.length >= (params.limit || 20)) {
@@ -436,7 +447,7 @@ export async function getAdminUsers(params: {
     const userIds = fallbackUsers.map((u: any) => u.id)
     const { data: privData } = await supabase
       .from('profile_private')
-      .select('id, role, is_banned, phone')
+      .select('id, role, is_banned, phone, email')
       .in('id', userIds)
 
     const privMap = new Map<string, any>((privData || []).map((pv: any) => [pv.id, pv]))
@@ -447,6 +458,7 @@ export async function getAdminUsers(params: {
       return {
         id: u.id,
         full_name: u.full_name || 'User',
+        email: priv?.email || null,
         role: priv?.role || 'user',
         is_phone_verified: u.is_phone_verified ?? false,
         is_banned: priv?.is_banned ?? false,

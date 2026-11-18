@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { AdminUserListItem } from '@/src/types/admin'
 import { getAdminUsers } from '@/src/lib/admin/queries'
+import { Mail } from 'lucide-react'
 
 interface UsersListClientProps {
   initialUsers: AdminUserListItem[]
@@ -86,6 +87,7 @@ export function UsersListClient({
               <thead className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 font-semibold">
                 <tr>
                   <th className="py-3 px-4">User</th>
+                  <th className="py-3 px-4">Email / Gmail</th>
                   <th className="py-3 px-4">Role</th>
                   <th className="py-3 px-4">Phone</th>
                   <th className="py-3 px-4">Status</th>
@@ -100,11 +102,23 @@ export function UsersListClient({
                     <td className="py-3 px-4">
                       <Link
                         href={`/admin/users/${u.id}`}
-                        className="font-bold text-zinc-900 dark:text-zinc-100 hover:text-emerald-600 hover:underline"
+                        className="font-bold text-zinc-900 dark:text-zinc-100 hover:text-[#7657FF] hover:underline"
                       >
                         {u.full_name || 'Anonymous User'}
                       </Link>
-                      <p className="text-[11px] text-zinc-400 font-mono">{u.id}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{u.id}</p>
+                    </td>
+                    <td className="py-3 px-4">
+                      {u.email && u.email !== 'No email' ? (
+                        <span className="font-medium text-xs text-[#7657FF] dark:text-[#9B82FF] flex items-center gap-1.5 font-mono">
+                          <Mail className="w-3.5 h-3.5 text-[#7657FF] shrink-0" />
+                          <span className="truncate max-w-[220px] select-all" title={u.email}>
+                            {u.email}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400 text-xs italic">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-4">
                       <span className="font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">

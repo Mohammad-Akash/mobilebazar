@@ -48,6 +48,7 @@ export interface AdminSpamFlag {
 export interface AdminUserListItem {
   id: string
   full_name: string
+  email?: string | null
   role: StaffRole
   is_phone_verified: boolean
   is_banned: boolean
