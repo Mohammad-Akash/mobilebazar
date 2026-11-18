@@ -106,7 +106,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
         if (!error && data && data.length > 0) {
           const dbModels = data as ModelOption[]
           const existingSlugs = new Set(dbModels.map((m) => m.slug))
-          const remainingCatalog = instantModels.filter((m) => !existingSlugs.has(m.slug))
+          const remainingCatalog = instantModels.filter((m: ModelOption) => !existingSlugs.has(m.slug))
           setModels([...dbModels, ...remainingCatalog])
         }
       } catch {

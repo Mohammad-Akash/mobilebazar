@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { BrandOption, CityOption, ModelOption, AreaOption } from '@/src/lib/data/reference'
 import { createClient } from '@/src/lib/supabase/client'
 import { STORAGE_OPTIONS } from '@/src/lib/constants/ad-options'
+import { getCatalogModelsForBrand } from '@/src/lib/data/phone-catalog'
+import { getCatalogAreasForCity } from '@/src/lib/data/locations-catalog'
 import { SlidersHorizontal, RotateCcw, X, ShieldCheck, Battery, Cpu, HardDrive } from 'lucide-react'
 
 interface FilterSidebarProps {
@@ -63,6 +65,9 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
     const brandObj = brands.find((b) => b.slug === selectedBrand)
     if (!brandObj) return
 
+    const instantModels = getCatalogModelsForBrand(brandObj.slug, brandObj.id)
+    setModels(instantModels)
+
     setLoadingModels(true)
     const supabase = createClient()
     supabase
@@ -74,7 +79,9 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
       .then(
         ({ data }) => {
           setLoadingModels(false)
-          setModels((data as ModelOption[]) || [])
+          if (data && data.length > 0) {
+            setModels(data as ModelOption[])
+          }
         },
         () => {
           setLoadingModels(false)
@@ -91,6 +98,9 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
     const cityObj = cities.find((c) => c.slug === selectedCity)
     if (!cityObj) return
 
+    const instantAreas = getCatalogAreasForCity(cityObj.slug || cityObj.id)
+    setAreas(instantAreas)
+
     setLoadingAreas(true)
     const supabase = createClient()
     supabase
@@ -102,7 +112,9 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
       .then(
         ({ data }) => {
           setLoadingAreas(false)
-          setAreas((data as AreaOption[]) || [])
+          if (data && data.length > 0) {
+            setAreas(data as AreaOption[])
+          }
         },
         () => {
           setLoadingAreas(false)

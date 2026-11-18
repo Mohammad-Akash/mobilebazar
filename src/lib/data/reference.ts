@@ -11,6 +11,7 @@ import {
   MOCK_MODELS,
 } from './mock-seed'
 import { CATALOG_BRANDS, getCatalogModelsForBrand } from './phone-catalog'
+import { PAKISTAN_CITIES, PAKISTAN_AREAS, getCatalogAreasForCity } from './locations-catalog'
 
 export interface CityOption {
   id: string
@@ -58,6 +59,12 @@ export async function getActiveCities(): Promise<CityOption[]> {
       return MOCK_CITIES
     }
 
+    if (data.length < PAKISTAN_CITIES.length) {
+      const existingSlugs = new Set(data.map((c) => c.slug.toLowerCase()))
+      const missing = PAKISTAN_CITIES.filter((c) => !existingSlugs.has(c.slug.toLowerCase()))
+      return [...data, ...missing].sort((a, b) => a.name.localeCompare(b.name))
+    }
+
     return data
   } catch {
     return MOCK_CITIES
@@ -67,7 +74,7 @@ export async function getActiveCities(): Promise<CityOption[]> {
 /**
  * Fetch active areas for a specific city
  */
-export async function getAreasByCity(cityId: string): Promise<AreaOption[]> {
+export async function getAreasByCity(cityId: string, citySlugOrName?: string): Promise<AreaOption[]> {
   if (!cityId) return []
 
   try {
@@ -79,14 +86,17 @@ export async function getAreasByCity(cityId: string): Promise<AreaOption[]> {
       .eq('is_active', true)
       .order('name', { ascending: true })
 
-    if (error || !data || data.length === 0) {
-      return MOCK_AREAS.filter((a) => a.city_id === cityId)
+    if (!error && data && data.length > 0) {
+      return data
     }
-
-    return data
   } catch {
-    return MOCK_AREAS.filter((a) => a.city_id === cityId)
+    // fallback
   }
+
+  const catalog = getCatalogAreasForCity(citySlugOrName || cityId)
+  if (catalog.length > 0) return catalog
+
+  return MOCK_AREAS.filter((a) => a.city_id === cityId)
 }
 
 /**
@@ -107,7 +117,7 @@ export async function getActiveBrands(): Promise<BrandOption[]> {
 
     if (data.length < CATALOG_BRANDS.length) {
       const existingSlugs = new Set(data.map((b) => b.slug.toLowerCase()))
-      const missing = CATALOG_BRANDS.filter((b) => !existingSlugs.has(b.slug.toLowerCase()))
+      const missing = CATALOG_BRANDS.filter((b: BrandOption) => !existingSlugs.has(b.slug.toLowerCase()))
       return [...data, ...missing].sort((a, b) => a.name.localeCompare(b.name))
     }
 

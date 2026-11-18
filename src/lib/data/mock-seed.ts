@@ -32,38 +32,13 @@ export interface MockModel {
   ram_options: number[] | null
 }
 
+import { PAKISTAN_CITIES, PAKISTAN_AREAS } from './locations-catalog'
+
 // ── 1. Cities ────────────────────────────────────────────────────────────────
-export const MOCK_CITIES: MockCity[] = [
-  { id: 'c1010000-0000-4000-8000-000000000001', name: 'Karachi', slug: 'karachi' },
-  { id: 'c1010000-0000-4000-8000-000000000002', name: 'Lahore', slug: 'lahore' },
-  { id: 'c1010000-0000-4000-8000-000000000003', name: 'Islamabad', slug: 'islamabad' },
-  { id: 'c1010000-0000-4000-8000-000000000004', name: 'Rawalpindi', slug: 'rawalpindi' },
-  { id: 'c1010000-0000-4000-8000-000000000005', name: 'Faisalabad', slug: 'faisalabad' },
-  { id: 'c1010000-0000-4000-8000-000000000006', name: 'Multan', slug: 'multan' },
-  { id: 'c1010000-0000-4000-8000-000000000007', name: 'Peshawar', slug: 'peshawar' },
-  { id: 'c1010000-0000-4000-8000-000000000008', name: 'Quetta', slug: 'quetta' },
-  { id: 'c1010000-0000-4000-8000-000000000009', name: 'Sialkot', slug: 'sialkot' },
-  { id: 'c1010000-0000-4000-8000-000000000010', name: 'Gujranwala', slug: 'gujranwala' },
-  { id: 'c1010000-0000-4000-8000-000000000011', name: 'Hyderabad', slug: 'hyderabad' },
-  { id: 'c1010000-0000-4000-8000-000000000012', name: 'Abbottabad', slug: 'abbottabad' },
-  { id: 'c1010000-0000-4000-8000-000000000013', name: 'Bahawalpur', slug: 'bahawalpur' },
-  { id: 'c1010000-0000-4000-8000-000000000014', name: 'Sargodha', slug: 'sargodha' },
-  { id: 'c1010000-0000-4000-8000-000000000015', name: 'Sukkur', slug: 'sukkur' },
-]
+export const MOCK_CITIES: MockCity[] = PAKISTAN_CITIES
 
 // ── 2. Areas ─────────────────────────────────────────────────────────────────
-export const MOCK_AREAS: MockArea[] = [
-  { id: 'a1010000-0000-4000-8000-000000000001', city_id: 'c1010000-0000-4000-8000-000000000001', name: 'DHA Defence', slug: 'dha-defence' },
-  { id: 'a1010000-0000-4000-8000-000000000002', city_id: 'c1010000-0000-4000-8000-000000000001', name: 'Clifton', slug: 'clifton' },
-  { id: 'a1010000-0000-4000-8000-000000000003', city_id: 'c1010000-0000-4000-8000-000000000001', name: 'Gulshan-e-Iqbal', slug: 'gulshan-e-iqbal' },
-  { id: 'a1010000-0000-4000-8000-000000000004', city_id: 'c1010000-0000-4000-8000-000000000001', name: 'North Nazimabad', slug: 'north-nazimabad' },
-  { id: 'a1010000-0000-4000-8000-000000000005', city_id: 'c1010000-0000-4000-8000-000000000002', name: 'DHA Phase 5 & 6', slug: 'dha-lahore' },
-  { id: 'a1010000-0000-4000-8000-000000000006', city_id: 'c1010000-0000-4000-8000-000000000002', name: 'Gulberg (Hafeez Centre)', slug: 'gulberg-hafeez-centre' },
-  { id: 'a1010000-0000-4000-8000-000000000007', city_id: 'c1010000-0000-4000-8000-000000000002', name: 'Johar Town', slug: 'johar-town' },
-  { id: 'a1010000-0000-4000-8000-000000000008', city_id: 'c1010000-0000-4000-8000-000000000003', name: 'Blue Area', slug: 'blue-area' },
-  { id: 'a1010000-0000-4000-8000-000000000009', city_id: 'c1010000-0000-4000-8000-000000000003', name: 'F-7 / F-6 Markaz', slug: 'f-7-markaz' },
-  { id: 'a1010000-0000-4000-8000-000000000010', city_id: 'c1010000-0000-4000-8000-000000000004', name: 'Saddar (Singapore Plaza)', slug: 'saddar-singapore-plaza' },
-]
+export const MOCK_AREAS: MockArea[] = PAKISTAN_AREAS
 
 import { CATALOG_BRANDS, getCatalogModelsForBrand } from './phone-catalog'
 
@@ -71,7 +46,7 @@ import { CATALOG_BRANDS, getCatalogModelsForBrand } from './phone-catalog'
 export const MOCK_BRANDS: MockBrand[] = CATALOG_BRANDS
 
 // ── 4. Models ────────────────────────────────────────────────────────────────
-export const MOCK_MODELS: MockModel[] = CATALOG_BRANDS.flatMap((b) =>
+export const MOCK_MODELS: MockModel[] = CATALOG_BRANDS.flatMap((b: MockBrand) =>
   getCatalogModelsForBrand(b.slug, b.id)
 )
 
