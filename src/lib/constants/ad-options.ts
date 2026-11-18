@@ -4,10 +4,10 @@
 // ==============================================================================
 
 // Fallback storage options (GB) when model doesn't specify
-export const STORAGE_OPTIONS = [16, 32, 64, 128, 256, 512, 1024] as const
+export const STORAGE_OPTIONS = [16, 32, 64, 128, 256, 512, 1024, 2048] as const
 
 // Fallback RAM options (GB) when model doesn't specify
-export const RAM_OPTIONS = [2, 3, 4, 6, 8, 12, 16] as const
+export const RAM_OPTIONS = [1, 2, 3, 4, 6, 8, 12, 16, 24] as const
 
 // Common phone colors in Pakistan market
 export const COLOR_OPTIONS = [

@@ -265,12 +265,6 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               brands={brands}
               onModelSelected={(m) => {
                 setSelectedModel(m)
-                if (m?.storage_options && m.storage_options.length > 0) {
-                  form.setValue('storage_gb', m.storage_options[0])
-                }
-                if (m?.ram_options && m.ram_options.length > 0) {
-                  form.setValue('ram_gb', m.ram_options[0])
-                }
               }}
             />
           )}

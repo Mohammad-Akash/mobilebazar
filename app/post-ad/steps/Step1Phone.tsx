@@ -15,7 +15,6 @@ import {
   X,
   Layers,
   Calendar,
-  HardDrive,
   Flame,
   Globe,
 } from 'lucide-react'
@@ -521,21 +520,6 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
                       {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                   </div>
-
-                  {/* Storage Options Pills Preview */}
-                  {m.storage_options && m.storage_options.length > 0 && (
-                    <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-100 dark:border-[#2D2947]/60">
-                      <HardDrive className="w-3 h-3 text-slate-400 shrink-0" />
-                      {m.storage_options.map((gb) => (
-                        <span
-                          key={gb}
-                          className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-[#17152B] text-slate-600 dark:text-slate-300"
-                        >
-                          {gb >= 1024 ? `${gb / 1024}TB` : `${gb}GB`}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )
             })}

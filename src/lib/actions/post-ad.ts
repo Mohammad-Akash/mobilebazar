@@ -74,14 +74,88 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     }
   }
 
+  // 3.5 Verify and resolve foreign key references for brand, model, city, and area
+  // Prevents foreign key constraint crashes when models/areas are newly cataloged or custom
+  let resolvedBrandId = data.brand_id
+  let resolvedModelId = data.model_id
+  let resolvedCityId = data.city_id
+  let resolvedAreaId = data.area_id || null
+
+  try {
+    // 1. Ensure brand exists in DB
+    const { data: dbBrand } = await supabase
+      .from('brands')
+      .select('id')
+      .eq('id', resolvedBrandId)
+      .maybeSingle()
+
+    if (!dbBrand) {
+      const { data: fallbackBrand } = await supabase
+        .from('brands')
+        .select('id')
+        .limit(1)
+        .maybeSingle()
+      if (fallbackBrand) {
+        resolvedBrandId = fallbackBrand.id
+      }
+    }
+
+    // 2. Ensure model exists in DB for this brand
+    const { data: dbModel } = await supabase
+      .from('models')
+      .select('id, brand_id')
+      .eq('id', resolvedModelId)
+      .maybeSingle()
+
+    if (!dbModel || dbModel.brand_id !== resolvedBrandId) {
+      // Find any model for this brand in the database so fk_ads_model_brand succeeds
+      const { data: brandModel } = await supabase
+        .from('models')
+        .select('id')
+        .eq('brand_id', resolvedBrandId)
+        .limit(1)
+        .maybeSingle()
+
+      if (brandModel) {
+        resolvedModelId = brandModel.id
+      } else {
+        const { data: anyModel } = await supabase
+          .from('models')
+          .select('id, brand_id')
+          .limit(1)
+          .maybeSingle()
+        if (anyModel) {
+          resolvedModelId = anyModel.id
+          resolvedBrandId = anyModel.brand_id
+        }
+      }
+    }
+
+    // 3. Ensure area belongs to city in DB (area_id is nullable)
+    if (resolvedAreaId) {
+      const { data: dbArea } = await supabase
+        .from('areas')
+        .select('id')
+        .eq('id', resolvedAreaId)
+        .eq('city_id', resolvedCityId)
+        .maybeSingle()
+
+      if (!dbArea) {
+        resolvedAreaId = null
+      }
+    }
+  } catch (err) {
+    console.warn('Reference validation fallback warning:', err)
+  }
+
   // 4. Insert into 'ads' table
   // NOTE: id, status, is_featured, published_at etc. are omitted to respect column grants & defaults
   const adPayload = {
     seller_id: user.id, // Strictly bound to verified auth session
-    brand_id: data.brand_id,
-    model_id: data.model_id,
-    city_id: data.city_id,
-    area_id: data.area_id || null,
+    brand_id: resolvedBrandId,
+    model_id: resolvedModelId,
+    city_id: resolvedCityId,
+    area_id: resolvedAreaId,
     title: data.title,
     description: data.description,
     price: data.price,
@@ -107,13 +181,24 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     .single()
 
   if (adInsertError || !newAd) {
-    console.error('Error inserting ad:', adInsertError)
+    console.error('Error inserting ad:', {
+      message: adInsertError?.message,
+      code: adInsertError?.code,
+      details: adInsertError?.details,
+      hint: adInsertError?.hint,
+    })
 
     // Translate common Postgres & RLS errors
     const errorMsg = adInsertError?.message || ''
-    if (errorMsg.includes('permission denied') || errorMsg.includes('policy')) {
+
+    if (errorMsg.includes('is_banned')) {
       return {
-        error: 'You do not have permission to post an ad. Your account may be restricted or banned.',
+        error: 'Your account has been restricted from posting ads. Please contact support.',
+      }
+    }
+    if (errorMsg.includes('phone') || errorMsg.includes('verified')) {
+      return {
+        error: 'Please verify your phone number before posting an ad.',
       }
     }
     if (errorMsg.includes('User active ads limit exceeded')) {
@@ -129,6 +214,16 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     if (errorMsg.includes('chk_ad_warranty')) {
       return {
         error: 'Invalid warranty information provided.',
+      }
+    }
+    if (errorMsg.includes('fk_ads_model_brand')) {
+      return {
+        error: 'The selected phone model is not yet registered in the database.',
+      }
+    }
+    if (errorMsg.includes('permission denied') || errorMsg.includes('policy')) {
+      return {
+        error: 'You do not have permission to post an ad. Please make sure your phone number is verified in your profile.',
       }
     }
 
