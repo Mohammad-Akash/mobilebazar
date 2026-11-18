@@ -1,10 +1,16 @@
 -- ==============================================================================
--- Migration 035: Fix Post Ad Trigger Permissions & Search Vector Security
--- Ensures all BEFORE/AFTER triggers on ads table have SECURITY DEFINER
--- and EXECUTE privileges so authenticated users can post ads without RLS/trigger permission errors.
+-- Migration 035: Fix All Post Ad & Helper Permissions for Authenticated Users
+-- Run this in Supabase SQL Editor once to enable seamless ad posting.
 -- ==============================================================================
 
--- 1. ads_generate_search_vector: Must be SECURITY DEFINER with search_path = public
+-- 1. App Settings Helpers (Required by ads.expires_at default and spam triggers)
+GRANT EXECUTE ON FUNCTION public.get_setting_int(TEXT, INT) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.get_setting_bool(TEXT, BOOLEAN) TO authenticated, anon;
+
+-- 2. Text Normalization Helper (Required by spam check trigger)
+GRANT EXECUTE ON FUNCTION public.normalize_text(TEXT) TO authenticated, anon;
+
+-- 3. Search Vector Trigger Function (Must be SECURITY DEFINER with search_path = public)
 CREATE OR REPLACE FUNCTION public.ads_generate_search_vector()
 RETURNS TRIGGER
 SECURITY DEFINER
@@ -26,10 +32,9 @@ BEGIN
     RETURN NEW;
 END;
 $$;
-
 GRANT EXECUTE ON FUNCTION public.ads_generate_search_vector() TO authenticated, anon;
 
--- 2. update_profile_ads_count: Must be SECURITY DEFINER
+-- 4. Profile Ads Count Trigger Function (Must be SECURITY DEFINER)
 CREATE OR REPLACE FUNCTION public.update_profile_ads_count()
 RETURNS TRIGGER 
 SECURITY DEFINER
@@ -58,15 +63,12 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
 GRANT EXECUTE ON FUNCTION public.update_profile_ads_count() TO authenticated, anon;
 
--- 3. Ensure check_user_ad_limits has execute permissions for triggers
+-- 5. Ad Limit & Spam Triggers
 GRANT EXECUTE ON FUNCTION public.check_user_ad_limits() TO authenticated;
-
--- 4. Ensure check_ad_spam_before and flag_ad_spam_after have execute permissions for triggers
 GRANT EXECUTE ON FUNCTION public.check_ad_spam_before() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.flag_ad_spam_after() TO authenticated;
 
--- 5. Ensure phone verification helper grants
+-- 6. Phone Verification Guard
 GRANT EXECUTE ON FUNCTION public.current_user_phone_verified() TO authenticated;
