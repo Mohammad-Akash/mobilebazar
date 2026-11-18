@@ -29,6 +29,7 @@ import {
   Save,
   Trash2,
   Clock,
+  RotateCcw,
 } from 'lucide-react'
 
 interface PostAdWizardProps {
@@ -59,10 +60,12 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   const draftKey = `mb_ad_draft_${userId || 'user'}`
 
   const [currentStep, setCurrentStep] = useState(1)
+  const [returnToReview, setReturnToReview] = useState(false)
   const [selectedModel, setSelectedModel] = useState<ModelOption | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [isSubmittedSuccessfully, setIsSubmittedSuccessfully] = useState(false)
+  const isSubmittedRef = useRef(false)
 
   // Draft Management State
   const [savedDraft, setSavedDraft] = useState<SavedDraft | null>(null)
@@ -131,11 +134,13 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   const persistDraft = useCallback(
     (stepOverride?: number) => {
       try {
+        if (isSubmittedRef.current || isSubmittedSuccessfully) return
+
         const currentVals = getValues()
         const hasAnyContent =
           currentVals.brand_id || currentVals.model_id || currentVals.title || currentVals.price > 0
 
-        if (!hasAnyContent || isSubmittedSuccessfully) return
+        if (!hasAnyContent) return
 
         const draftData: SavedDraft = {
           formData: currentVals,
@@ -152,6 +157,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
 
   useEffect(() => {
     const subscription = watch(() => {
+      if (isSubmittedRef.current || isSubmittedSuccessfully) return
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
       saveTimeoutRef.current = setTimeout(() => {
         persistDraft()
@@ -162,7 +168,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
       subscription.unsubscribe()
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
     }
-  }, [watch, persistDraft])
+  }, [watch, persistDraft, isSubmittedSuccessfully])
 
   // Manual "Save Draft" trigger
   const handleManualSaveDraft = () => {
@@ -190,6 +196,8 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   const handleDiscardDraft = () => {
     try {
       localStorage.removeItem(draftKey)
+      localStorage.removeItem('mb_ad_draft')
+      localStorage.removeItem('mb_ad_draft_user')
     } catch {}
     setSavedDraft(null)
     setShowDraftBanner(false)
@@ -198,7 +206,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   // Unsaved changes warning beforeunload
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isDirty && !isSubmittedSuccessfully) {
+      if (isDirty && !isSubmittedRef.current && !isSubmittedSuccessfully) {
         persistDraft()
         e.preventDefault()
         e.returnValue = ''
@@ -211,22 +219,22 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
     }
   }, [isDirty, isSubmittedSuccessfully, persistDraft])
 
-  // Scroll to top on step change
-  const goToStep = (step: number) => {
+  // Navigate to step with optional return-to-review flag
+  const goToStep = (step: number, fromReview = false) => {
+    setServerError(null)
     setCurrentStep(step)
+    setReturnToReview(fromReview)
     persistDraft(step)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Validate only the current step fields before proceeding
-  const handleNext = async () => {
+  // Validate only the current step fields
+  const validateCurrentStep = async (): Promise<boolean> => {
     setServerError(null)
-    let valid = false
-
     if (currentStep === 1) {
-      valid = await trigger(['brand_id', 'model_id'])
+      return await trigger(['brand_id', 'model_id'])
     } else if (currentStep === 2) {
-      valid = await trigger([
+      return await trigger([
         'condition',
         'pta_status',
         'storage_gb',
@@ -239,24 +247,54 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         'warranty_months_remaining',
       ])
     } else if (currentStep === 3) {
-      valid = await trigger(['price', 'is_negotiable', 'title', 'description', 'imei'])
+      return await trigger(['price', 'is_negotiable', 'title', 'description', 'imei'])
     } else if (currentStep === 4) {
-      valid = await trigger(['images'])
+      return await trigger(['images'])
     } else if (currentStep === 5) {
-      valid = await trigger(['city_id', 'area_id', 'contact_preference'])
-    } else {
-      valid = true
+      return await trigger(['city_id', 'area_id', 'contact_preference'])
     }
+    return true
+  }
 
+  // Next / Save & Continue
+  const handleNext = async () => {
+    const valid = await validateCurrentStep()
     if (valid) {
-      goToStep(currentStep + 1)
+      goToStep(currentStep + 1, returnToReview && currentStep + 1 < 6)
     }
+  }
+
+  // Save changes & jump straight back to Step 6 Review
+  const handleSaveAndReturnToReview = async () => {
+    const valid = await validateCurrentStep()
+    if (valid) {
+      persistDraft(6)
+      setCurrentStep(6)
+      setReturnToReview(false)
+      setDraftToast('Changes saved! Returned to Review.')
+      setTimeout(() => setDraftToast(null), 3000)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  // Direct step jump from desktop stepper pills
+  const handleJumpToStep = async (targetStep: number) => {
+    if (targetStep === currentStep) return
+    if (targetStep > currentStep) {
+      const valid = await validateCurrentStep()
+      if (!valid) return
+    }
+    const fromReview = currentStep === 6 || returnToReview
+    goToStep(targetStep, fromReview && targetStep < 6)
   }
 
   const handleBack = () => {
     setServerError(null)
-    if (currentStep > 1) {
-      goToStep(currentStep - 1)
+    if (returnToReview) {
+      // If editing from review, back takes user straight to review
+      goToStep(6, false)
+    } else if (currentStep > 1) {
+      goToStep(currentStep - 1, false)
     }
   }
 
@@ -271,11 +309,27 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         setServerError(res.error)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       } else if (res?.success && res.adId) {
+        isSubmittedRef.current = true
         setIsSubmittedSuccessfully(true)
-        // Clean draft upon successful publish
+
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current)
+          saveTimeoutRef.current = null
+        }
+
+        // Clean all draft storage upon successful publish
         try {
           localStorage.removeItem(draftKey)
+          localStorage.removeItem('mb_ad_draft')
+          localStorage.removeItem('mb_ad_draft_user')
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const k = localStorage.key(i)
+            if (k && k.startsWith('mb_ad_draft')) {
+              localStorage.removeItem(k)
+            }
+          }
         } catch {}
+
         router.push(`/post-ad/success?ad=${res.adId}`)
       }
     })
@@ -396,7 +450,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
           />
         </div>
 
-        {/* Step dots for desktop */}
+        {/* Step dots for desktop - Interactive Step Buttons */}
         <div className="hidden sm:grid grid-cols-6 gap-2 pt-2 border-t border-slate-100 dark:border-[#2D2947]/80">
           {STEP_TITLES.map((step, idx) => {
             const stepNum = idx + 1
@@ -405,9 +459,11 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
             const Icon = step.icon
 
             return (
-              <div
+              <button
+                type="button"
                 key={step.title}
-                className={`flex flex-col items-center gap-1 text-center ${
+                onClick={() => handleJumpToStep(stepNum)}
+                className={`flex flex-col items-center gap-1 text-center cursor-pointer group transition-all p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-[#252147] ${
                   isCurrent
                     ? 'text-[#7657FF] dark:text-[#9B82FF]'
                     : isCompleted
@@ -418,10 +474,10 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 <div
                   className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all ${
                     isCurrent
-                      ? 'bg-[#7657FF] text-white shadow-xs'
+                      ? 'bg-[#7657FF] text-white shadow-xs scale-105'
                       : isCompleted
-                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
-                      : 'bg-slate-100 dark:bg-[#17152B] text-slate-400'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 group-hover:bg-[#7657FF]/20'
+                      : 'bg-slate-100 dark:bg-[#17152B] text-slate-400 group-hover:text-slate-600'
                   }`}
                 >
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
@@ -429,7 +485,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                 <span className="text-[11px] font-semibold truncate max-w-full">
                   {step.title}
                 </span>
-              </div>
+              </button>
             )
           })}
         </div>
@@ -449,6 +505,28 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
       {/* Step Form Body */}
       <form onSubmit={handleFormSubmit}>
         <div className="bg-white dark:bg-[#1E1B38] border border-slate-200 dark:border-[#2D2947] rounded-3xl p-6 sm:p-8 shadow-sm">
+          {/* Quick Return to Review Banner when editing from Review */}
+          {returnToReview && currentStep < 6 && (
+            <div className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-[#7657FF]/10 dark:bg-[#7657FF]/15 border border-[#7657FF]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-xs animate-in fade-in-50 duration-150">
+              <div className="flex items-center gap-2.5 text-slate-800 dark:text-[#F7F6F2]">
+                <div className="w-7 h-7 rounded-lg bg-[#7657FF] text-white flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <span>
+                  Editing <strong>Step {currentStep}: {STEP_TITLES[currentStep - 1].title}</strong>. When you are done, jump directly back to review.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveAndReturnToReview}
+                className="px-4 py-2 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 self-stretch sm:self-auto shrink-0 active:scale-95"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Save & Back to Review</span>
+              </button>
+            </div>
+          )}
+
           {currentStep === 1 && (
             <Step1Phone
               form={form}
@@ -481,7 +559,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               brands={brands}
               cities={cities}
               selectedModel={selectedModel}
-              onJumpToStep={(step) => goToStep(step)}
+              onJumpToStep={(step) => goToStep(step, true)}
             />
           )}
         </div>
@@ -489,6 +567,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         {/* Navigation Footer */}
         <div className="fixed sm:static bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-[#17152B]/95 backdrop-blur-md border-t sm:border-t-0 border-slate-200 dark:border-[#2D2947] z-30 sm:mt-6 sm:p-0">
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+            {/* Left buttons: Back & Save Draft */}
             <div className="flex items-center gap-2">
               {currentStep > 1 && (
                 <button
@@ -497,8 +576,17 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
                   disabled={isPending}
                   className="px-4 sm:px-5 py-3 rounded-2xl border border-slate-300 dark:border-[#2D2947] font-bold text-slate-700 dark:text-slate-300 text-xs sm:text-sm hover:bg-slate-100 dark:hover:bg-[#252147] transition-colors disabled:opacity-50 flex items-center gap-1.5 active:scale-95"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back</span>
+                  {returnToReview ? (
+                    <>
+                      <RotateCcw className="w-4 h-4" />
+                      <span>Review</span>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back</span>
+                    </>
+                  )}
                 </button>
               )}
               <button
@@ -512,16 +600,37 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               </button>
             </div>
 
+            {/* Right Action buttons */}
             {currentStep < STEP_TITLES.length ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={isPending}
-                className="flex-1 sm:flex-none px-7 py-3 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] font-bold text-white text-xs sm:text-sm shadow-md shadow-[#7657FF]/30 transition-all flex items-center justify-center gap-2"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2 flex-1 sm:flex-none justify-end">
+                {/* If editing from review, show Save & Back to Review button */}
+                {returnToReview && (
+                  <button
+                    type="button"
+                    onClick={handleSaveAndReturnToReview}
+                    disabled={isPending}
+                    className="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] font-bold text-white text-xs sm:text-sm shadow-md shadow-[#7657FF]/30 transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Save & Back to Review</span>
+                  </button>
+                )}
+
+                {/* Save & Continue Button */}
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={isPending}
+                  className={`flex-1 sm:flex-none px-6 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] ${
+                    returnToReview
+                      ? 'border border-slate-300 dark:border-[#2D2947] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#252147]'
+                      : 'bg-[#7657FF] hover:bg-[#6343ED] text-white shadow-md shadow-[#7657FF]/30'
+                  }`}
+                >
+                  <span>Save & Continue</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             ) : (
               <button
                 type="submit"

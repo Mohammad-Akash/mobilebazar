@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { DraftPurgeOnSuccess } from './DraftPurgeOnSuccess'
 
 export const metadata: Metadata = {
   title: 'Ad Posted Successfully',
@@ -20,6 +21,7 @@ export default async function PostAdSuccessPage({ searchParams }: SuccessPagePro
 
   return (
     <div className="max-w-md mx-auto px-4 py-16 text-center">
+      <DraftPurgeOnSuccess />
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-sm">
         {/* Success Icon */}
         <div className="mx-auto w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-4xl mb-4 text-emerald-600 animate-bounce">
