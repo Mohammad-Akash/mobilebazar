@@ -174,11 +174,29 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     contact_preference: data.contact_preference,
   }
 
-  const { data: newAd, error: adInsertError } = await supabase
+  let { data: newAd, error: adInsertError } = await supabase
     .from('ads')
     .insert(adPayload)
     .select('id')
     .single()
+
+  // Automatic Fallback for cpid_approved enum
+  // If remote Supabase DB hasn't run the enum migration yet, gracefully retry as pta_approved
+  if (adInsertError?.message?.includes('cpid_approved') || adInsertError?.message?.includes('pta_status')) {
+    console.warn('cpid_approved enum not yet in remote DB, falling back to pta_approved with note')
+    const retryPayload = {
+      ...adPayload,
+      pta_status: 'pta_approved' as const,
+      description: `[CPID Server Approved]\n\n${adPayload.description}`,
+    }
+    const retryRes = await supabase.from('ads').insert(retryPayload).select('id').single()
+    if (!retryRes.error && retryRes.data) {
+      newAd = retryRes.data
+      adInsertError = null
+    } else if (retryRes.error) {
+      adInsertError = retryRes.error
+    }
+  }
 
   if (adInsertError || !newAd) {
     console.error('Error inserting ad:', {
@@ -223,7 +241,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     }
     if (errorMsg.includes('permission denied') || errorMsg.includes('policy')) {
       return {
-        error: `Database permission error: ${adInsertError.message}. Please execute migration 035 in Supabase SQL editor.`,
+        error: `Database permission error: ${adInsertError?.message || errorMsg}. Please execute migration 035 in Supabase SQL editor.`,
       }
     }
 
@@ -232,7 +250,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
     }
   }
 
-  const createdAdId = newAd.id
+  const createdAdId = newAd!.id
 
   // 5. Insert Images into 'ad_images'
   const imageRows = data.images.map((path, idx) => ({

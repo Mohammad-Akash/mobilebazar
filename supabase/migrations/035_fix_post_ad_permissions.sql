@@ -72,3 +72,6 @@ GRANT EXECUTE ON FUNCTION public.flag_ad_spam_after() TO authenticated;
 
 -- 6. Phone Verification Guard
 GRANT EXECUTE ON FUNCTION public.current_user_phone_verified() TO authenticated;
+
+-- 7. Add cpid_approved to pta_status enum if not already present
+ALTER TYPE pta_status ADD VALUE IF NOT EXISTS 'cpid_approved' AFTER 'pta_approved';
