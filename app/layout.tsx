@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
@@ -82,8 +83,13 @@ export default function RootLayout({
       className={`${jakartaSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
+      <body
+        className="min-h-full flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-16 md:pb-0 transition-colors duration-200"
+        suppressHydrationWarning
+      >
+        <Script
+          id="anti-extension-pollution"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -109,11 +115,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body
-        className="min-h-full flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-16 md:pb-0 transition-colors duration-200"
-        suppressHydrationWarning
-      >
         <Suspense fallback={<header className="h-16 border-b border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF]/80 dark:bg-[#17152B]/80" />}>
           <Header />
         </Suspense>
