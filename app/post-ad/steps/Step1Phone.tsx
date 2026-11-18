@@ -321,7 +321,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
         </div>
 
         {/* Brand Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-2.5 max-h-[220px] overflow-y-auto pr-1 select-none scrollbar-thin">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-[300px] sm:max-h-[340px] overflow-y-auto pr-1.5 select-none scrollbar-thin scrollbar-thumb-[#7657FF]/30 hover:scrollbar-thumb-[#7657FF]/60 scrollbar-track-transparent">
           {filteredBrands.map((b) => {
             const isSelected = selectedBrandId === b.id
             return (

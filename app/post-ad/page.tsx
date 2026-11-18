@@ -46,16 +46,7 @@ export default async function PostAdPage() {
   ])
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-6 text-center sm:text-left">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
-          Post a New Mobile Ad
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          List your mobile phone for sale in a few easy steps
-        </p>
-      </div>
-
+    <div className="min-h-screen py-4 sm:py-8">
       <PostAdWizard
         brands={brands}
         cities={cities}
