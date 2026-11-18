@@ -4,19 +4,20 @@ import { useEffect, useState, useMemo } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { FullAdFormData } from '@/src/lib/validations/ad'
 import { BrandOption, ModelOption } from '@/src/lib/data/reference'
-import { getCatalogModelsForBrand, CATALOG_BRANDS } from '@/src/lib/data/phone-catalog'
+import { getCatalogModelsForBrand, CATALOG_BRANDS, ExtendedBrandOption } from '@/src/lib/data/phone-catalog'
 import { createClient } from '@/src/lib/supabase/client'
 import {
   Smartphone,
   Check,
   Search,
   Sparkles,
-  SlidersHorizontal,
   PlusCircle,
   X,
   Layers,
   Calendar,
   HardDrive,
+  Flame,
+  Globe,
 } from 'lucide-react'
 
 interface Step1Props {
@@ -36,19 +37,25 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
   const selectedBrandId = watch('brand_id')
   const selectedModelId = watch('model_id')
 
-  // Ensure all 16 catalog brands are available even if server props had partial data
-  const allBrands = useMemo(() => {
-    const list = propBrands && propBrands.length > 0 ? [...propBrands] : [...CATALOG_BRANDS]
-    const existingSlugs = new Set(list.map((b) => b.slug.toLowerCase()))
-    for (const cb of CATALOG_BRANDS) {
-      if (!existingSlugs.has(cb.slug.toLowerCase())) {
-        list.push(cb)
+  // Merge server prop brands with our master catalog brands (66 brands)
+  const allBrands: ExtendedBrandOption[] = useMemo(() => {
+    const list: ExtendedBrandOption[] = [...CATALOG_BRANDS]
+    if (propBrands && propBrands.length > 0) {
+      const slugMap = new Map(list.map((b) => [b.slug.toLowerCase(), b]))
+      for (const pb of propBrands) {
+        const existing = slugMap.get(pb.slug.toLowerCase())
+        if (existing) {
+          existing.id = pb.id // prioritize Supabase DB id if available
+        } else {
+          list.push({ ...pb, tier: 2 })
+        }
       }
     }
-    return list.sort((a, b) => a.name.localeCompare(b.name))
+    return list
   }, [propBrands])
 
   const [brandSearch, setBrandSearch] = useState('')
+  const [brandTierFilter, setBrandTierFilter] = useState<'all' | '1' | '2' | '3'>('1')
   const [modelSearch, setModelSearch] = useState('')
   const [yearFilter, setYearFilter] = useState<string>('all')
   const [customModelMode, setCustomModelMode] = useState(false)
@@ -75,7 +82,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
     const b = allBrands.find((brand) => brand.id === selectedBrandId)
     const brandSlugOrName = b?.slug || b?.name || selectedBrandId
 
-    // 1. Immediately provide models from our comprehensive catalog so there is zero delay
+    // 1. Instantly provide models from master catalog so there is zero delay
     const instantModels = getCatalogModelsForBrand(brandSlugOrName, selectedBrandId)
     setModels(instantModels)
 
@@ -97,7 +104,6 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
         setLoadingModels(false)
 
         if (!error && data && data.length > 0) {
-          // Merge Supabase models with catalog models, avoiding duplicate slugs
           const dbModels = data as ModelOption[]
           const existingSlugs = new Set(dbModels.map((m) => m.slug))
           const remainingCatalog = instantModels.filter((m) => !existingSlugs.has(m.slug))
@@ -159,12 +165,22 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
     onModelSelected?.(customOption)
   }
 
-  // Filtered brands based on search query
+  // Filtered brands based on search query & tier tab
   const filteredBrands = useMemo(() => {
-    if (!brandSearch.trim()) return allBrands
-    const q = brandSearch.toLowerCase().trim()
-    return allBrands.filter((b) => b.name.toLowerCase().includes(q))
-  }, [allBrands, brandSearch])
+    let list = allBrands
+
+    if (brandSearch.trim()) {
+      const q = brandSearch.toLowerCase().trim()
+      return list.filter((b) => b.name.toLowerCase().includes(q))
+    }
+
+    if (brandTierFilter !== 'all') {
+      const targetTier = parseInt(brandTierFilter, 10)
+      list = list.filter((b) => b.tier === targetTier)
+    }
+
+    return list
+  }, [allBrands, brandSearch, brandTierFilter])
 
   // Extract unique release years for quick filters
   const availableYears = useMemo(() => {
@@ -208,7 +224,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
           <span>Choose Phone Brand & Model</span>
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Select your smartphone manufacturer and exact model from the catalog below.
+          Select your smartphone manufacturer and model from Pakistan&apos;s master phone catalog.
         </p>
       </div>
 
@@ -219,7 +235,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-[#7657FF]" />
-            <span>Select Brand ({allBrands.length} Available)</span>
+            <span>Select Brand ({allBrands.length} Brands Available)</span>
             <span className="text-red-500 font-bold">*</span>
           </label>
           {selectedBrand && (
@@ -230,24 +246,78 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
           )}
         </div>
 
-        {/* Brand Search Bar */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={brandSearch}
-            onChange={(e) => setBrandSearch(e.target.value)}
-            placeholder="Search brand (e.g. Apple, Samsung, Google Pixel, Xiaomi)..."
-            className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-slate-900 dark:text-[#F7F6F2] placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF] focus:border-transparent transition-all"
-          />
-          {brandSearch && (
-            <button
-              type="button"
-              onClick={() => setBrandSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        {/* Brand Search Bar & Tier Tabs */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={brandSearch}
+              onChange={(e) => setBrandSearch(e.target.value)}
+              placeholder="Search any brand (e.g. Apple, Samsung, Xiaomi, Redmi, Poco, Infinix, Vivo, QMobile)..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-slate-900 dark:text-[#F7F6F2] placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF] focus:border-transparent transition-all"
+            />
+            {brandSearch && (
+              <button
+                type="button"
+                onClick={() => setBrandSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Quick Category Filters when not searching */}
+          {!brandSearch && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <button
+                type="button"
+                onClick={() => setBrandTierFilter('1')}
+                className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition-all shrink-0 ${
+                  brandTierFilter === '1'
+                    ? 'bg-[#7657FF] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-[#1E1B38] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#28244B]'
+                }`}
+              >
+                <Flame className="w-3 h-3" />
+                <span>Popular Brands (Top 19)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBrandTierFilter('2')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all shrink-0 ${
+                  brandTierFilter === '2'
+                    ? 'bg-[#7657FF] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-[#1E1B38] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#28244B]'
+                }`}
+              >
+                <span>Secondary Brands</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBrandTierFilter('3')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all shrink-0 ${
+                  brandTierFilter === '3'
+                    ? 'bg-[#7657FF] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-[#1E1B38] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#28244B]'
+                }`}
+              >
+                <span>Local & Budget</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBrandTierFilter('all')}
+                className={`px-3 py-1 rounded-lg font-bold flex items-center gap-1 transition-all shrink-0 ${
+                  brandTierFilter === 'all'
+                    ? 'bg-[#7657FF] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-[#1E1B38] text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-[#28244B]'
+                }`}
+              >
+                <Globe className="w-3 h-3" />
+                <span>All 66 Brands</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -316,7 +386,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
                 <span className="text-red-500 font-bold">*</span>
               </label>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                Choose the exact variant or search below.
+                Choose the exact model or variant below.
               </p>
             </div>
 
@@ -366,7 +436,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
                 type="text"
                 value={modelSearch}
                 onChange={(e) => setModelSearch(e.target.value)}
-                placeholder={`Search ${selectedBrand.name} models (e.g. Pro, Ultra, 5G)...`}
+                placeholder={`Search ${selectedBrand.name} models (e.g. Pro, Ultra, 5G, Max)...`}
                 className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-slate-900 dark:text-[#F7F6F2] placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF] focus:border-transparent transition-all"
               />
               {modelSearch && (
@@ -505,7 +575,7 @@ export function Step1Phone({ form, brands: propBrands, onModelSelected }: Step1P
             Please choose a brand above first
           </p>
           <p className="text-[11px] text-slate-400">
-            All corresponding models for your selected brand will appear here.
+            All models with release dates, storage, and specs for your selected brand will appear here.
           </p>
         </div>
       )}

@@ -10,7 +10,7 @@ import {
   MOCK_BRANDS,
   MOCK_MODELS,
 } from './mock-seed'
-import { getCatalogModelsForBrand, CATALOG_BRANDS } from './phone-catalog'
+import { CATALOG_BRANDS, getCatalogModelsForBrand } from './phone-catalog'
 
 export interface CityOption {
   id: string
@@ -120,7 +120,10 @@ export async function getActiveBrands(): Promise<BrandOption[]> {
 /**
  * Fetch active phone models for a specific brand
  */
-export async function getModelsByBrand(brandId: string, brandSlugOrName?: string): Promise<ModelOption[]> {
+export async function getModelsByBrand(
+  brandId: string,
+  brandSlugOrName?: string
+): Promise<ModelOption[]> {
   if (!brandId) return []
 
   try {
@@ -139,7 +142,6 @@ export async function getModelsByBrand(brandId: string, brandSlugOrName?: string
     // fallback
   }
 
-  // Fallback to comprehensive catalog
   const catalog = getCatalogModelsForBrand(brandSlugOrName || brandId, brandId)
   if (catalog.length > 0) return catalog
 
