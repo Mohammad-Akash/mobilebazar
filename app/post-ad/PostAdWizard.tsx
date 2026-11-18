@@ -71,6 +71,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   // Draft Management State
   const [savedDraft, setSavedDraft] = useState<SavedDraft | null>(null)
   const [showDraftBanner, setShowDraftBanner] = useState(false)
+  const [hasActiveDraft, setHasActiveDraft] = useState(false)
   const [draftToast, setDraftToast] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
@@ -125,6 +126,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         if (isRecent && hasData) {
           setSavedDraft(parsed)
           setShowDraftBanner(true)
+          setHasActiveDraft(true)
         }
       }
     } catch {
@@ -154,6 +156,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         }
 
         localStorage.setItem(draftKey, JSON.stringify(draftData))
+        setHasActiveDraft(true)
       } catch {}
     },
     [draftKey, getValues, currentStep, selectedModel, isSubmittedSuccessfully]
@@ -221,6 +224,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
     setReturnToReview(false)
     setSavedDraft(null)
     setShowDraftBanner(false)
+    setHasActiveDraft(false)
     setShowDeleteModal(false)
     setServerError(null)
 
@@ -337,6 +341,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
       } else if (res?.success && res.adId) {
         isSubmittedRef.current = true
         setIsSubmittedSuccessfully(true)
+        setHasActiveDraft(false)
 
         if (saveTimeoutRef.current) {
           clearTimeout(saveTimeoutRef.current)
@@ -518,16 +523,20 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               <Save className="w-3.5 h-3.5" />
               <span>Save Draft</span>
             </button>
-            <span className="text-slate-300 dark:text-[#2D2947]">|</span>
-            <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
-              title="Delete draft and start over"
-              className="text-xs font-semibold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:underline flex items-center gap-1"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete Draft</span>
-            </button>
+            {hasActiveDraft && (
+              <>
+                <span className="text-slate-300 dark:text-[#2D2947]">|</span>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  title="Delete active draft and reset"
+                  className="text-xs font-semibold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:underline flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Draft</span>
+                </button>
+              </>
+            )}
             <span className="text-xs font-bold text-[#7657FF] dark:text-[#9B82FF] font-mono ml-1 hidden sm:inline">
               {progressPercentage}% Completed
             </span>
@@ -689,16 +698,6 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               >
                 <Save className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Save Draft</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(true)}
-                disabled={isPending}
-                title="Delete draft and reset form"
-                className="px-3 sm:px-3.5 py-3 rounded-2xl border border-rose-200 dark:border-rose-900/60 font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors flex items-center gap-1.5 active:scale-95 text-xs"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Delete Draft</span>
               </button>
             </div>
 
