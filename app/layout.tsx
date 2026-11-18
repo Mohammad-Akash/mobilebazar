@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
 import { MobileBottomNav } from "@/app/components/MobileBottomNav";
+import { AntiExtensionCleaner } from "@/app/components/AntiExtensionCleaner";
 
 const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -87,34 +87,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-16 md:pb-0 transition-colors duration-200"
         suppressHydrationWarning
       >
-        <Script
-          id="anti-extension-pollution"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var origSetAttr = Element.prototype.setAttribute;
-                  Element.prototype.setAttribute = function(name, val) {
-                    if (name && (name.indexOf('bis_') === 0 || name.indexOf('__processed_') === 0)) return;
-                    return origSetAttr.apply(this, arguments);
-                  };
-                  if (typeof window !== 'undefined' && typeof MutationObserver !== 'undefined') {
-                    var observer = new MutationObserver(function(mutations) {
-                      for (var i = 0; i < mutations.length; i++) {
-                        var m = mutations[i];
-                        if (m.type === 'attributes' && m.attributeName && (m.attributeName.indexOf('bis_') === 0 || m.attributeName.indexOf('__processed_') === 0)) {
-                          m.target.removeAttribute(m.attributeName);
-                        }
-                      }
-                    });
-                    observer.observe(document.documentElement, { attributes: true, subtree: true });
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
+        <AntiExtensionCleaner />
         <Suspense fallback={<header className="h-16 border-b border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF]/80 dark:bg-[#17152B]/80" />}>
           <Header />
         </Suspense>
