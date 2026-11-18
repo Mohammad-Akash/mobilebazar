@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Loader2, Tag, Image as ImageIcon, Smile, Phone, X, Plus } from 'lucide-react'
+import { Send, Loader2, Tag, Image as ImageIcon, Smile, Camera, X, Plus } from 'lucide-react'
 import { ChatEmojiPicker } from './ChatEmojiPicker'
+import { CameraCaptureModal } from './CameraCaptureModal'
 import { createClient } from '@/src/lib/supabase/client'
 import imageCompression from 'browser-image-compression'
 
@@ -30,6 +31,7 @@ export function ThreadInput({
   const [text, setText] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showCameraModal, setShowCameraModal] = useState(false)
 
   // Multiple Image attachments state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -124,6 +126,18 @@ export function ThreadInput({
     previewUrls.forEach((url) => URL.revokeObjectURL(url))
     setSelectedFiles([])
     setPreviewUrls([])
+  }
+
+  // Handle Photo Captured via Camera
+  const handleCapturedPhoto = (file: File) => {
+    const availableSlots = MAX_IMAGES - selectedFiles.length
+    if (availableSlots <= 0) {
+      alert(`Aap ek waqt mein zyada se zyada ${MAX_IMAGES} photos bhej sakte hain.`)
+      return
+    }
+    const newPreview = URL.createObjectURL(file)
+    setSelectedFiles((prev) => [...prev, file])
+    setPreviewUrls((prev) => [...prev, newPreview])
   }
 
   // Handle Submission (Text and/or Multiple Photos)
@@ -244,6 +258,13 @@ export function ThreadInput({
 
   return (
     <div className="relative">
+      {/* Live Camera Capture Modal */}
+      <CameraCaptureModal
+        isOpen={showCameraModal}
+        onClose={() => setShowCameraModal(false)}
+        onCapture={handleCapturedPhoto}
+      />
+
       {/* Rich Categorized Emoji Picker Popover */}
       <ChatEmojiPicker
         isOpen={showEmojiPicker}
@@ -367,18 +388,16 @@ export function ThreadInput({
             <Smile className="w-4 h-4 stroke-[2]" />
           </button>
 
-          {/* Share Phone Button */}
-          {onOpenPhoneModal && (
-            <button
-              type="button"
-              onClick={onOpenPhoneModal}
-              disabled={isSending}
-              className="w-8 h-8 rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-emerald-600 hover:bg-emerald-500/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer"
-              title="Share contact number"
-            >
-              <Phone className="w-4 h-4 stroke-[2]" />
-            </button>
-          )}
+          {/* Capture Photo Button (Replaces Call) */}
+          <button
+            type="button"
+            onClick={() => setShowCameraModal(true)}
+            disabled={isSending || selectedFiles.length >= MAX_IMAGES}
+            className="w-8 h-8 rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer disabled:opacity-40"
+            title="Capture photo from camera"
+          >
+            <Camera className="w-4 h-4 stroke-[2]" />
+          </button>
 
           {/* Make Offer Button */}
           {onOpenOfferModal && (

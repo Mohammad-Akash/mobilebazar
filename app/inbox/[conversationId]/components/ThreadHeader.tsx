@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, MoreVertical, ShieldBan, Flag, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, MoreVertical, ShieldBan, Flag, CheckCircle2, Phone } from 'lucide-react'
 
 interface ThreadHeaderProps {
   otherUserName: string
@@ -11,6 +11,7 @@ interface ThreadHeaderProps {
   isOnline?: boolean
   lastSeenText?: string
   onActionClick: (mode: 'block' | 'report') => void
+  onSharePhone?: () => void
 }
 
 export function ThreadHeader({
@@ -19,6 +20,7 @@ export function ThreadHeader({
   isOnline = false,
   lastSeenText,
   onActionClick,
+  onSharePhone,
 }: ThreadHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -87,7 +89,20 @@ export function ThreadHeader({
               className="fixed inset-0 z-20"
               onClick={() => setIsMenuOpen(false)}
             />
-            <div className="absolute right-0 top-full mt-1.5 w-44 bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-2xl shadow-xl z-30 py-1.5 animate-in fade-in duration-150">
+            <div className="absolute right-0 top-full mt-1.5 w-48 bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-2xl shadow-xl z-30 py-1.5 animate-in fade-in duration-150">
+              {onSharePhone && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false)
+                    onSharePhone()
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] flex items-center gap-2 cursor-pointer"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Share Phone Number</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {

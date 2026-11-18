@@ -322,6 +322,7 @@ export function ThreadClient({
         isOnline={isOtherOnline}
         lastSeenText={getLastSeenText()}
         onActionClick={(mode) => setModalMode(mode)}
+        onSharePhone={() => setIsPhoneModalOpen(true)}
       />
 
       {/* Pinned Ad Bar & Safety Banner */}
