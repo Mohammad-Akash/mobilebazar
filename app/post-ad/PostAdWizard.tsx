@@ -30,6 +30,7 @@ import {
   Trash2,
   Clock,
   RotateCcw,
+  X,
 } from 'lucide-react'
 
 interface PostAdWizardProps {
@@ -71,33 +72,36 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
   const [savedDraft, setSavedDraft] = useState<SavedDraft | null>(null)
   const [showDraftBanner, setShowDraftBanner] = useState(false)
   const [draftToast, setDraftToast] = useState<string | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const defaultFormValues: FullAdFormData = {
+    brand_id: '',
+    model_id: '',
+    condition: 'used',
+    pta_status: 'pta_approved',
+    storage_gb: 128,
+    ram_gb: null,
+    color: '',
+    battery_health: null,
+    has_box: false,
+    has_accessories: false,
+    warranty_type: 'none',
+    warranty_months_remaining: 0,
+    price: 0,
+    is_negotiable: true,
+    title: '',
+    description: '',
+    imei: '',
+    images: [],
+    city_id: cities.length > 0 ? cities[0].id : '',
+    area_id: null,
+    contact_preference: 'both',
+  }
 
   const form = useForm<FullAdFormData>({
     resolver: zodResolver(fullAdSchema) as unknown as Resolver<FullAdFormData>,
     mode: 'onTouched',
-    defaultValues: {
-      brand_id: '',
-      model_id: '',
-      condition: 'used',
-      pta_status: 'pta_approved',
-      storage_gb: 128,
-      ram_gb: null,
-      color: '',
-      battery_health: null,
-      has_box: false,
-      has_accessories: false,
-      warranty_type: 'none',
-      warranty_months_remaining: 0,
-      price: 0,
-      is_negotiable: true,
-      title: '',
-      description: '',
-      imei: '',
-      images: [],
-      city_id: cities.length > 0 ? cities[0].id : '',
-      area_id: null,
-      contact_preference: 'both',
-    },
+    defaultValues: defaultFormValues,
   })
 
   const {
@@ -192,15 +196,37 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
     setTimeout(() => setDraftToast(null), 3500)
   }
 
-  // Discard Draft Action
-  const handleDiscardDraft = () => {
+  // Permanent Delete Draft Action
+  const handleDeleteDraft = () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+      saveTimeoutRef.current = null
+    }
+
     try {
       localStorage.removeItem(draftKey)
       localStorage.removeItem('mb_ad_draft')
       localStorage.removeItem('mb_ad_draft_user')
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i)
+        if (k && k.startsWith('mb_ad_draft')) {
+          localStorage.removeItem(k)
+        }
+      }
     } catch {}
+
+    reset(defaultFormValues)
+    setSelectedModel(null)
+    setCurrentStep(1)
+    setReturnToReview(false)
     setSavedDraft(null)
     setShowDraftBanner(false)
+    setShowDeleteModal(false)
+    setServerError(null)
+
+    setDraftToast('Draft permanently deleted. Form has been reset.')
+    setTimeout(() => setDraftToast(null), 3500)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // Unsaved changes warning beforeunload
@@ -358,6 +384,62 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         </div>
       )}
 
+      {/* Delete Draft Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#1E1B38] border border-slate-200 dark:border-[#2D2947] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-[#F7F6F2]">
+                    Delete Ad Draft?
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    ڈرافٹ ڈیلیٹ کریں؟
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#252147] flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-[#17152B] p-3.5 rounded-2xl border border-slate-200 dark:border-[#2D2947]">
+              Are you sure you want to delete this draft? All entered phone details, photos, and specs will be completely reset.
+              <br />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                کیا آپ واقعی یہ ڈرافٹ ختم کرنا چاہتے ہیں؟ تمام داخل کردہ معلومات صاف ہو جائیں گی۔
+              </span>
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-[#2D2947] text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#252147] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteDraft}
+                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition-all flex items-center gap-1.5 active:scale-95"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Yes, Delete Draft</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Headline */}
       <div className="text-center mb-6 space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7657FF]/10 border border-[#7657FF]/30 text-[#7657FF] dark:text-[#9B82FF] text-xs font-bold">
@@ -397,11 +479,11 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
           <div className="flex items-center gap-2 self-end sm:self-auto">
             <button
               type="button"
-              onClick={handleDiscardDraft}
-              className="px-3.5 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 rounded-xl border border-slate-200 dark:border-[#2D2947] hover:bg-red-50 dark:hover:bg-red-950/20 transition-all flex items-center gap-1"
+              onClick={() => setShowDeleteModal(true)}
+              className="px-3.5 py-2 text-xs font-semibold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all flex items-center gap-1"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Discard</span>
+              <span>Delete Draft</span>
             </button>
             <button
               type="button"
@@ -426,7 +508,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               {STEP_TITLES[currentStep - 1].title}
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={handleManualSaveDraft}
@@ -436,7 +518,17 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               <Save className="w-3.5 h-3.5" />
               <span>Save Draft</span>
             </button>
-            <span className="text-xs font-bold text-[#7657FF] dark:text-[#9B82FF] font-mono">
+            <span className="text-slate-300 dark:text-[#2D2947]">|</span>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              title="Delete draft and start over"
+              className="text-xs font-semibold text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:underline flex items-center gap-1"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Draft</span>
+            </button>
+            <span className="text-xs font-bold text-[#7657FF] dark:text-[#9B82FF] font-mono ml-1 hidden sm:inline">
               {progressPercentage}% Completed
             </span>
           </div>
@@ -567,7 +659,7 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
         {/* Navigation Footer */}
         <div className="fixed sm:static bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-[#17152B]/95 backdrop-blur-md border-t sm:border-t-0 border-slate-200 dark:border-[#2D2947] z-30 sm:mt-6 sm:p-0">
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
-            {/* Left buttons: Back & Save Draft */}
+            {/* Left buttons: Back, Save Draft & Delete Draft */}
             <div className="flex items-center gap-2">
               {currentStep > 1 && (
                 <button
@@ -597,6 +689,16 @@ export function PostAdWizard({ brands, cities, userId, onSubmitAction }: PostAdW
               >
                 <Save className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Save Draft</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                disabled={isPending}
+                title="Delete draft and reset form"
+                className="px-3 sm:px-3.5 py-3 rounded-2xl border border-rose-200 dark:border-rose-900/60 font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors flex items-center gap-1.5 active:scale-95 text-xs"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Delete Draft</span>
               </button>
             </div>
 
