@@ -1,10 +1,13 @@
+// ==============================================================================
+// Chat Data Fetching Layer (Phase 6)
+// Server-side queries for conversation lists, active thread, and message history
+// ==============================================================================
+
 import { createClient } from '@/src/lib/supabase/server'
 import type { ConversationListItem, ChatMessage } from '@/src/types/chat'
 
-export async function getConversations(
-  tab: 'all' | 'buying' | 'selling' = 'all',
-  cursor?: string,
-  limit: number = 20
+export async function getConversationsList(
+  filter: 'all' | 'buying' | 'selling' = 'all'
 ): Promise<ConversationListItem[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -12,20 +15,21 @@ export async function getConversations(
 
   const { data, error } = await (supabase.rpc as unknown as (name: string, params: object) => Promise<{ data: ConversationListItem[] | null; error: Error | null }>)(
     'list_conversations',
-    {
-      p_tab: tab,
-      p_cursor: cursor || null,
-      p_limit: limit,
-    }
+    { p_limit: 50 }
   )
 
   if (error) {
-    console.error('Error fetching conversations:', error)
+    console.error('Error fetching conversations:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
     return []
   }
 
-  return (data || []) as ConversationListItem[]
+  const list = (data || []) as ConversationListItem[]
+  if (filter === 'buying') return list.filter((c) => c.is_buyer)
+  if (filter === 'selling') return list.filter((c) => !c.is_buyer)
+  return list
 }
+
+export const getConversations = getConversationsList
 
 export interface ConversationDetails {
   id: string
@@ -36,6 +40,9 @@ export interface ConversationDetails {
   last_message_at: string
   buyer_unread_count: number
   seller_unread_count: number
+  buyer_last_read_at?: string | null
+  seller_last_read_at?: string | null
+  other_last_read_at?: string | null
   isBuyer: boolean
   ad: {
     id: string
@@ -71,6 +78,8 @@ export async function getConversationDetails(conversationId: string): Promise<Co
       last_message_at,
       buyer_unread_count,
       seller_unread_count,
+      buyer_last_read_at,
+      seller_last_read_at,
       ad:ads (
         id,
         title,
@@ -113,6 +122,9 @@ export async function getConversationDetails(conversationId: string): Promise<Co
     last_message_at: conv.last_message_at,
     buyer_unread_count: conv.buyer_unread_count,
     seller_unread_count: conv.seller_unread_count,
+    buyer_last_read_at: conv.buyer_last_read_at,
+    seller_last_read_at: conv.seller_last_read_at,
+    other_last_read_at: isBuyer ? conv.seller_last_read_at : conv.buyer_last_read_at,
     ad: conv.ad || null,
     isBuyer,
     otherUser: otherProfile || {
@@ -131,6 +143,8 @@ export async function getMessages(
   limit: number = 30
 ): Promise<ChatMessage[]> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
 
   const { data, error } = await (supabase.rpc as unknown as (name: string, params: object) => Promise<{ data: ChatMessage[] | null; error: Error | null }>)(
     'get_messages',
@@ -143,15 +157,22 @@ export async function getMessages(
   )
 
   if (error) {
-    console.error('Error fetching messages:', error)
+    console.error('Error fetching messages:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
     return []
   }
 
-  // Reverse so oldest in the page is first for top-down chat stream
-  return ((data || []) as ChatMessage[]).reverse()
+  // get_messages RPC returns DESC (newest first) for keyset pagination.
+  // We sort in ascending chronological order so chat renders oldest-to-newest.
+  const rawList = (data || []) as ChatMessage[]
+  return rawList.sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime()
+    const timeB = new Date(b.created_at).getTime()
+    if (timeA !== timeB) return timeA - timeB
+    return Number(a.id) - Number(b.id)
+  })
 }
 
-export async function getUnreadChatTotal(): Promise<number> {
+export async function getUnreadChatCount(): Promise<number> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return 0
@@ -160,9 +181,9 @@ export async function getUnreadChatTotal(): Promise<number> {
     'get_unread_chat_total'
   )
 
-  if (error) {
+  if (error || typeof data !== 'number') {
     return 0
   }
 
-  return Number(data || 0)
+  return data
 }

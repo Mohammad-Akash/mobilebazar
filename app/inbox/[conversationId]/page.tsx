@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { getConversationDetails, getMessages } from '@/src/lib/data/chat'
@@ -13,6 +14,7 @@ interface ConversationPageProps {
 export async function generateMetadata({
   params,
 }: ConversationPageProps): Promise<Metadata> {
+  await connection()
   const { conversationId } = await params
   const details = await getConversationDetails(conversationId)
 
@@ -30,6 +32,7 @@ export async function generateMetadata({
 export const instant = false
 
 export default async function ConversationPage({ params }: ConversationPageProps) {
+  await connection()
   const { conversationId } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -60,6 +63,7 @@ export default async function ConversationPage({ params }: ConversationPageProps
         ad={details.ad}
         otherUser={details.otherUser}
         initialMessages={initialMessages}
+        initialOtherLastReadAt={details.other_last_read_at || null}
       />
     </div>
   )

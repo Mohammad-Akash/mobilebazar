@@ -6,14 +6,18 @@ import { ArrowLeft, MoreVertical, ShieldBan, Flag, CheckCircle2 } from 'lucide-r
 
 interface ThreadHeaderProps {
   otherUserName: string
-  otherUserAvatar: string | null
+  otherUserAvatar?: string | null
   isPhoneVerified: boolean
+  isOnline?: boolean
+  lastSeenText?: string
   onActionClick: (mode: 'block' | 'report') => void
 }
 
 export function ThreadHeader({
   otherUserName,
   isPhoneVerified,
+  isOnline = false,
+  lastSeenText,
   onActionClick,
 }: ThreadHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -30,8 +34,14 @@ export function ThreadHeader({
         </Link>
 
         {/* User initials / avatar */}
-        <div className="w-9 h-9 rounded-xl bg-[#7657FF]/15 text-[#7657FF] dark:text-[#8A6FFF] flex items-center justify-center font-black text-xs shrink-0">
-          {(otherUserName || 'U')[0].toUpperCase()}
+        <div className="relative">
+          <div className="w-9 h-9 rounded-xl bg-[#7657FF]/15 text-[#7657FF] dark:text-[#8A6FFF] flex items-center justify-center font-black text-xs shrink-0">
+            {(otherUserName || 'U')[0].toUpperCase()}
+          </div>
+          {/* Online badge dot on avatar */}
+          {isOnline && (
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#17152B] rounded-full" />
+          )}
         </div>
 
         <div className="min-w-0">
@@ -45,10 +55,19 @@ export function ThreadHeader({
               </span>
             )}
           </div>
-          <p className="text-[10px] text-[#77758A] dark:text-[#9B98B2] flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#159B72]" />
-            <span>Active on MobileBazar</span>
-          </p>
+
+          {/* Active status / Last Seen */}
+          {isOnline ? (
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Active Now</span>
+            </p>
+          ) : (
+            <p className="text-[10px] text-[#77758A] dark:text-[#9B98B2] flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>{lastSeenText || 'Offline'}</span>
+            </p>
+          )}
         </div>
       </div>
 
@@ -57,7 +76,7 @@ export function ThreadHeader({
         <button
           type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-1.5 rounded-xl text-[#77758A] hover:text-[#17152B] dark:hover:text-[#F7F6F2] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] transition-colors"
+          className="p-1.5 rounded-xl text-[#77758A] hover:text-[#17152B] dark:hover:text-[#F7F6F2] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] transition-colors cursor-pointer"
         >
           <MoreVertical className="w-4 h-4" />
         </button>

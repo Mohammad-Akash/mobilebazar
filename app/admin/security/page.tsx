@@ -3,6 +3,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { createClient } from '@/src/lib/supabase/server'
 import { SecurityClient } from './SecurityClient'
 
+export const instant = false
+
 export default async function AdminSecurityPage({
   searchParams,
 }: {

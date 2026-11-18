@@ -4,6 +4,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminAdDetail } from '@/src/lib/admin/queries'
 import { AdInspectionClient } from './AdInspectionClient'
 
+export const instant = false
+
 export default async function AdminAdDetailPage({
   params,
 }: {

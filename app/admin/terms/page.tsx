@@ -3,6 +3,8 @@ import { requireAdmin } from '@/src/lib/admin/guard'
 import { createClient } from '@/src/lib/supabase/server'
 import { TermsClient } from './TermsClient'
 
+export const instant = false
+
 export default async function AdminTermsPage() {
   await connection()
   await requireAdmin()

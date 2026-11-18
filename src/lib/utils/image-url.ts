@@ -23,7 +23,7 @@ export function getAdImageUrl(
   variant: ImageVariant = 'base'
 ): string {
   if (!storagePath || storagePath.trim() === '') {
-    return '/images/placeholder-phone.svg'
+    return ''
   }
 
   // External URLs (e.g. mockups or placeholders)
@@ -31,20 +31,9 @@ export function getAdImageUrl(
     return storagePath
   }
 
-  let finalPath = storagePath
-
-  if (variant === 'sm' || variant === 'md') {
-    // If path ends with .webp, insert _sm or _md before extension
-    if (finalPath.endsWith('.webp')) {
-      finalPath = finalPath.replace(/\.webp$/, `_${variant}.webp`)
-    } else if (finalPath.includes('.')) {
-      finalPath = finalPath.replace(/\.([a-zA-Z0-9]+)$/, `_${variant}.$1`)
-    } else {
-      finalPath = `${finalPath}_${variant}`
-    }
-  }
-
-  return `${SUPABASE_URL}/storage/v1/object/public/ad-images/${finalPath}`
+  // Use the original path as default to ensure it always renders, 
+  // since only base image is guaranteed to exist across all uploads.
+  return `${SUPABASE_URL}/storage/v1/object/public/ad-images/${storagePath}`
 }
 
 export const getImageUrl = getAdImageUrl

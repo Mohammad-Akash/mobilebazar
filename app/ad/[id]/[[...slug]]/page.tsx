@@ -1,4 +1,5 @@
 import { notFound, permanentRedirect } from 'next/navigation'
+import { connection } from 'next/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getAdById, getSimilarAds } from '@/src/lib/data/ads'
@@ -27,6 +28,7 @@ import {
   FileText,
 } from 'lucide-react'
 
+
 export const instant = false
 
 interface AdDetailPageProps {
@@ -36,6 +38,7 @@ interface AdDetailPageProps {
 export async function generateMetadata({
   params,
 }: AdDetailPageProps): Promise<Metadata> {
+  await connection()
   const { id } = await params
   const ad = await getAdById(id)
 
@@ -100,6 +103,7 @@ export async function generateMetadata({
 }
 
 export default async function AdDetailPage({ params }: AdDetailPageProps) {
+  await connection()
   const { id, slug: slugArray } = await params
   const ad = await getAdById(id)
 

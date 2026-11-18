@@ -106,9 +106,16 @@ export async function Header() {
               <Link
                 href="/dashboard"
                 className="flex items-center gap-1.5 text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:text-[#7657FF] dark:hover:text-[#8A6FFF] py-1.5 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] transition-colors"
+                title="Go to Dashboard"
               >
                 <User className="w-3.5 h-3.5 text-[#7657FF]" />
                 <span className="max-w-[100px] truncate">{fullName}</span>
+              </Link>
+              <Link
+                href="/profile"
+                className="hidden md:inline-flex items-center text-xs font-medium text-[#77758A] hover:text-[#7657FF] dark:text-[#9B98B2] dark:hover:text-[#8A6FFF] py-1.5 px-2 transition-colors"
+              >
+                Profile
               </Link>
               <form action={logoutAction} className="hidden sm:block">
                 <button

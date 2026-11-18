@@ -50,16 +50,16 @@ BEGIN
     RETURN QUERY
     SELECT
         a.id,
-        a.title,
-        a.price,
+        a.title::TEXT,
+        a.price::NUMERIC,
         a.status,
         a.seller_id,
-        p.full_name AS seller_name,
-        c.name AS city_name,
-        b.name AS brand_name,
-        m.name AS model_name,
+        p.full_name::TEXT AS seller_name,
+        c.name::TEXT AS city_name,
+        b.name::TEXT AS brand_name,
+        m.name::TEXT AS model_name,
         (
-            SELECT img.storage_path
+            SELECT img.storage_path::TEXT
             FROM public.ad_images img
             WHERE img.ad_id = a.id
             ORDER BY img.position ASC
@@ -146,7 +146,7 @@ BEGIN
             a.battery_health,
             a.color,
             a.has_box,
-            a.has_charger,
+            a.has_accessories,
             a.warranty_type,
             a.created_at,
             a.updated_at,
@@ -273,9 +273,9 @@ BEGIN
     RETURN QUERY
     SELECT
         a.id AS ad_id,
-        a.title AS ad_title,
+        a.title::TEXT AS ad_title,
         a.status AS ad_status,
-        p.full_name AS seller_name,
+        p.full_name::TEXT AS seller_name,
         COUNT(r.id) AS pending_count,
         COUNT(DISTINCT r.reporter_id) AS distinct_reporters,
         array_agg(DISTINCT r.reason::text) AS reasons,
@@ -337,9 +337,9 @@ BEGIN
     SELECT
         f.id,
         f.ad_id,
-        a.title AS ad_title,
+        a.title::TEXT AS ad_title,
         a.status AS ad_status,
-        p.full_name AS seller_name,
+        p.full_name::TEXT AS seller_name,
         f.flag_type,
         f.detail,
         f.score,
@@ -406,7 +406,7 @@ BEGIN
     RETURN QUERY
     SELECT
         p.id,
-        p.full_name,
+        p.full_name::TEXT,
         pp.role,
         pp.is_phone_verified,
         pp.is_banned,
@@ -625,7 +625,7 @@ BEGIN
     ) INTO v_current_counts;
 
     -- 2. Daily Trends via generate_series
-    SELECT jsonb_agg(to_jsonb(daily_row) ORDER BY daily_row.stat_date ASC) INTO v_trend
+    SELECT COALESCE(jsonb_agg(to_jsonb(daily_row) ORDER BY daily_row.stat_date ASC), '[]'::jsonb) INTO v_trend
     FROM (
         SELECT
             d.day::date AS stat_date,
@@ -634,7 +634,7 @@ BEGIN
             (SELECT COUNT(*) FROM public.ads a WHERE a.deleted_at::date = d.day::date) AS removed_ads,
             (SELECT COUNT(*) FROM public.reports r WHERE r.created_at::date = d.day::date) AS reports_filed
         FROM generate_series(
-            (now() - (v_days || ' days')::INTERVAL)::date,
+            (now() - (v_days * INTERVAL '1 day'))::date,
             now()::date,
             '1 day'::INTERVAL
         ) d(day)
@@ -683,7 +683,7 @@ BEGIN
             END AS precision_pct
         FROM public.ad_flags
         GROUP BY flag_type
-        ORDER BY confirmed_count + false_positive_count DESC
+        ORDER BY (COUNT(*) FILTER (WHERE outcome = 'confirmed') + COUNT(*) FILTER (WHERE outcome = 'false_positive')) DESC
     ) prec_row;
 
     RETURN jsonb_build_object(
@@ -739,7 +739,7 @@ BEGIN
     SELECT
         a.id,
         a.actor_id,
-        p.full_name AS actor_name,
+        p.full_name::TEXT AS actor_name,
         a.action,
         a.target_type,
         a.target_id,

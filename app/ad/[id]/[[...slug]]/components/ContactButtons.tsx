@@ -45,14 +45,32 @@ export function ContactButtons({
 
   if (isOwner) {
     return (
-      <div className="p-4 rounded-2xl bg-[#7657FF]/10 border border-[#7657FF]/20 text-center space-y-1">
-        <span className="text-xs font-bold text-[#7657FF] dark:text-[#8A6FFF] flex items-center justify-center gap-1.5">
-          <CheckCircle className="w-4 h-4" />
-          <span>Aap ka apna handset ishtehaar hai</span>
-        </span>
-        <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2]">
-          Buyers aap se in buttons ke zariye chat, offer, ya call par rabta karenge.
-        </p>
+      <div className="p-4 rounded-2xl bg-[#7657FF]/10 border border-[#7657FF]/20 text-center space-y-3">
+        <div className="space-y-1">
+          <span className="text-xs font-bold text-[#7657FF] dark:text-[#8A6FFF] flex items-center justify-center gap-1.5">
+            <CheckCircle className="w-4 h-4" />
+            <span>Aap ka apna handset ishtehaar hai</span>
+          </span>
+          <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2]">
+            Buyers aap se in buttons ke zariye chat, offer, ya call par rabta karenge.
+          </p>
+        </div>
+
+        <div className="pt-1 flex gap-2">
+          <a
+            href={`/dashboard/ads/${adId}/edit`}
+            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
+          >
+            <Tag className="w-3.5 h-3.5" />
+            <span>Edit Handset Ad</span>
+          </a>
+          <a
+            href="/dashboard/ads"
+            className="py-2.5 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-xs font-bold text-[#17152B] dark:text-[#F7F6F2] hover:bg-slate-50 dark:hover:bg-[#211E38] transition-colors"
+          >
+            My Ads
+          </a>
+        </div>
       </div>
     )
   }

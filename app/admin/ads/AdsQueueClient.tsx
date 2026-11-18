@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { AdminQueueAd } from '@/src/types/admin'
 import { getAdminAds } from '@/src/lib/admin/queries'
+import { getAdImageUrl } from '@/src/lib/utils/image-url'
 
 interface AdsQueueClientProps {
   initialAds: AdminQueueAd[]
@@ -33,6 +34,12 @@ export function AdsQueueClient({
   const [cursor, setCursor] = useState(initialCursor)
   const [search, setSearch] = useState(initialQuery)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setAds(initialAds)
+    setCursor(initialCursor)
+    setSearch(initialQuery)
+  }, [initialAds, initialCursor, initialQuery])
 
   function handleTabChange(statusVal: string) {
     router.push(`/admin/ads?status=${statusVal}&q=${encodeURIComponent(search)}`)
@@ -118,8 +125,7 @@ export function AdsQueueClient({
           {ads.map((ad) => {
             const hasReports = ad.reports_count > 0
             const hasFlags = ad.max_flag_score > 0
-            const supabaseStorageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ad-images`
-            const coverSrc = ad.cover_image ? `${supabaseStorageUrl}/${ad.cover_image}` : null
+            const coverSrc = getAdImageUrl(ad.cover_image)
 
             return (
               <div

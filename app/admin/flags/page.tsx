@@ -3,6 +3,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminFlags } from '@/src/lib/admin/queries'
 import { FlagsQueueClient } from './FlagsQueueClient'
 
+export const instant = false
+
 export default async function AdminFlagsPage() {
   await connection()
   await requireStaff()

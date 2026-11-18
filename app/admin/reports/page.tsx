@@ -3,6 +3,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminReports } from '@/src/lib/admin/queries'
 import { ReportsQueueClient } from './ReportsQueueClient'
 
+export const instant = false
+
 export default async function AdminReportsPage() {
   await connection()
   await requireStaff()

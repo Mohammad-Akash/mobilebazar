@@ -4,19 +4,96 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { createClient } from '@/src/lib/supabase/server'
 import type { AdminStatsData } from '@/src/types/admin'
 
+export const instant = false
+
 export default async function AdminDashboardPage() {
   await connection()
   await requireStaff()
   const supabase = await createClient()
 
   // Fetch telemetry & stats
+  let stats: AdminStatsData | null = null
   const { data, error } = await (supabase.rpc as any)('admin_dashboard_stats', { p_days: 30 })
-  const stats = (data as unknown as AdminStatsData) || {
-    current_counts: { active_ads: 0, under_review_ads: 0, pending_reports: 0, unresolved_flags: 0, banned_users: 0 },
-    trend: [],
-    top_cities: [],
-    top_brands: [],
-    flag_precision: [],
+  if (error || !data) {
+    if (error) {
+      console.warn('[admin_dashboard_stats failed, using live fallback]:', {
+        message: (error as any)?.message,
+        code: (error as any)?.code,
+        details: (error as any)?.details,
+        hint: (error as any)?.hint,
+      })
+    }
+
+    // Graceful direct fallback so live counts are accurate
+    const [activeRes, reviewRes, reportsRes, flagsRes, bannedRes, activeAdsRes] = await Promise.all([
+      supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'under_review'),
+      supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      (supabase.from('ad_flags' as any) as any).select('*', { count: 'exact', head: true }).is('resolved_at', null),
+      supabase.from('profile_private').select('*', { count: 'exact', head: true }).eq('is_banned', true),
+      supabase.from('ads').select('city_id, brand_id').eq('status', 'active'),
+    ])
+
+    const activeAds = activeAdsRes.data || []
+    let fallbackTopCities: { name: string; active_ads_count: number }[] = []
+    let fallbackTopBrands: { name: string; active_ads_count: number }[] = []
+
+    if (activeAds.length > 0) {
+      const cityIds = Array.from(new Set(activeAds.map((a: any) => a.city_id).filter(Boolean)))
+      const brandIds = Array.from(new Set(activeAds.map((a: any) => a.brand_id).filter(Boolean)))
+
+      const [cRes, bRes] = await Promise.all([
+        cityIds.length > 0 ? supabase.from('cities').select('id, name').in('id', cityIds) : Promise.resolve({ data: [] }),
+        brandIds.length > 0 ? supabase.from('brands').select('id, name').in('id', brandIds) : Promise.resolve({ data: [] }),
+      ])
+
+      const cityNames = new Map((cRes.data || []).map((c: any) => [c.id, c.name]))
+      const brandNames = new Map((bRes.data || []).map((b: any) => [b.id, b.name]))
+
+      const cityCounts = new Map<string, number>()
+      const brandCounts = new Map<string, number>()
+
+      activeAds.forEach((a: any) => {
+        const cName = cityNames.get(a.city_id)
+        if (cName) cityCounts.set(cName, (cityCounts.get(cName) || 0) + 1)
+        const bName = brandNames.get(a.brand_id)
+        if (bName) brandCounts.set(bName, (brandCounts.get(bName) || 0) + 1)
+      })
+
+      fallbackTopCities = Array.from(cityCounts.entries()).map(([name, count]) => ({ name, active_ads_count: count }))
+      fallbackTopBrands = Array.from(brandCounts.entries()).map(([name, count]) => ({ name, active_ads_count: count }))
+    }
+
+    // 30-day timeline trend
+    const fallbackTrend = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - (29 - i))
+      const dateStr = d.toISOString().split('T')[0]
+      const isToday = i === 29
+      return {
+        stat_date: dateStr,
+        new_ads: isToday ? (activeRes.count ?? 0) : 0,
+        new_users: 0,
+        removed_ads: 0,
+        reports_filed: 0,
+      }
+    })
+
+    stats = {
+      current_counts: {
+        active_ads: activeRes.count ?? 0,
+        under_review_ads: reviewRes.count ?? 0,
+        pending_reports: reportsRes.count ?? 0,
+        unresolved_flags: flagsRes.count ?? 0,
+        banned_users: bannedRes.count ?? 0,
+      },
+      trend: fallbackTrend,
+      top_cities: fallbackTopCities,
+      top_brands: fallbackTopBrands,
+      flag_precision: [],
+    }
+  } else {
+    stats = data as unknown as AdminStatsData
   }
 
   const { current_counts, trend, top_cities, top_brands, flag_precision } = stats

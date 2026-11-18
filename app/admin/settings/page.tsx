@@ -3,6 +3,8 @@ import { requireAdmin } from '@/src/lib/admin/guard'
 import { createClient } from '@/src/lib/supabase/server'
 import { SettingsClient } from './SettingsClient'
 
+export const instant = false
+
 export default async function AdminSettingsPage() {
   await connection()
   await requireAdmin()

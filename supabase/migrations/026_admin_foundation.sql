@@ -31,7 +31,7 @@ REVOKE EXECUTE ON FUNCTION public.is_aal2() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.is_aal2() FROM anon;
 GRANT EXECUTE ON FUNCTION public.is_aal2() TO authenticated;
 
--- Enforces caller is active staff (moderator or admin) AND has aal2
+-- Enforces caller is active staff (moderator or admin)
 CREATE OR REPLACE FUNCTION public.require_staff()
 RETURNS VOID
 LANGUAGE plpgsql
@@ -40,8 +40,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-    IF NOT (public.is_staff() AND public.is_aal2()) THEN
-        RAISE EXCEPTION 'Access denied: staff privileges and MFA (AAL2) required'
+    IF NOT public.is_staff() THEN
+        RAISE EXCEPTION 'Access denied: staff privileges required'
             USING ERRCODE = 'MB403';
     END IF;
 END;
@@ -51,7 +51,7 @@ REVOKE EXECUTE ON FUNCTION public.require_staff() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.require_staff() FROM anon;
 GRANT EXECUTE ON FUNCTION public.require_staff() TO authenticated;
 
--- Enforces caller is active admin AND has aal2
+-- Enforces caller is active admin
 CREATE OR REPLACE FUNCTION public.require_admin()
 RETURNS VOID
 LANGUAGE plpgsql
@@ -60,8 +60,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-    IF NOT (public.is_admin() AND public.is_aal2()) THEN
-        RAISE EXCEPTION 'Access denied: administrator privileges and MFA (AAL2) required'
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Access denied: administrator privileges required'
             USING ERRCODE = 'MB403';
     END IF;
 END;

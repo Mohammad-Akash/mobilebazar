@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { getConversations } from '@/src/lib/data/chat'
@@ -9,9 +10,11 @@ export const metadata: Metadata = {
   description: 'Manage your direct smartphone buying and selling conversations on MobileBazar.',
 }
 
+
 export const instant = false
 
 export default async function InboxPage() {
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

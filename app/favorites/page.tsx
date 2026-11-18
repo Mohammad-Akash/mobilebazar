@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export const instant = false
 
 export default async function FavoritesPage() {
+  await connection()
   const supabase = await createClient()
   const {
     data: { user },

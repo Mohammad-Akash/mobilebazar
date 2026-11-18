@@ -97,10 +97,10 @@ export async function getMyAds(
       published_at,
       created_at,
       expires_at,
-      brands:brand_id(name),
-      models:model_id(name),
-      cities:city_id(name),
-      ad_images(storage_path,position)
+      brand_id,
+      model_id,
+      city_id,
+      ad_images (storage_path, position)
     `)
     .eq('seller_id', user.id)
     .eq('status', status)
@@ -118,18 +118,29 @@ export async function getMyAds(
 
   const { data, error } = await query
   if (error || !data) {
-    console.error('Error in getMyAds:', error)
+    console.error('Error in getMyAds:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2))
     return { ads: [], nextCursor: null, hasNextPage: false }
   }
 
   const hasNextPage = data.length > limit
   const rawAds = hasNextPage ? data.slice(0, limit) : data
 
-  const ads: MyAdItem[] = rawAds.map((a: any) => {
-    const brandData = Array.isArray(a.brands) ? a.brands[0] : a.brands
-    const modelData = Array.isArray(a.models) ? a.models[0] : a.models
-    const cityData = Array.isArray(a.cities) ? a.cities[0] : a.cities
+  // Safely batch-fetch brand, model, and city names without relying on composite FK PostgREST embeds
+  const brandIds = Array.from(new Set(rawAds.map((a: any) => a.brand_id).filter(Boolean)))
+  const modelIds = Array.from(new Set(rawAds.map((a: any) => a.model_id).filter(Boolean)))
+  const cityIds = Array.from(new Set(rawAds.map((a: any) => a.city_id).filter(Boolean)))
 
+  const [brandsRes, modelsRes, citiesRes] = await Promise.all([
+    brandIds.length > 0 ? (supabase.from('brands') as any).select('id, name').in('id', brandIds) : Promise.resolve({ data: [] }),
+    modelIds.length > 0 ? (supabase.from('models') as any).select('id, name').in('id', modelIds) : Promise.resolve({ data: [] }),
+    cityIds.length > 0 ? (supabase.from('cities') as any).select('id, name').in('id', cityIds) : Promise.resolve({ data: [] }),
+  ])
+
+  const brandMap = new Map<string, string>((brandsRes.data || []).map((b: any) => [b.id, b.name]))
+  const modelMap = new Map<string, string>((modelsRes.data || []).map((m: any) => [m.id, m.name]))
+  const cityMap = new Map<string, string>((citiesRes.data || []).map((c: any) => [c.id, c.name]))
+
+  const ads: MyAdItem[] = rawAds.map((a: any) => {
     // Find cover image (position 0)
     const images = Array.isArray(a.ad_images) ? a.ad_images : []
     const cover = images.find((img: any) => img.position === 0) || images[0]
@@ -149,9 +160,9 @@ export async function getMyAds(
       published_at: a.published_at,
       created_at: a.created_at,
       expires_at: a.expires_at,
-      brand_name: brandData?.name || null,
-      model_name: modelData?.name || null,
-      city_name: cityData?.name || null,
+      brand_name: brandMap.get(a.brand_id) || null,
+      model_name: modelMap.get(a.model_id) || null,
+      city_name: cityMap.get(a.city_id) || null,
       cover_image_path: cover?.storage_path || null,
     }
   })

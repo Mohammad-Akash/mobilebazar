@@ -93,7 +93,7 @@ export async function checkRateLimit(
     try {
       const result = await limiter.limit(key)
       if (!result.success) {
-        const now = Date.now()
+        const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
         const retryAfter = Math.max(1, Math.ceil((result.reset - now) / 1000))
         return {
           success: false,
@@ -113,7 +113,7 @@ export async function checkRateLimit(
   }
 
   // 2. Resilient In-Memory Limiter (Permits testing without Upstash keys)
-  const now = Date.now()
+  const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
   const windowMs = type === 'otp_send' ? 60 * 1000 : 15 * 60 * 1000
   const maxLimit = type === 'otp_send' ? 5 : 15
 

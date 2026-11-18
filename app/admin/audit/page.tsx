@@ -3,6 +3,8 @@ import { requireAdmin } from '@/src/lib/admin/guard'
 import { getAdminAuditLog } from '@/src/lib/admin/queries'
 import { AuditLogClient } from './AuditLogClient'
 
+export const instant = false
+
 export default async function AdminAuditPage({
   searchParams,
 }: {

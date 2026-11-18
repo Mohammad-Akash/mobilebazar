@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { AdminUserListItem } from '@/src/types/admin'
@@ -24,6 +24,12 @@ export function UsersListClient({
   const [cursor, setCursor] = useState(initialCursor)
   const [search, setSearch] = useState(initialQuery)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setUsers(initialUsers)
+    setCursor(initialCursor)
+    setSearch(initialQuery)
+  }, [initialUsers, initialCursor, initialQuery])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()

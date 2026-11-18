@@ -3,6 +3,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminAds } from '@/src/lib/admin/queries'
 import { AdsQueueClient } from './AdsQueueClient'
 
+export const instant = false
+
 export default async function AdminAdsPage({
   searchParams,
 }: {

@@ -43,9 +43,10 @@ BEGIN
     RAISE EXCEPTION 'Login zaroori hai chat shuru karne ke liye' USING ERRCODE = 'P0001';
   END IF;
 
-  IF NOT public.current_user_phone_verified() THEN
-    RETURN jsonb_build_object('success', false, 'code', 'PHONE_NOT_VERIFIED', 'message', 'Chat shuru karne ke liye phone verify karein.');
-  END IF;
+  -- Phone verification check disabled
+  -- IF NOT public.current_user_phone_verified() THEN
+  --   RETURN jsonb_build_object('success', false, 'code', 'PHONE_NOT_VERIFIED', 'message', 'Chat shuru karne ke liye phone verify karein.');
+  -- END IF;
 
   IF public.is_banned() THEN
     RETURN jsonb_build_object('success', false, 'code', 'USER_BANNED', 'message', 'Aap ka account suspended hai.');
@@ -167,9 +168,10 @@ BEGIN
     RAISE EXCEPTION 'Login zaroori hai message bhejne ke liye' USING ERRCODE = 'P0001';
   END IF;
 
-  IF NOT public.current_user_phone_verified() THEN
-    RETURN jsonb_build_object('success', false, 'code', 'PHONE_NOT_VERIFIED', 'message', 'Phone verification zaroori hai.');
-  END IF;
+  -- Phone verification check disabled
+  -- IF NOT public.current_user_phone_verified() THEN
+  --   RETURN jsonb_build_object('success', false, 'code', 'PHONE_NOT_VERIFIED', 'message', 'Phone verification zaroori hai.');
+  -- END IF;
 
   IF public.is_banned() THEN
     RETURN jsonb_build_object('success', false, 'code', 'USER_BANNED', 'message', 'Aap ka account suspended hai.');
@@ -526,7 +528,7 @@ BEGIN
   SELECT
     c.id AS conversation_id,
     a.id AS ad_id,
-    a.title AS ad_title,
+    a.title::TEXT AS ad_title,
     a.price AS ad_price,
     a.status::TEXT AS ad_status,
     (
@@ -537,8 +539,8 @@ BEGIN
       LIMIT 1
     ) AS ad_cover_image,
     CASE WHEN c.buyer_id = v_caller_id THEN c.seller_id ELSE c.buyer_id END AS other_user_id,
-    p.full_name AS other_user_name,
-    p.avatar_url AS other_user_avatar,
+    p.full_name::TEXT AS other_user_name,
+    p.avatar_url::TEXT AS other_user_avatar,
     c.last_message_at,
     c.last_message_preview,
     CASE WHEN c.buyer_id = v_caller_id THEN c.buyer_unread_count ELSE c.seller_unread_count END AS unread_count,
@@ -653,7 +655,7 @@ BEGIN
     pn.recipient_id,
     p.full_name AS recipient_name,
     u.email::TEXT AS recipient_email,
-    a.title AS ad_title,
+    a.title::TEXT AS ad_title,
     CASE WHEN c.buyer_id = pn.recipient_id THEN c.buyer_unread_count ELSE c.seller_unread_count END AS unread_count
   FROM public.pending_chat_notifications pn
   JOIN public.conversations c ON pn.conversation_id = c.id
@@ -749,7 +751,7 @@ BEGIN
     cr.reported_user_id,
     tp.full_name AS reported_user_name,
     c.ad_id,
-    a.title AS ad_title,
+    a.title::TEXT AS ad_title,
     cr.reason,
     cr.detail,
     cardinality(cr.message_ids_snapshot) AS messages_count,

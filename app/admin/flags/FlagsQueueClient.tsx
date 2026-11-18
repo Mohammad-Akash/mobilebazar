@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { AdminSpamFlag } from '@/src/types/admin'
 import { getAdminFlags } from '@/src/lib/admin/queries'
@@ -14,6 +14,11 @@ export function FlagsQueueClient({ initialFlags, initialCursor }: FlagsQueueClie
   const [flags, setFlags] = useState(initialFlags)
   const [cursor, setCursor] = useState(initialCursor)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setFlags(initialFlags)
+    setCursor(initialCursor)
+  }, [initialFlags, initialCursor])
 
   async function handleLoadMore() {
     if (!cursor || loading) return

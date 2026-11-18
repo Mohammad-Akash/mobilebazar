@@ -4,6 +4,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminUserDetail } from '@/src/lib/admin/queries'
 import { UserDetailClient } from './UserDetailClient'
 
+export const instant = false
+
 export default async function AdminUserDetailPage({
   params,
 }: {

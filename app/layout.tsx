@@ -14,6 +14,8 @@ const jakartaSans = Plus_Jakarta_Sans({
 
 import { SITE_CONFIG } from "@/src/lib/seo/site";
 
+export const instant = false
+
 export const metadata: Metadata = {
   // metadataBase makes all OG images and canonical URLs absolute
   metadataBase: new URL(SITE_CONFIG.url),
@@ -84,7 +86,9 @@ export default function RootLayout({
           <Header />
         </Suspense>
         <main className="flex-1">{children}</main>
-        <MobileBottomNav />
+        <Suspense fallback={null}>
+          <MobileBottomNav />
+        </Suspense>
       </body>
     </html>
   );

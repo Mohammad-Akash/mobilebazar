@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { approveAdAction, removeAdAction, dismissReportsAction } from '@/src/lib/admin/actions'
 import { ConfirmWithReasonModal } from '@/src/lib/admin/components/ConfirmWithReasonModal'
+import { getAdImageUrl } from '@/src/lib/utils/image-url'
 
 interface AdInspectionProps {
   initialData: {
@@ -39,7 +40,6 @@ export function AdInspectionClient({ initialData }: AdInspectionProps) {
   const [loading, setLoading] = useState(false)
 
   const { ad, images, reports, flags, moderation_history, imei, can_view_pii } = data
-  const supabaseStorageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ad-images`
 
   // ── 1. Approve Ad ───────────────────────────────────────────────────────────
   async function handleApprove() {
@@ -178,7 +178,7 @@ export function AdInspectionClient({ initialData }: AdInspectionProps) {
           <div className="w-full aspect-4/3 bg-zinc-100 dark:bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
             {selectedImage ? (
               <img
-                src={`${supabaseStorageUrl}/${selectedImage}`}
+                src={getAdImageUrl(selectedImage)}
                 alt="Ad photo"
                 className="w-full h-full object-contain"
               />
@@ -200,7 +200,7 @@ export function AdInspectionClient({ initialData }: AdInspectionProps) {
                   }`}
                 >
                   <img
-                    src={`${supabaseStorageUrl}/${img.storage_path}`}
+                    src={getAdImageUrl(img.storage_path)}
                     alt=""
                     className="w-full h-full object-cover"
                   />

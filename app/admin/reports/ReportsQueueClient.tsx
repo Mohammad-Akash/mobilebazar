@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { AdminReportGroup } from '@/src/types/admin'
@@ -17,6 +17,10 @@ export function ReportsQueueClient({ initialReports, initialCursor }: ReportsQue
   const [reports, setReports] = useState(initialReports)
   const [removeTarget, setRemoveTarget] = useState<AdminReportGroup | null>(null)
   const [loadingId, setLoadingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    setReports(initialReports)
+  }, [initialReports])
 
   // Dismiss reports for an ad
   async function handleDismiss(adId: string) {

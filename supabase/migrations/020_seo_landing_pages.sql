@@ -101,6 +101,8 @@ GRANT EXECUTE ON FUNCTION public.get_indexable_landing_pages(INT) TO anon, authe
 
 -- 3. get_related_landing_links: Returns related cities, brands, models with ad counts
 -- for internal linking on landing pages
+
+-- 3. get_related_landing_links: Returns related cities, brands, models with ad counts
 CREATE OR REPLACE FUNCTION public.get_related_landing_links(
     p_city_slug TEXT DEFAULT NULL,
     p_brand_slug TEXT DEFAULT NULL,
@@ -117,48 +119,67 @@ SECURITY INVOKER
 LANGUAGE sql
 STABLE
 AS $$
-    -- Related cities (top cities with ads matching current brand/model filter)
-    SELECT 'city'::TEXT, v.city_slug, v.city_name, COUNT(*)
-    FROM public.active_ads_view v
-    WHERE v.city_slug IS NOT NULL
-      AND (p_city_slug IS NULL OR v.city_slug != p_city_slug)
-      AND (p_brand_slug IS NULL OR v.brand_slug = p_brand_slug)
-      AND (p_model_slug IS NULL OR v.model_slug = p_model_slug)
-    GROUP BY v.city_slug, v.city_name
-    HAVING COUNT(*) >= 1
-    ORDER BY COUNT(*) DESC
-    LIMIT p_limit
+    -- Related cities
+    (
+        SELECT
+            'city'::TEXT,
+            v.city_slug,
+            v.city_name,
+            COUNT(*) AS ad_count
+        FROM public.active_ads_view v
+        WHERE v.city_slug IS NOT NULL
+          AND (p_city_slug IS NULL OR v.city_slug != p_city_slug)
+          AND (p_brand_slug IS NULL OR v.brand_slug = p_brand_slug)
+          AND (p_model_slug IS NULL OR v.model_slug = p_model_slug)
+        GROUP BY v.city_slug, v.city_name
+        HAVING COUNT(*) >= 1
+        ORDER BY COUNT(*) DESC
+        LIMIT p_limit
+    )
 
     UNION ALL
 
-    -- Related brands (top brands with ads matching current city filter)
-    SELECT 'brand'::TEXT, v.brand_slug, v.brand_name, COUNT(*)
-    FROM public.active_ads_view v
-    WHERE v.brand_slug IS NOT NULL
-      AND (p_brand_slug IS NULL OR v.brand_slug != p_brand_slug)
-      AND (p_city_slug IS NULL OR v.city_slug = p_city_slug)
-    GROUP BY v.brand_slug, v.brand_name
-    HAVING COUNT(*) >= 1
-    ORDER BY COUNT(*) DESC
-    LIMIT p_limit
+    -- Related brands
+    (
+        SELECT
+            'brand'::TEXT,
+            v.brand_slug,
+            v.brand_name,
+            COUNT(*) AS ad_count
+        FROM public.active_ads_view v
+        WHERE v.brand_slug IS NOT NULL
+          AND (p_brand_slug IS NULL OR v.brand_slug != p_brand_slug)
+          AND (p_city_slug IS NULL OR v.city_slug = p_city_slug)
+        GROUP BY v.brand_slug, v.brand_name
+        HAVING COUNT(*) >= 1
+        ORDER BY COUNT(*) DESC
+        LIMIT p_limit
+    )
 
     UNION ALL
 
-    -- Related models (only when brand is set; top models of that brand matching city)
-    SELECT 'model'::TEXT, v.model_slug, v.model_name, COUNT(*)
-    FROM public.active_ads_view v
-    WHERE v.model_slug IS NOT NULL
-      AND p_brand_slug IS NOT NULL
-      AND v.brand_slug = p_brand_slug
-      AND (p_model_slug IS NULL OR v.model_slug != p_model_slug)
-      AND (p_city_slug IS NULL OR v.city_slug = p_city_slug)
-    GROUP BY v.model_slug, v.model_name
-    HAVING COUNT(*) >= 1
-    ORDER BY COUNT(*) DESC
-    LIMIT p_limit;
+    -- Related models
+    (
+        SELECT
+            'model'::TEXT,
+            v.model_slug,
+            v.model_name,
+            COUNT(*) AS ad_count
+        FROM public.active_ads_view v
+        WHERE v.model_slug IS NOT NULL
+          AND p_brand_slug IS NOT NULL
+          AND v.brand_slug = p_brand_slug
+          AND (p_model_slug IS NULL OR v.model_slug != p_model_slug)
+          AND (p_city_slug IS NULL OR v.city_slug = p_city_slug)
+        GROUP BY v.model_slug, v.model_name
+        HAVING COUNT(*) >= 1
+        ORDER BY COUNT(*) DESC
+        LIMIT p_limit
+    );
 $$;
 
-GRANT EXECUTE ON FUNCTION public.get_related_landing_links(TEXT, TEXT, TEXT, INT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_related_landing_links(TEXT, TEXT, TEXT, INT)
+TO anon, authenticated;
 
 -- 4. Indexes to support landing page queries
 -- These help the grouping and filtering in the functions above

@@ -3,6 +3,8 @@ import { requireStaff } from '@/src/lib/admin/guard'
 import { getAdminUsers } from '@/src/lib/admin/queries'
 import { UsersListClient } from './UsersListClient'
 
+export const instant = false
+
 export default async function AdminUsersPage({
   searchParams,
 }: {

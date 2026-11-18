@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import Link from 'next/link'
 import { MyAdItem } from '@/src/lib/data/dashboard'
 import { formatPrice, formatRelativeTime } from '@/src/lib/utils/format'
@@ -30,6 +30,10 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
   const [isPending, startTransition] = useTransition()
   const [actionError, setActionError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    setAds(initialAds)
+  }, [initialAds])
 
   const handleMarkSold = (ad: MyAdItem) => {
     if (!confirm(`Are you sure you want to mark "${ad.title}" as SOLD?`)) return

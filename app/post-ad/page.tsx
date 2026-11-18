@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export const instant = false
 
 export default async function PostAdPage() {
+  await connection()
   const supabase = await createClient()
 
   // 1. Server-side Authentication Verification

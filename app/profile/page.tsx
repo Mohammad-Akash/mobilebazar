@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/src/lib/supabase/server'
 import { ProfileForm } from './ProfileForm'
@@ -18,6 +19,7 @@ export default async function ProfilePage({
 }: {
   searchParams: Promise<{ warning?: string }>
 }) {
+  await connection()
   const { warning } = await searchParams
   const supabase = await createClient()
 

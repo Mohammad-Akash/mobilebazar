@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AdminAuditAction } from '@/src/types/admin'
 import { getAdminAuditLog } from '@/src/lib/admin/queries'
@@ -21,6 +21,12 @@ export function AuditLogClient({
   const [cursor, setCursor] = useState(initialCursor)
   const [targetType, setTargetType] = useState(initialTargetType)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setActions(initialActions)
+    setCursor(initialCursor)
+    setTargetType(initialTargetType)
+  }, [initialActions, initialCursor, initialTargetType])
 
   function handleFilterChange(type: string) {
     setTargetType(type)
