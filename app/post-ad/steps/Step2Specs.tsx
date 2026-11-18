@@ -101,8 +101,8 @@ export function Step2Specs({ form, selectedModel }: Step2Props) {
         <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
           PTA Status <span className="text-red-500">*</span>
         </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {(['pta_approved', 'non_pta', 'jv', 'unknown'] as const).map((status) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          {(['pta_approved', 'cpid_approved', 'non_pta', 'jv', 'unknown'] as const).map((status) => {
             const isSelected = ptaStatus === status
             return (
               <button

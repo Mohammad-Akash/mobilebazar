@@ -303,7 +303,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
               </span>
               <span
                 className={`px-3 py-1 rounded-xl text-xs font-bold ${
-                  ad.pta_status === 'pta_approved'
+                  ad.pta_status === 'pta_approved' || ad.pta_status === 'cpid_approved'
                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
                 }`}

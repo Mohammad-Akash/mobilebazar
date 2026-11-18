@@ -721,7 +721,7 @@ export type Database = {
       ad_status: "draft" | "active" | "sold" | "expired" | "deleted" | "under_review"
       condition_type: "new" | "used"
       contact_preference: "phone" | "whatsapp" | "both"
-      pta_status: "pta_approved" | "non_pta" | "jv" | "unknown"
+      pta_status: "pta_approved" | "cpid_approved" | "non_pta" | "jv" | "unknown"
       report_reason:
         | "fake_ad"
         | "already_sold"
@@ -862,7 +862,7 @@ export const Constants = {
       ad_status: ["draft", "active", "sold", "expired", "deleted", "under_review"],
       condition_type: ["new", "used"],
       contact_preference: ["phone", "whatsapp", "both"],
-      pta_status: ["pta_approved", "non_pta", "jv", "unknown"],
+      pta_status: ["pta_approved", "cpid_approved", "non_pta", "jv", "unknown"],
       report_reason: [
         "fake_ad",
         "already_sold",

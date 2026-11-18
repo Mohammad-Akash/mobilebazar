@@ -79,6 +79,9 @@ export function formatPtaBadge(ptaStatus?: string | null): { label: string; isAp
   if (ptaStatus === 'pta_approved') {
     return { label: 'PTA Approved', isApproved: true }
   }
+  if (ptaStatus === 'cpid_approved') {
+    return { label: 'CPID Approved', isApproved: true }
+  }
   if (ptaStatus === 'non_pta') {
     return { label: 'Non-PTA', isApproved: false }
   }

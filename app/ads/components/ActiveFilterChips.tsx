@@ -42,7 +42,19 @@ export function ActiveFilterChips({
   if (area) chips.push({ key: 'area', label: `Area: ${areaName || area}`, removeKey: 'area' })
   if (minPrice) chips.push({ key: 'min_price', label: `Min: Rs ${Number(minPrice).toLocaleString()}`, removeKey: 'min_price' })
   if (maxPrice) chips.push({ key: 'max_price', label: `Max: Rs ${Number(maxPrice).toLocaleString()}`, removeKey: 'max_price' })
-  if (pta) chips.push({ key: 'pta', label: `PTA: ${pta === 'pta_approved' ? 'Approved' : pta}`, removeKey: 'pta' })
+  if (pta) {
+    const ptaLabel =
+      pta === 'pta_approved'
+        ? 'Approved'
+        : pta === 'cpid_approved'
+        ? 'CPID'
+        : pta === 'non_pta'
+        ? 'Non-PTA'
+        : pta === 'jv'
+        ? 'JV'
+        : pta
+    chips.push({ key: 'pta', label: `PTA: ${ptaLabel}`, removeKey: 'pta' })
+  }
   if (condition) chips.push({ key: 'condition', label: `Condition: ${condition === 'new' ? 'New' : 'Used'}`, removeKey: 'condition' })
   if (storageNum > 0) chips.push({ key: 'storage', label: `Storage: ${storageNum >= 1024 ? `${storageNum / 1024}TB` : `${storageNum}GB`}`, removeKey: 'storage' })
   if (ram) chips.push({ key: 'ram', label: `RAM: ${ram}GB`, removeKey: 'ram' })

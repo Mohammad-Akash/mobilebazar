@@ -25,7 +25,7 @@ export const step2SpecsSchema = z
     condition: z.enum(['new', 'used'], {
       message: 'Please select the phone condition',
     }),
-    pta_status: z.enum(['pta_approved', 'non_pta', 'jv', 'unknown'], {
+    pta_status: z.enum(['pta_approved', 'cpid_approved', 'non_pta', 'jv', 'unknown'], {
       message: 'Please select PTA status',
     }),
     storage_gb: z
@@ -207,7 +207,7 @@ export const fullAdSchema = z
 
     // Step 2
     condition: z.enum(['new', 'used']),
-    pta_status: z.enum(['pta_approved', 'non_pta', 'jv', 'unknown']),
+    pta_status: z.enum(['pta_approved', 'cpid_approved', 'non_pta', 'jv', 'unknown']),
     storage_gb: z.number().int().positive({ message: 'Storage must be a positive integer' }),
     ram_gb: z.number().int().positive().nullable().optional(),
     color: z.string().trim().max(50).optional(),

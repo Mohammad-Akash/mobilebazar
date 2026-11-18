@@ -13,7 +13,7 @@ export const searchParamsSchema = z.object({
   area: z.string().trim().max(120).optional(),
   min_price: z.coerce.number().int().min(0).max(2000000).optional(),
   max_price: z.coerce.number().int().min(0).max(2000000).optional(),
-  pta: z.enum(['pta_approved', 'non_pta', 'jv', 'unknown']).optional(),
+  pta: z.enum(['pta_approved', 'cpid_approved', 'non_pta', 'jv', 'unknown']).optional(),
   condition: z.enum(['new', 'used']).optional(),
   storage: z.coerce.number().int().positive().optional(),
   sort: z.enum(['newest', 'price_asc', 'price_desc']).default('newest'),

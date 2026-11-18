@@ -51,7 +51,15 @@ export function PinnedAdCard({ ad, onOpenOfferModal }: PinnedAdCardProps) {
                 {ad.price ? `Rs ${ad.price.toLocaleString()}` : 'Price on request'}
               </span>
               <span aria-hidden="true">·</span>
-              <span className="capitalize">{ad.pta_status === 'pta_approved' ? 'PTA Approved' : 'Non-PTA'}</span>
+              <span className="capitalize">
+                {ad.pta_status === 'pta_approved'
+                  ? 'PTA Approved'
+                  : ad.pta_status === 'cpid_approved'
+                  ? 'CPID Approved'
+                  : ad.pta_status === 'jv'
+                  ? 'JV Patched'
+                  : 'Non-PTA'}
+              </span>
             </div>
           </div>
         </div>

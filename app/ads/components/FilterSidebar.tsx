@@ -310,6 +310,7 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
         >
           <option value="">All PTA Status</option>
           <option value="pta_approved">Official PTA Approved</option>
+          <option value="cpid_approved">CPID Approved (Server)</option>
           <option value="non_pta">Non-PTA (SIM Lock)</option>
           <option value="jv">JV / Gevey</option>
         </select>

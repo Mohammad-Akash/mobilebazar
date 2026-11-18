@@ -54,7 +54,8 @@ export function buildAdSlug(input: AdSlugInput): string {
   if (input.storage_gb) parts.push(`${input.storage_gb}gb`)
   if (input.pta_status) {
     const ptaClean = input.pta_status.toLowerCase()
-    if (ptaClean.includes('approved')) parts.push('approved')
+    if (ptaClean.includes('cpid')) parts.push('cpid')
+    else if (ptaClean.includes('approved')) parts.push('approved')
     else if (ptaClean.includes('non')) parts.push('non-pta')
     else parts.push(ptaClean)
   }

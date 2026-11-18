@@ -10,6 +10,7 @@ import {
   MOCK_BRANDS,
   MOCK_MODELS,
 } from './mock-seed'
+import { getCatalogModelsForBrand, CATALOG_BRANDS } from './phone-catalog'
 
 export interface CityOption {
   id: string
@@ -104,6 +105,12 @@ export async function getActiveBrands(): Promise<BrandOption[]> {
       return MOCK_BRANDS
     }
 
+    if (data.length < CATALOG_BRANDS.length) {
+      const existingSlugs = new Set(data.map((b) => b.slug.toLowerCase()))
+      const missing = CATALOG_BRANDS.filter((b) => !existingSlugs.has(b.slug.toLowerCase()))
+      return [...data, ...missing].sort((a, b) => a.name.localeCompare(b.name))
+    }
+
     return data
   } catch {
     return MOCK_BRANDS
@@ -113,7 +120,7 @@ export async function getActiveBrands(): Promise<BrandOption[]> {
 /**
  * Fetch active phone models for a specific brand
  */
-export async function getModelsByBrand(brandId: string): Promise<ModelOption[]> {
+export async function getModelsByBrand(brandId: string, brandSlugOrName?: string): Promise<ModelOption[]> {
   if (!brandId) return []
 
   try {
@@ -125,13 +132,17 @@ export async function getModelsByBrand(brandId: string): Promise<ModelOption[]> 
       .eq('is_active', true)
       .order('name', { ascending: true })
 
-    if (error || !data || data.length === 0) {
-      return MOCK_MODELS.filter((m) => m.brand_id === brandId)
+    if (!error && data && data.length > 0) {
+      return data
     }
-
-    return data
   } catch {
-    return MOCK_MODELS.filter((m) => m.brand_id === brandId)
+    // fallback
   }
+
+  // Fallback to comprehensive catalog
+  const catalog = getCatalogModelsForBrand(brandSlugOrName || brandId, brandId)
+  if (catalog.length > 0) return catalog
+
+  return MOCK_MODELS.filter((m) => m.brand_id === brandId)
 }
 

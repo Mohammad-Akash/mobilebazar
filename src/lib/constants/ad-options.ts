@@ -38,9 +38,10 @@ export const CONDITION_LABELS: Record<string, string> = {
 }
 
 export const PTA_STATUS_LABELS: Record<string, string> = {
-  pta_approved: 'PTA Approved ✅',
+  pta_approved: 'Official PTA Approved',
+  cpid_approved: 'CPID Approved (Server)',
   non_pta: 'Non-PTA (Not Registered)',
-  jv: 'JV (Joint Venture / Patched)',
+  jv: 'JV (SIM Locked / Gevey)',
   unknown: 'Unknown',
 }
 
