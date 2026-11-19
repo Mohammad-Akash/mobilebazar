@@ -103,12 +103,12 @@ export default async function AdminLayout({
       </header>
 
       {/* ── Mobile Navigation Bar (Scrollable) ─────────────────────────── */}
-      <div className="md:hidden flex items-center gap-2 overflow-x-auto p-2 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs whitespace-nowrap">
+      <div className="md:hidden flex items-center gap-2 overflow-x-auto p-2 pb-2.5 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs whitespace-nowrap scrollbar-none">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-medium"
+            className="min-h-[40px] inline-flex items-center px-3 py-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-medium transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-700"
           >
             {link.label}
           </Link>

@@ -61,10 +61,10 @@ export function FavoriteButton({
       disabled={isPending}
       title={isFavorited ? 'Saved to collection' : 'Save handset'}
       aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-      className={`w-8 h-8 rounded-full transition-all duration-200 active:scale-90 flex items-center justify-center cursor-pointer ${
+      className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-full transition-all duration-200 active:scale-90 flex items-center justify-center cursor-pointer ${
         isFavorited
           ? 'bg-[#FFFFFF] dark:bg-[#17152B] text-[#E45858] shadow-md border border-[#E9E7EF] dark:border-[#2D2947]'
-          : 'bg-[#17152B]/40 hover:bg-[#17152B]/70 text-white backdrop-blur-md'
+          : 'bg-[#17152B]/50 hover:bg-[#17152B]/80 text-white backdrop-blur-md'
       } ${className}`}
     >
       <Heart

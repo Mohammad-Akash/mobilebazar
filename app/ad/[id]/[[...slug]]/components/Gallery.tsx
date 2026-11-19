@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon } from 'lucide-react'
 
@@ -12,11 +12,24 @@ interface GalleryProps {
 export function Gallery({ images, adTitle }: GalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
 
   const imageList =
     images.length > 0
       ? images
       : [{ id: 'placeholder', storage_path: '', position: 0 }]
+
+  // Listen to mobile scroll to update dot indicator & slide index
+  const handleMobileScroll = () => {
+    if (!mobileScrollRef.current) return
+    const { scrollLeft, clientWidth } = mobileScrollRef.current
+    if (clientWidth > 0) {
+      const newIndex = Math.round(scrollLeft / clientWidth)
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < imageList.length) {
+        setCurrentIndex(newIndex)
+      }
+    }
+  }
 
   // Keyboard navigation for full-screen view
   useEffect(() => {
@@ -38,8 +51,77 @@ export function Gallery({ images, adTitle }: GalleryProps) {
 
   return (
     <div className="space-y-3">
-      {/* 1. Main Photo Container */}
-      <div className="relative aspect-[4/3] bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-center group">
+      {/* 1. Mobile Swipeable Gallery with CSS Scroll-Snap (sm:hidden) */}
+      <div className="relative aspect-[4/3] bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm sm:hidden">
+        <div
+          ref={mobileScrollRef}
+          onScroll={handleMobileScroll}
+          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-none"
+        >
+          {imageList.map((img, idx) => (
+            <div
+              key={img.id || idx}
+              onClick={() => {
+                setCurrentIndex(idx)
+                setIsFullscreen(true)
+              }}
+              className="w-full h-full shrink-0 snap-center relative flex items-center justify-center cursor-zoom-in"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getAdImageUrl(img.storage_path, 'md')}
+                alt={`${adTitle} - photo ${idx + 1}`}
+                className="w-full h-full object-contain"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                onError={(e) => {
+                  const target = e.currentTarget
+                  const fallback = getAdImageUrl(img.storage_path, 'base')
+                  if (target.src !== fallback) {
+                    target.src = fallback
+                  }
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Counter Badge on Mobile */}
+        {imageList.length > 1 && (
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md text-white text-[11px] font-semibold flex items-center gap-1 shadow-sm pointer-events-none">
+            <ImageIcon className="w-3 h-3" />
+            <span>
+              {currentIndex + 1} / {imageList.length}
+            </span>
+          </div>
+        )}
+
+        {/* Zoom Button on Mobile */}
+        <button
+          type="button"
+          onClick={() => setIsFullscreen(true)}
+          aria-label="View full screen"
+          className="absolute top-3 right-3 w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-slate-950/70 backdrop-blur-md text-white flex items-center justify-center shadow-sm"
+        >
+          <Maximize2 className="w-4 h-4" />
+        </button>
+
+        {/* Mobile Dot Indicators */}
+        {imageList.length > 1 && (
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-1.5 pointer-events-none">
+            {imageList.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all ${
+                  currentIndex === i ? 'w-4 bg-[#7657FF]' : 'w-1.5 bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 2. Desktop Main Photo Container (hidden on mobile, visible on sm+) */}
+      <div className="hidden sm:flex relative aspect-[4/3] bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm items-center justify-center group">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={getAdImageUrl(imageList[currentIndex].storage_path, 'md')}
@@ -72,7 +154,7 @@ export function Gallery({ images, adTitle }: GalleryProps) {
           type="button"
           onClick={() => setIsFullscreen(true)}
           aria-label="View full screen"
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-950/70 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900 transition-colors shadow-sm"
+          className="absolute top-4 right-4 w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-slate-950/70 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900 transition-colors shadow-sm"
         >
           <Maximize2 className="w-4 h-4" />
         </button>
@@ -86,7 +168,7 @@ export function Gallery({ images, adTitle }: GalleryProps) {
                 setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1))
               }
               aria-label="Previous photo"
-              className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -96,7 +178,7 @@ export function Gallery({ images, adTitle }: GalleryProps) {
                 setCurrentIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0))
               }
               aria-label="Next photo"
-              className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center text-sm font-bold shadow-md transition-all active:scale-95 cursor-pointer"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -104,17 +186,17 @@ export function Gallery({ images, adTitle }: GalleryProps) {
         )}
       </div>
 
-      {/* 2. Thumbnails Strip */}
+      {/* 3. Thumbnails Strip (Desktop sm:flex, hidden on mobile) */}
       {imageList.length > 1 && (
-        <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+        <div className="hidden sm:flex gap-2.5 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
           {imageList.map((img, idx) => (
             <button
               key={img.id || idx}
               type="button"
               onClick={() => setCurrentIndex(idx)}
-              className={`relative shrink-0 w-20 h-16 rounded-2xl overflow-hidden border-2 transition-all snap-start bg-slate-100 dark:bg-slate-900 ${
+              className={`relative shrink-0 w-20 h-16 rounded-2xl overflow-hidden border-2 transition-all snap-start bg-slate-100 dark:bg-slate-900 cursor-pointer ${
                 currentIndex === idx
-                  ? 'border-blue-600 ring-2 ring-blue-500/30'
+                  ? 'border-[#7657FF] ring-2 ring-[#7657FF]/30'
                   : 'border-slate-200 dark:border-slate-800 opacity-60 hover:opacity-100'
               }`}
             >
@@ -137,7 +219,7 @@ export function Gallery({ images, adTitle }: GalleryProps) {
         </div>
       )}
 
-      {/* 3. Fullscreen Modal */}
+      {/* 4. Fullscreen Modal */}
       {isFullscreen && (
         <div
           role="dialog"
@@ -155,47 +237,49 @@ export function Gallery({ images, adTitle }: GalleryProps) {
             <button
               type="button"
               onClick={() => setIsFullscreen(false)}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              aria-label="Close fullscreen"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Large Image */}
-          <div className="flex-1 flex items-center justify-center p-2">
+          {/* Main Image in Fullscreen */}
+          <div className="relative flex-1 flex items-center justify-center my-4 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={getAdImageUrl(imageList[currentIndex].storage_path, 'base')}
-              alt="Fullscreen view"
-              className="max-h-[82vh] max-w-[95vw] object-contain rounded-2xl shadow-2xl"
+              alt={`${adTitle} - photo ${currentIndex + 1}`}
+              className="max-h-[85vh] max-w-full object-contain select-none"
             />
           </div>
 
-          {/* Navigation Controls in Fullscreen */}
-          {imageList.length > 1 && (
-            <div className="flex items-center justify-center gap-4 text-white pb-2">
-              <button
-                type="button"
-                onClick={() =>
-                  setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1))
-                }
-                className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 font-semibold text-sm flex items-center gap-1.5 transition-all"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Previous</span>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setCurrentIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0))
-                }
-                className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 font-semibold text-sm flex items-center gap-1.5 transition-all"
-              >
-                <span>Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+          {/* Controls Footer */}
+          <div className="flex items-center justify-between text-white max-w-sm mx-auto w-full">
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1))
+              }
+              aria-label="Previous photo"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-xs font-mono">
+              {currentIndex + 1} / {imageList.length}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0))
+              }
+              aria-label="Next photo"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
     </div>

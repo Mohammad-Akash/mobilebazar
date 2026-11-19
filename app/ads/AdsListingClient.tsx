@@ -107,8 +107,8 @@ export function AdsListingClient({
 
   return (
     <div className="space-y-6">
-      {/* Ads Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Ads Grid (1 col on small phone, 2 cols on modern phone, 3 cols on desktop) */}
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
         {ads.map((ad) => (
           <AdCard key={ad.id || Math.random().toString()} ad={ad} initialIsFavorited={ad.id ? favoritedIds.has(ad.id) : false} />
         ))}

@@ -313,7 +313,7 @@ export function ThreadClient({
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-6rem)] min-h-[500px] bg-[#FFFFFF] dark:bg-[#17152B] rounded-3xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-xl overflow-hidden">
+    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-5rem)] sm:h-[calc(100dvh-6rem)] min-h-[480px] bg-[#FFFFFF] dark:bg-[#17152B] rounded-2xl sm:rounded-3xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-xl overflow-hidden">
       {/* Header with Live Active/Online Status & Last Seen */}
       <ThreadHeader
         otherUserName={otherUser.full_name || 'MobileBazar User'}

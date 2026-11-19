@@ -23,6 +23,7 @@ interface ContactButtonsProps {
   adStatus: string
   contactPreference: string
   isOwner?: boolean
+  compactSticky?: boolean
 }
 
 export function ContactButtons({
@@ -32,6 +33,7 @@ export function ContactButtons({
   adStatus,
   contactPreference,
   isOwner = false,
+  compactSticky = false,
 }: ContactButtonsProps) {
   const router = useRouter()
   const [isChatStarting, setIsChatStarting] = useState(false)
@@ -78,14 +80,14 @@ export function ContactButtons({
         <div className="pt-1 flex gap-2">
           <a
             href={`/dashboard/ads/${adId}/edit`}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
+            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 min-h-[44px]"
           >
             <Tag className="w-3.5 h-3.5" />
             <span>Edit Handset Ad</span>
           </a>
           <a
             href="/dashboard/ads"
-            className="py-2.5 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-xs font-bold text-[#17152B] dark:text-[#F7F6F2] hover:bg-slate-50 dark:hover:bg-[#211E38] transition-colors"
+            className="py-2.5 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-white dark:bg-[#17152B] text-xs font-bold text-[#17152B] dark:text-[#F7F6F2] hover:bg-slate-50 dark:hover:bg-[#211E38] transition-colors flex items-center justify-center min-h-[44px]"
           >
             My Ads
           </a>
@@ -176,6 +178,88 @@ export function ContactButtons({
 
   const showCallButton = contactPreference === 'phone' || contactPreference === 'both'
   const showWhatsappButton = contactPreference === 'whatsapp' || contactPreference === 'both'
+
+  if (compactSticky) {
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          disabled={isBusy || isInactive}
+          onClick={handleStartChat}
+          className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-[0.98] cursor-pointer min-h-[44px] ${
+            isInactive
+              ? 'bg-[#E9E7EF] dark:bg-[#211E38] text-[#77758A] cursor-not-allowed'
+              : 'bg-[#7657FF] hover:bg-[#6343ED] text-white shadow-xs'
+          }`}
+        >
+          {isChatStarting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <MessageSquare className="w-4 h-4 stroke-[2.2]" />
+          )}
+          <span>{isChatStarting ? 'Opening...' : 'Chat'}</span>
+        </button>
+
+        <button
+          type="button"
+          disabled={isBusy || isInactive}
+          onClick={() => setIsOfferModalOpen(true)}
+          className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1 border transition-all active:scale-[0.98] cursor-pointer min-h-[44px] ${
+            isInactive
+              ? 'border-[#E9E7EF] dark:border-[#2D2947] text-[#77758A] cursor-not-allowed'
+              : 'border-[#7657FF] text-[#7657FF] dark:text-[#8A6FFF] hover:bg-[#7657FF]/10'
+          }`}
+        >
+          <Tag className="w-3.5 h-3.5" />
+          <span>Offer</span>
+        </button>
+
+        {showCallButton && (
+          <button
+            type="button"
+            disabled={isBusy || isInactive}
+            onClick={() => handleContactClick('call')}
+            title={revealedPhone ? `Call: ${revealedPhone}` : 'Call Seller'}
+            className={`p-2.5 rounded-xl font-semibold text-xs flex items-center justify-center border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] min-w-[44px] min-h-[44px] cursor-pointer ${
+              isInactive ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {contactLoading === 'call' ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Phone className="w-4 h-4 text-[#7657FF]" />
+            )}
+          </button>
+        )}
+
+        {showWhatsappButton && (
+          <button
+            type="button"
+            disabled={isBusy || isInactive}
+            onClick={() => handleContactClick('whatsapp')}
+            title="Chat on WhatsApp"
+            className={`p-2.5 rounded-xl font-semibold text-xs flex items-center justify-center border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] min-w-[44px] min-h-[44px] cursor-pointer ${
+              isInactive ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {contactLoading === 'whatsapp' ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <MessageCircle className="w-4 h-4 text-[#159B72]" />
+            )}
+          </button>
+        )}
+
+        <MakeOfferModal
+          adId={adId}
+          adTitle={adTitle}
+          adPrice={adPrice}
+          isOpen={isOfferModalOpen}
+          onClose={() => setIsOfferModalOpen(false)}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">
@@ -279,7 +363,7 @@ export function ContactButtons({
 
       <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#77758A] dark:text-[#9B98B2]">
         <Lock className="w-3 h-3" />
-        <span>Verified phone & login required to prevent spam.</span>
+        <span>Verified phone &amp; login required to prevent spam.</span>
       </div>
 
       {/* Make Offer Modal */}

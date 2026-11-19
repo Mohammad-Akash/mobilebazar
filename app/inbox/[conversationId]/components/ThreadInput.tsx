@@ -427,7 +427,7 @@ export function ThreadInput({
               : 'Type a message... (Press Enter to send)'
           }
           maxLength={1000}
-          className="flex-1 max-h-28 p-2 text-xs sm:text-sm bg-transparent text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] resize-none outline-none leading-relaxed"
+          className="flex-1 max-h-28 p-2 text-base sm:text-sm bg-transparent text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] resize-none outline-none leading-relaxed"
         />
 
         {/* Send Action */}

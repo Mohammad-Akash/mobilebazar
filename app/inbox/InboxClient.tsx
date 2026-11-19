@@ -97,17 +97,17 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search messages or models..."
-            className="w-full h-9 pl-9 pr-3 text-xs bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] focus:border-[#7657FF] rounded-xl text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] outline-none"
+            className="w-full h-9 pl-9 pr-3 text-base sm:text-xs bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] focus:border-[#7657FF] rounded-xl text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] outline-none"
           />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <button
           type="button"
           onClick={() => setActiveTab('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
             activeTab === 'all'
               ? 'bg-[#17152B] text-white dark:bg-[#F7F6F2] dark:text-[#17152B] shadow-xs'
               : 'bg-[#FFFFFF] dark:bg-[#17152B] text-[#77758A] dark:text-[#9B98B2] border border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF]'
@@ -118,7 +118,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
         <button
           type="button"
           onClick={() => setActiveTab('buying')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'buying'
               ? 'bg-[#17152B] text-white dark:bg-[#F7F6F2] dark:text-[#17152B] shadow-xs'
               : 'bg-[#FFFFFF] dark:bg-[#17152B] text-[#77758A] dark:text-[#9B98B2] border border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF]'
@@ -130,7 +130,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
         <button
           type="button"
           onClick={() => setActiveTab('selling')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
             activeTab === 'selling'
               ? 'bg-[#17152B] text-white dark:bg-[#F7F6F2] dark:text-[#17152B] shadow-xs'
               : 'bg-[#FFFFFF] dark:bg-[#17152B] text-[#77758A] dark:text-[#9B98B2] border border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF]'

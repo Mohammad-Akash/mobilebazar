@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
+import { Footer } from "@/app/components/Footer";
 import { MobileBottomNav } from "@/app/components/MobileBottomNav";
 import { AntiExtensionCleaner } from "@/app/components/AntiExtensionCleaner";
 
@@ -16,6 +17,12 @@ const jakartaSans = Plus_Jakarta_Sans({
 import { SITE_CONFIG } from "@/src/lib/seo/site";
 
 export const instant = false
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+}
 
 export const metadata: Metadata = {
   // metadataBase makes all OG images and canonical URLs absolute
@@ -84,14 +91,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="min-h-full flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-16 md:pb-0 transition-colors duration-200"
+        className="min-h-dvh flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-20 md:pb-0 transition-colors duration-200"
         suppressHydrationWarning
       >
         <AntiExtensionCleaner />
         <Suspense fallback={<header className="h-16 border-b border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF]/80 dark:bg-[#17152B]/80" />}>
           <Header />
         </Suspense>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 w-full min-w-0">{children}</main>
+        <Footer />
         <Suspense fallback={null}>
           <MobileBottomNav />
         </Suspense>

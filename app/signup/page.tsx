@@ -44,7 +44,7 @@ function SignupForm() {
             required
             autoComplete="name"
             placeholder="Muhammad Ali"
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.fullName && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.fullName[0]}</p>
@@ -62,7 +62,7 @@ function SignupForm() {
             required
             autoComplete="email"
             placeholder="you@example.com"
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.email && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.email[0]}</p>
@@ -80,7 +80,7 @@ function SignupForm() {
             required
             autoComplete="new-password"
             placeholder="••••••••"
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.password && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.password[0]}</p>
@@ -98,7 +98,7 @@ function SignupForm() {
             required
             autoComplete="new-password"
             placeholder="••••••••"
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {state?.fieldErrors?.confirmPassword && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.confirmPassword[0]}</p>
@@ -108,7 +108,7 @@ function SignupForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
+          className="w-full min-h-[48px] py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
         >
           {isPending ? (
             <>
@@ -128,7 +128,7 @@ function SignupForm() {
         Already have an account?{' '}
         <Link
           href="/login"
-          className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+          className="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center min-h-[44px]"
         >
           Sign In
         </Link>
@@ -139,7 +139,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">
+    <div className="min-h-[75dvh] flex items-center justify-center px-4 py-8 sm:py-12">
       <Suspense fallback={<div className="text-slate-500">Loading form...</div>}>
         <SignupForm />
       </Suspense>

@@ -151,7 +151,7 @@ export function UsersListClient({
                     <td className="py-3 px-4 text-right">
                       <Link
                         href={`/admin/users/${u.id}`}
-                        className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-bold rounded-lg transition-colors text-[11px]"
+                        className="inline-flex items-center min-h-[40px] px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-bold rounded-lg transition-colors text-[11px] whitespace-nowrap"
                       >
                         Inspect →
                       </Link>

@@ -8,6 +8,7 @@ import { STORAGE_OPTIONS } from '@/src/lib/constants/ad-options'
 import { getCatalogModelsForBrand } from '@/src/lib/data/phone-catalog'
 import { getCatalogAreasForCity } from '@/src/lib/data/locations-catalog'
 import { SlidersHorizontal, RotateCcw, X, ShieldCheck, Battery, Cpu, HardDrive } from 'lucide-react'
+import { BottomSheet } from '@/app/components/ui/BottomSheet'
 
 interface FilterSidebarProps {
   brands: BrandOption[]
@@ -446,30 +447,36 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
         </button>
       </div>
 
-      {/* 2. Mobile Bottom Sheet */}
-      {isOpenMobile && (
-        <div className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={() => setIsOpenMobile(false)}
-          />
-          <div className="relative bg-[#FFFFFF] dark:bg-[#17152B] rounded-t-3xl p-6 max-h-[88vh] overflow-y-auto z-10 shadow-2xl border-t border-[#E9E7EF] dark:border-[#2D2947]">
-            <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#E9E7EF] dark:border-[#2D2947]">
-              <span className="font-extrabold text-sm text-[#17152B] dark:text-[#F7F6F2]">
-                Refine Smartphone Search
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsOpenMobile(false)}
-                className="p-1 rounded-lg text-[#77758A] hover:text-[#17152B] dark:hover:text-[#F7F6F2]"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {filterFormContent}
+      {/* 2. Mobile Bottom Sheet using reusable BottomSheet */}
+      <BottomSheet
+        isOpen={isOpenMobile}
+        onClose={() => setIsOpenMobile(false)}
+        title="Refine Smartphone Search"
+        subtitle={activeCount > 0 ? `${activeCount} filter(s) active` : 'Select brand, price & specs'}
+        footer={
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={resetAll}
+              className="flex-1 py-3 px-4 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] text-xs font-bold text-[#77758A] dark:text-[#9B98B2] hover:bg-slate-50 dark:hover:bg-[#211E38] transition-colors min-h-[44px]"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handleApply()
+                setIsOpenMobile(false)
+              }}
+              className="flex-[2] py-3 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-sm min-h-[44px]"
+            >
+              Apply Filters ({activeCount})
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        {filterFormContent}
+      </BottomSheet>
 
       {/* 3. Desktop Sticky Sidebar */}
       <aside className="hidden lg:block w-72 shrink-0">

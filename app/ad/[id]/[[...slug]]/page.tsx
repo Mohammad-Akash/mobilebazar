@@ -182,8 +182,10 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
 
   const relativeTime = ad.published_at ? formatRelativeTime(ad.published_at) : ''
 
+  const isOwner = currentUserId ? currentUserId === ad.seller_id : false
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 pb-28 lg:pb-8">
       {/* Schemas */}
       <JsonLd data={productJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
@@ -401,6 +403,33 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
             ))}
           </div>
         </section>
+      )}
+
+      {/* Mobile Sticky Action Bar (Safe Area Compliant) */}
+      {!isOwner && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF]/95 dark:bg-[#17152B]/95 backdrop-blur-md border-t border-[#E9E7EF] dark:border-[#2D2947] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-2xl">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+            <div className="min-w-0 pr-1">
+              <span className="text-[10px] text-[#77758A] dark:text-[#9B98B2] uppercase font-bold block">
+                Price
+              </span>
+              <span className="text-base font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight truncate block">
+                {formatPrice(ad.price || 0)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <ContactButtons
+                adId={adId}
+                adTitle={ad.title || 'Smartphone'}
+                adPrice={ad.price || 0}
+                adStatus={ad.status || 'active'}
+                contactPreference={ad.contact_preference || 'both'}
+                isOwner={false}
+                compactSticky={true}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

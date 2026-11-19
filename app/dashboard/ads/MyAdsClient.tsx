@@ -215,15 +215,15 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                 </div>
               </div>
 
-              {/* Right: Action Buttons */}
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
+              {/* Right: Action Buttons (Responsive Grid/Flex on mobile, 44px tap targets) */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
                 {currentStatus === 'active' && !isUnderReview && (
                   <>
                     <Link
                       href={`/dashboard/ads/${ad.id}/edit`}
-                      className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center gap-1.5 active:scale-95"
+                      className="min-h-[44px] flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-1.5 active:scale-95"
                     >
-                      <Edit3 className="w-3.5 h-3.5" />
+                      <Edit3 className="w-4 h-4" />
                       <span>Edit</span>
                     </Link>
 
@@ -231,9 +231,9 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                       type="button"
                       disabled={isPending}
                       onClick={() => handleMarkSold(ad)}
-                      className="px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 hover:bg-amber-100 text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5 active:scale-95"
+                      className="min-h-[44px] flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 hover:bg-amber-100 text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 active:scale-95"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <CheckCircle2 className="w-4 h-4" />
                       <span>Mark Sold</span>
                     </button>
                   </>
@@ -244,9 +244,9 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                     type="button"
                     disabled={isPending}
                     onClick={() => handleRenew(ad)}
-                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center gap-1.5 active:scale-95 shadow-sm shadow-blue-600/30"
+                    className="min-h-[44px] flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 active:scale-95 shadow-sm shadow-blue-600/30"
                   >
-                    <RotateCcw className="w-3.5 h-3.5" />
+                    <RotateCcw className="w-4 h-4" />
                     <span>Renew Ad</span>
                   </button>
                 )}
@@ -255,10 +255,10 @@ export function MyAdsClient({ initialAds, currentStatus }: MyAdsClientProps) {
                   type="button"
                   disabled={isPending}
                   onClick={() => handleDelete(ad)}
-                  className="px-3 py-2 rounded-xl border border-red-200 dark:border-red-900/60 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-1.5 active:scale-95"
+                  className="min-h-[44px] px-3.5 py-2.5 rounded-xl border border-red-200 dark:border-red-900/60 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 active:scale-95"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete</span>
+                  <Trash2 className="w-4 h-4" />
+                  <span className="sm:hidden">Delete</span>
                 </button>
               </div>
             </div>

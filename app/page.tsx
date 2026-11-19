@@ -66,7 +66,7 @@ export default async function HomePage() {
             </div>
 
             {/* Refined Minimal Search Experience */}
-            <div className="bg-[#FFFFFF] dark:bg-[#17152B] p-2 sm:p-2.5 rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-[0_8px_30px_rgba(23,21,43,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all focus-within:border-[#7657FF] dark:focus-within:border-[#8A6FFF]">
+            <div className="bg-[#FFFFFF] dark:bg-[#17152B] p-2.5 sm:p-3 rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-[0_8px_30px_rgba(23,21,43,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] transition-all focus-within:border-[#7657FF] dark:focus-within:border-[#8A6FFF]">
               <form
                 action="/ads"
                 method="GET"
@@ -79,7 +79,7 @@ export default async function HomePage() {
                     name="city"
                     defaultValue=""
                     aria-label="Filter by City"
-                    className="w-full h-11 pl-9 pr-6 bg-[#F7F6F2] sm:bg-transparent dark:bg-[#211E38] sm:dark:bg-transparent rounded-xl sm:rounded-none text-xs sm:text-sm text-[#17152B] dark:text-[#F7F6F2] border-0 focus:ring-0 font-semibold cursor-pointer outline-none appearance-none truncate"
+                    className="w-full h-12 sm:h-11 pl-9 pr-6 bg-[#F7F6F2] sm:bg-transparent dark:bg-[#211E38] sm:dark:bg-transparent rounded-xl sm:rounded-none text-base sm:text-sm text-[#17152B] dark:text-[#F7F6F2] border-0 focus:ring-0 font-semibold cursor-pointer outline-none appearance-none truncate min-h-[44px]"
                   >
                     <option value="">All Pakistan</option>
                     {cities.map((c) => (
@@ -98,30 +98,30 @@ export default async function HomePage() {
                     type="text"
                     name="q"
                     placeholder="Search iPhone 16 Pro, S24 Ultra, Pixel..."
-                    className="w-full h-11 pl-9 pr-4 bg-transparent text-xs sm:text-sm text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] focus:outline-none truncate font-medium"
+                    className="w-full h-12 sm:h-11 pl-9 pr-4 bg-transparent text-base sm:text-sm text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] focus:outline-none truncate font-medium min-h-[44px]"
                   />
                 </div>
 
                 {/* Primary CTA */}
                 <button
                   type="submit"
-                  className="h-11 px-5 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shrink-0"
+                  className="h-12 sm:h-11 px-5 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shrink-0 min-h-[44px]"
                 >
                   <span>Explore Market</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </form>
 
-              {/* Minimal Quick Queries (Zero-Pill Discipline) */}
-              <div className="flex items-center gap-2 px-3 pt-2.5 text-xs text-[#77758A] dark:text-[#9B98B2] overflow-x-auto whitespace-nowrap scrollbar-none">
-                <span className="font-bold text-[#17152B] dark:text-[#F7F6F2] tracking-wide uppercase text-[11px]">Curated:</span>
-                <Link href="/ads?q=iPhone+16" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors">iPhone 16</Link>
+              {/* Minimal Quick Queries */}
+              <div className="flex items-center gap-2 px-2 pt-2.5 text-xs text-[#77758A] dark:text-[#9B98B2] overflow-x-auto whitespace-nowrap scrollbar-none py-1">
+                <span className="font-bold text-[#17152B] dark:text-[#F7F6F2] tracking-wide uppercase text-[11px] shrink-0">Curated:</span>
+                <Link href="/ads?q=iPhone+16" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 px-1.5 min-h-[32px] inline-flex items-center">iPhone 16</Link>
                 <span aria-hidden="true" className="text-[#77758A]/40">·</span>
-                <Link href="/ads?q=Galaxy+S24" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors">Galaxy S24 Ultra</Link>
+                <Link href="/ads?q=Galaxy+S24" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 px-1.5 min-h-[32px] inline-flex items-center">Galaxy S24 Ultra</Link>
                 <span aria-hidden="true" className="text-[#77758A]/40">·</span>
-                <Link href="/ads?q=Pixel+9" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors">Pixel 9 Pro</Link>
+                <Link href="/ads?q=Pixel+9" className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 px-1.5 min-h-[32px] inline-flex items-center">Pixel 9 Pro</Link>
                 <span aria-hidden="true" className="text-[#77758A]/40">·</span>
-                <Link href="/ads?pta=pta_approved" className="text-[#159B72] font-semibold hover:underline transition-colors">Official PTA Approved</Link>
+                <Link href="/ads?pta=pta_approved" className="text-[#159B72] font-semibold hover:underline transition-colors py-1 px-1.5 min-h-[32px] inline-flex items-center">Official PTA Approved</Link>
               </div>
             </div>
 
@@ -271,7 +271,7 @@ export default async function HomePage() {
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {flagshipPhones.slice(0, 3).map((phone) => (
                   <AdCard key={phone.id} ad={phone} />
                 ))}
@@ -317,7 +317,7 @@ export default async function HomePage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {latestAds.map((ad) => (
                 <AdCard key={ad.id} ad={ad} />
               ))}

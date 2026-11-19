@@ -26,27 +26,27 @@ export const SMARTPHONE_BRANDS: BrandInfo[] = [
 
 export function BrandCards({ activeSlug }: { activeSlug?: string }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+    <div className="flex overflow-x-auto pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none snap-x snap-mandatory sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
       {SMARTPHONE_BRANDS.map((brand) => {
         const isActive = activeSlug === brand.slug
         return (
           <Link
             key={brand.slug}
             href={`/ads?brand=${brand.slug}`}
-            className={`group relative p-4 rounded-2xl bg-[#FFFFFF] dark:bg-[#17152B] border transition-all duration-200 flex flex-col items-start text-left editorial-card cursor-pointer shadow-xs ${
+            className={`group relative p-3.5 sm:p-4 rounded-2xl bg-[#FFFFFF] dark:bg-[#17152B] border transition-all duration-200 flex flex-col items-start text-left editorial-card cursor-pointer shadow-xs min-w-[140px] max-w-[155px] shrink-0 sm:min-w-0 sm:max-w-none snap-start min-h-[44px] ${
               isActive
                 ? 'border-[#7657FF] ring-1 ring-[#7657FF]/30 bg-[#7657FF]/5 dark:bg-[#7657FF]/10'
                 : 'border-[#E9E7EF] dark:border-[#2D2947] hover:border-[#7657FF]/60 dark:hover:border-[#8A6FFF]/60'
             }`}
           >
-            <div className="w-8 h-8 rounded-lg bg-[#F7F6F2] dark:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] group-hover:bg-[#7657FF] group-hover:text-white transition-colors flex items-center justify-center mb-3">
+            <div className="w-8 h-8 rounded-lg bg-[#F7F6F2] dark:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] group-hover:bg-[#7657FF] group-hover:text-white transition-colors flex items-center justify-center mb-2.5 sm:mb-3">
               <Smartphone className="w-4 h-4 stroke-[2]" />
             </div>
 
             <h3 className="font-bold text-xs sm:text-sm text-[#17152B] dark:text-[#F7F6F2] group-hover:text-[#7657FF] dark:group-hover:text-[#8A6FFF] transition-colors line-clamp-1">
               {brand.name}
             </h3>
-            <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] line-clamp-1 mt-0.5 font-medium">
+            <p className="text-[10px] sm:text-[11px] text-[#77758A] dark:text-[#9B98B2] line-clamp-1 mt-0.5 font-medium">
               {brand.subText}
             </p>
           </Link>

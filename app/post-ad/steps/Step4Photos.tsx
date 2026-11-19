@@ -384,17 +384,17 @@ export function Step4Photos({ form, userId }: Step4Props) {
                   </div>
                 )}
 
-                {/* Bottom Bar */}
-                <div className="absolute bottom-0 inset-x-0 p-1.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-between text-white text-xs">
-                  <div className="flex items-center gap-1">
+                {/* Bottom Bar with 44px tap target safety */}
+                <div className="absolute bottom-0 inset-x-0 p-2 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-center justify-between text-white text-xs">
+                  <div className="flex items-center gap-1.5">
                     {index > 0 && (
                       <button
                         type="button"
                         onClick={() => handleMoveLeft(index)}
                         title="Move left"
-                        className="w-6 h-6 rounded bg-white/20 hover:bg-white/40 flex items-center justify-center active:scale-90"
+                        className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/40 flex items-center justify-center active:scale-90 cursor-pointer"
                       >
-                        <ArrowLeft className="w-3 h-3" />
+                        <ArrowLeft className="w-4 h-4" />
                       </button>
                     )}
                     {index < photos.length - 1 && (
@@ -402,9 +402,9 @@ export function Step4Photos({ form, userId }: Step4Props) {
                         type="button"
                         onClick={() => handleMoveRight(index)}
                         title="Move right"
-                        className="w-6 h-6 rounded bg-white/20 hover:bg-white/40 flex items-center justify-center active:scale-90"
+                        className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/40 flex items-center justify-center active:scale-90 cursor-pointer"
                       >
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     )}
                     {!isCover && item.status === 'done' && (
@@ -412,7 +412,7 @@ export function Step4Photos({ form, userId }: Step4Props) {
                         type="button"
                         onClick={() => handleMakeCover(index)}
                         title="Set as cover"
-                        className="px-1.5 h-6 rounded bg-blue-600/80 hover:bg-blue-600 text-[10px] font-bold active:scale-90"
+                        className="px-2 h-8 rounded-lg bg-blue-600/90 hover:bg-blue-600 text-[11px] font-bold active:scale-90 cursor-pointer"
                       >
                         Cover
                       </button>
@@ -423,9 +423,9 @@ export function Step4Photos({ form, userId }: Step4Props) {
                     type="button"
                     onClick={() => handleRemovePhoto(index)}
                     title="Delete photo"
-                    className="w-6 h-6 rounded bg-red-600/80 hover:bg-red-600 flex items-center justify-center font-bold active:scale-90"
+                    className="w-8 h-8 rounded-lg bg-red-600/90 hover:bg-red-600 flex items-center justify-center font-bold active:scale-90 cursor-pointer"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
               </div>
