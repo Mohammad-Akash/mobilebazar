@@ -43,7 +43,7 @@ export default async function ConversationPage({ params }: ConversationPageProps
 
   const details = await getConversationDetails(conversationId)
 
-  if (!details || !details.ad) {
+  if (!details) {
     notFound()
   }
 

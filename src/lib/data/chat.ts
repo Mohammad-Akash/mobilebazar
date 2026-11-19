@@ -52,7 +52,7 @@ export interface ConversationDetails {
     pta_status: string | null
     seller_id: string
     ad_images?: Array<{ storage_path: string; position: number }>
-  } | null
+  }
   otherUser: {
     id: string
     full_name: string
@@ -125,7 +125,14 @@ export async function getConversationDetails(conversationId: string): Promise<Co
     buyer_last_read_at: conv.buyer_last_read_at,
     seller_last_read_at: conv.seller_last_read_at,
     other_last_read_at: isBuyer ? conv.seller_last_read_at : conv.buyer_last_read_at,
-    ad: conv.ad || null,
+    ad: conv.ad || {
+      id: conv.ad_id,
+      title: 'Handset Listing',
+      price: null,
+      status: 'sold',
+      pta_status: null,
+      ad_images: [],
+    },
     isBuyer,
     otherUser: otherProfile || {
       id: otherUserId,
