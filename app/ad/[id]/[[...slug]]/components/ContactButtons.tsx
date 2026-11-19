@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSellerContactAction } from '@/src/lib/actions/seller-contact'
 import { startConversationAction } from '@/src/lib/actions/chat'
@@ -34,14 +34,33 @@ export function ContactButtons({
   isOwner = false,
 }: ContactButtonsProps) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
   const [isChatStarting, setIsChatStarting] = useState(false)
+  const [contactLoading, setContactLoading] = useState<'call' | 'whatsapp' | null>(null)
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false)
 
   const [revealedPhone, setRevealedPhone] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const isInactive = adStatus !== 'active'
+  const isBusy = isChatStarting || contactLoading !== null
+
+  // Reset loading states when returning via browser back button or page cache
+  useEffect(() => {
+    setIsChatStarting(false)
+    setContactLoading(null)
+
+    const handlePageShow = () => {
+      setIsChatStarting(false)
+      setContactLoading(null)
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow)
+      setIsChatStarting(false)
+      setContactLoading(null)
+    }
+  }, [])
 
   if (isOwner) {
     return (
@@ -75,50 +94,58 @@ export function ContactButtons({
     )
   }
 
-  const handleStartChat = () => {
-    if (isInactive) return
+  const handleStartChat = async () => {
+    if (isInactive || isBusy) return
     setErrorMsg(null)
     setIsChatStarting(true)
 
-    startTransition(async () => {
-      try {
-        const res = await startConversationAction(adId, 'Hi, is this phone still available?')
+    try {
+      // Do not send an automated message. Simply open or create the chat thread.
+      const res = await startConversationAction(adId)
 
-        if (res.code === 'AUTH_REQUIRED') {
-          const nextUrl = typeof window !== 'undefined' ? window.location.pathname : `/ad/${adId}`
-          router.push(`/login?next=${encodeURIComponent(nextUrl)}`)
-          return
-        }
-
-        if (res.code === 'PHONE_NOT_VERIFIED') {
-          router.push('/dashboard/profile/verify')
-          return
-        }
-
-        if (!res.success || !res.conversation_id) {
-          setErrorMsg(res.message || 'Failed to start chat.')
-          setIsChatStarting(false)
-          return
-        }
-
-        router.push(`/inbox/${res.conversation_id}`)
-      } catch (err: unknown) {
-        setErrorMsg(err instanceof Error ? err.message : 'Chat error')
+      if (res.code === 'AUTH_REQUIRED') {
         setIsChatStarting(false)
+        const nextUrl = typeof window !== 'undefined' ? window.location.pathname : `/ad/${adId}`
+        router.push(`/login?next=${encodeURIComponent(nextUrl)}`)
+        return
       }
-    })
+
+      if (res.code === 'PHONE_NOT_VERIFIED') {
+        setIsChatStarting(false)
+        router.push('/dashboard/profile/verify')
+        return
+      }
+
+      if (!res.success || !res.conversation_id) {
+        setErrorMsg(res.message || 'Failed to start chat.')
+        setIsChatStarting(false)
+        return
+      }
+
+      router.push(`/inbox/${res.conversation_id}`)
+
+      // Reset loading state after router push in case user returns with browser Back button
+      setTimeout(() => {
+        setIsChatStarting(false)
+      }, 500)
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Chat error')
+      setIsChatStarting(false)
+    }
   }
 
-  const handleContactClick = (type: 'call' | 'whatsapp') => {
-    if (isInactive) return
+  const handleContactClick = async (type: 'call' | 'whatsapp') => {
+    if (isInactive || isBusy) return
 
     setErrorMsg(null)
+    setContactLoading(type)
     const currentUrl = typeof window !== 'undefined' ? window.location.href : ''
 
-    startTransition(async () => {
+    try {
       const res = await getSellerContactAction(adId, adTitle, currentUrl)
 
       if (res.requiresLogin) {
+        setContactLoading(null)
         const nextUrl = typeof window !== 'undefined' ? window.location.pathname : '/ads'
         router.push(`/login?next=${encodeURIComponent(nextUrl)}`)
         return
@@ -126,6 +153,7 @@ export function ContactButtons({
 
       if (res.error) {
         setErrorMsg(res.error)
+        setContactLoading(null)
         return
       }
 
@@ -133,12 +161,17 @@ export function ContactButtons({
         setRevealedPhone(res.phone)
       }
 
+      setContactLoading(null)
+
       if (type === 'call' && res.telUrl) {
         window.location.href = res.telUrl
       } else if (type === 'whatsapp' && res.whatsappUrl) {
         window.open(res.whatsappUrl, '_blank', 'noopener,noreferrer')
       }
-    })
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Error retrieving seller contact')
+      setContactLoading(null)
+    }
   }
 
   const showCallButton = contactPreference === 'phone' || contactPreference === 'both'
@@ -172,7 +205,7 @@ export function ContactButtons({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <button
           type="button"
-          disabled={isPending || isChatStarting || isInactive}
+          disabled={isBusy || isInactive}
           onClick={handleStartChat}
           className={`py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] cursor-pointer ${
             isInactive
@@ -190,7 +223,7 @@ export function ContactButtons({
 
         <button
           type="button"
-          disabled={isPending || isInactive}
+          disabled={isBusy || isInactive}
           onClick={() => setIsOfferModalOpen(true)}
           className={`py-3.5 px-4 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border transition-all active:scale-[0.98] cursor-pointer ${
             isInactive
@@ -208,13 +241,13 @@ export function ContactButtons({
         {showCallButton && (
           <button
             type="button"
-            disabled={isPending || isInactive}
+            disabled={isBusy || isInactive}
             onClick={() => handleContactClick('call')}
             className={`py-3 px-4 rounded-2xl font-semibold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] ${
               isInactive ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
-            {isPending ? (
+            {contactLoading === 'call' ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <Phone className="w-3.5 h-3.5 text-[#7657FF]" />
@@ -228,13 +261,13 @@ export function ContactButtons({
         {showWhatsappButton && (
           <button
             type="button"
-            disabled={isPending || isInactive}
+            disabled={isBusy || isInactive}
             onClick={() => handleContactClick('whatsapp')}
             className={`py-3 px-4 rounded-2xl font-semibold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2] ${
               isInactive ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
             }`}
           >
-            {isPending ? (
+            {contactLoading === 'whatsapp' ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
               <MessageCircle className="w-3.5 h-3.5 text-[#159B72]" />
