@@ -9,14 +9,19 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
 
   useEffect(() => {
     setMounted(true)
-    const stored = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    if (stored === 'dark' || (!stored && prefersDark)) {
-      setIsDark(true)
-      document.documentElement.classList.add('dark')
-    } else {
-      setIsDark(false)
-      document.documentElement.classList.remove('dark')
+    const updateTheme = () => {
+      const isDarkActive = document.documentElement.classList.contains('dark')
+      setIsDark(isDarkActive)
+    }
+
+    updateTheme()
+
+    window.addEventListener('theme-change', updateTheme)
+    window.addEventListener('storage', updateTheme)
+
+    return () => {
+      window.removeEventListener('theme-change', updateTheme)
+      window.removeEventListener('storage', updateTheme)
     }
   }, [])
 
@@ -30,6 +35,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       document.documentElement.classList.remove('dark')
       localStorage.setItem('theme', 'light')
     }
+    window.dispatchEvent(new Event('theme-change'))
   }
 
   if (!mounted) {
