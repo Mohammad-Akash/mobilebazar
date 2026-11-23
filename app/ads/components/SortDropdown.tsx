@@ -1,31 +1,40 @@
 'use client'
 
+import { useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowDownUp } from 'lucide-react'
+import { ArrowDownUp, Loader2 } from 'lucide-react'
 
 export function SortDropdown() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
   const currentSort = searchParams.get('sort') || 'newest'
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const next = new URLSearchParams(searchParams.toString())
     next.set('sort', e.target.value)
     next.delete('cursor')
-    router.push(`/ads?${next.toString()}`)
+    startTransition(() => {
+      router.push(`/ads?${next.toString()}`)
+    })
   }
 
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 whitespace-nowrap">
-        <ArrowDownUp className="w-3.5 h-3.5 text-slate-400" />
+        {isPending ? (
+          <Loader2 className="w-3.5 h-3.5 text-[#7657FF] animate-spin" />
+        ) : (
+          <ArrowDownUp className="w-3.5 h-3.5 text-slate-400" />
+        )}
         <span>Sort by:</span>
       </span>
       <select
         value={currentSort}
+        disabled={isPending}
         onChange={handleSortChange}
         aria-label="Sort listings by"
-        className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs min-h-[44px]"
+        className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs min-h-[44px] disabled:opacity-60"
       >
         <option value="newest">Newest First</option>
         <option value="price_asc">Price: Low to High</option>

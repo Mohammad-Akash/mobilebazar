@@ -15,6 +15,23 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  // ── Performance: skip the network round-trip when it is not needed ──────────
+  // 1. Next.js prefetch requests never need a refreshed session cookie.
+  // 2. If there is no Supabase auth cookie the user is logged-out; nothing to
+  //    refresh, so return early and save the RTT to Supabase Auth.
+  const isPrefetch =
+    request.headers.get('Next-Router-Prefetch') === '1' ||
+    request.headers.get('Purpose') === 'prefetch'
+
+  const hasAuthCookie = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
+
+  if (isPrefetch || !hasAuthCookie) {
+    return supabaseResponse
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   try {
     const supabase = createServerClient<Database>(
       supabaseUrl,
@@ -38,7 +55,8 @@ export async function updateSession(request: NextRequest) {
     )
 
     // IMPORTANT: DO NOT REMOVE auth.getUser()
-    // This verifies the user and refreshes the auth token via cookies
+    // This verifies the user's JWT and refreshes the auth token via cookies.
+    // Only runs for authenticated users (cookie check above).
     await supabase.auth.getUser()
   } catch {
     // Do not crash requests if auth check or connection fails

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { BrandOption, CityOption, ModelOption, AreaOption } from '@/src/lib/data/reference'
 import { createClient } from '@/src/lib/supabase/client'
 import { STORAGE_OPTIONS } from '@/src/lib/constants/ad-options'
 import { getCatalogModelsForBrand } from '@/src/lib/data/phone-catalog'
 import { getCatalogAreasForCity } from '@/src/lib/data/locations-catalog'
-import { SlidersHorizontal, RotateCcw, ShieldCheck, Battery, Cpu, HardDrive } from 'lucide-react'
+import { SlidersHorizontal, RotateCcw, ShieldCheck, Battery, Cpu, HardDrive, Loader2 } from 'lucide-react'
 import { BottomSheet } from '@/app/components/ui/BottomSheet'
 
 interface FilterSidebarProps {
@@ -21,6 +21,7 @@ const BATTERY_HEALTH_OPTIONS = [80, 85, 90, 95]
 export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
 
   const [isOpenMobile, setIsOpenMobile] = useState(false)
 
@@ -146,7 +147,9 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
     if (minBattery) next.set('battery', minBattery)
 
     setIsOpenMobile(false)
-    router.push(`/ads?${next.toString()}`)
+    startTransition(() => {
+      router.push(`/ads?${next.toString()}`)
+    })
   }
 
   // Count active filter fields
@@ -435,9 +438,17 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
 
       <button
         type="submit"
-        className="w-full py-3 px-4 min-h-[44px] rounded-xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-sm transition-all text-center cursor-pointer"
+        disabled={isPending}
+        className="w-full py-3 px-4 min-h-[44px] rounded-xl bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-xs sm:text-sm shadow-sm transition-all text-center cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        Apply Filters
+        {isPending ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Updating Listings...</span>
+          </>
+        ) : (
+          <span>Apply Filters</span>
+        )}
       </button>
     </form>
   )
@@ -480,13 +491,21 @@ export function FilterSidebar({ brands, cities }: FilterSidebarProps) {
             </button>
             <button
               type="button"
+              disabled={isPending}
               onClick={() => {
                 handleApply()
                 setIsOpenMobile(false)
               }}
-              className="flex-[2] py-3 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-sm min-h-[44px]"
+              className="flex-[2] py-3 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-sm min-h-[44px] disabled:opacity-75 flex items-center justify-center gap-2"
             >
-              Apply Filters ({activeCount})
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Applying...</span>
+                </>
+              ) : (
+                <span>Apply Filters ({activeCount})</span>
+              )}
             </button>
           </div>
         }

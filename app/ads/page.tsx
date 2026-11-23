@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { SITE_CONFIG } from '@/src/lib/seo/site'
-import { searchParamsSchema } from '@/src/lib/validations/search'
+import { searchParamsSchema, SearchParamsInput } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
 import { JsonLd, buildItemListJsonLd, buildBreadcrumbJsonLd } from '@/src/lib/seo/jsonld'
@@ -10,6 +10,7 @@ import { FilterSidebar } from './components/FilterSidebar'
 import { ActiveFilterChips } from './components/ActiveFilterChips'
 import { SortDropdown } from './components/SortDropdown'
 import { AdsListingClient } from './AdsListingClient'
+import { AdGridSkeleton } from '@/app/components/skeletons/AdGridSkeleton'
 
 export const instant = false
 
@@ -53,6 +54,27 @@ export async function generateMetadata({ searchParams }: AdsPageProps): Promise<
   }
 }
 
+async function AdsResultsFeed({ queryData }: { queryData: SearchParamsInput }) {
+  const searchResult = await searchAds(queryData)
+  const itemListJsonLd = buildItemListJsonLd(
+    searchResult.ads.slice(0, 10).map((ad) => ({
+      name: ad.title || 'Smartphone',
+      url: `/ad/${ad.id}`,
+    }))
+  )
+
+  return (
+    <>
+      <JsonLd data={itemListJsonLd} />
+      <AdsListingClient
+        initialAds={searchResult.ads}
+        initialCursor={searchResult.nextCursor}
+        initialHasNextPage={searchResult.hasNextPage}
+      />
+    </>
+  )
+}
+
 export default async function AdsPage({ searchParams }: AdsPageProps) {
   await connection()
   const rawParams = await searchParams
@@ -70,9 +92,8 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
   const parsed = searchParamsSchema.safeParse(normalizedParams)
   const queryData = parsed.success ? parsed.data : searchParamsSchema.parse({})
 
-  // Fetch initial results + reference lists concurrently on the server
-  const [searchResult, brands, cities] = await Promise.all([
-    searchAds(queryData),
+  // Fetch reference lists concurrently on the server
+  const [brands, cities] = await Promise.all([
     getActiveBrands(),
     getActiveCities(),
   ])
@@ -81,12 +102,6 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
   const activeBrandName = brands.find((b) => b.slug === queryData.brand)?.name
   const activeCityName = cities.find((c) => c.slug === queryData.city)?.name
 
-  const itemListJsonLd = buildItemListJsonLd(
-    searchResult.ads.slice(0, 10).map((ad) => ({
-      name: ad.title || 'Smartphone',
-      url: `/ad/${ad.id}`,
-    }))
-  )
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Home', url: '/' },
     { name: 'Smartphones for Sale', url: '/ads' },
@@ -94,7 +109,6 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <JsonLd data={itemListJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
@@ -104,7 +118,7 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
               Smartphones for Sale
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
-              {searchResult.ads.length} listings
+              Verified Listings
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -130,13 +144,12 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
             />
           </Suspense>
 
-          {/* Initial Server-Rendered Grid + Infinite Scroll */}
-          <Suspense fallback={null}>
-            <AdsListingClient
-              initialAds={searchResult.ads}
-              initialCursor={searchResult.nextCursor}
-              initialHasNextPage={searchResult.hasNextPage}
-            />
+          {/* Initial Server-Rendered Grid + Infinite Scroll wrapped in Suspense with query key */}
+          <Suspense
+            key={JSON.stringify(queryData)}
+            fallback={<AdGridSkeleton count={9} />}
+          >
+            <AdsResultsFeed queryData={queryData} />
           </Suspense>
         </div>
       </div>

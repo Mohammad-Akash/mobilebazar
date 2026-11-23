@@ -1,7 +1,11 @@
 import { notFound, permanentRedirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getAdById, getSimilarAds } from '@/src/lib/data/ads'
+import { cache } from 'react'
+import { getAdById as _getAdById, getSimilarAds } from '@/src/lib/data/ads'
+
+// Deduplicate DB call: generateMetadata and the page component share one fetch
+const getAdById = cache(_getAdById)
 import { formatPrice, formatRelativeTime } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'

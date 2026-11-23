@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { ActiveAdRow } from '@/src/lib/data/ads'
 import { getFavoritedIdsAction } from '@/src/lib/actions/favorites'
 import { AdCard } from '@/app/components/AdCard'
-import { AdCardSkeleton } from '@/app/components/AdCardSkeleton'
+import { AdCardSkeleton } from '@/app/components/skeletons/AdCardSkeleton'
 
 interface AdsListingClientProps {
   initialAds: ActiveAdRow[]
