@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/app/components/Header";
@@ -94,17 +95,19 @@ export default function RootLayout({
       className={`${jakartaSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&p)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}})()`,
-          }}
-        />
-      </head>
+      <head />
       <body
         className="min-h-dvh flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-20 md:pb-0 transition-colors duration-200"
         suppressHydrationWarning
       >
+        {/* Theme init: runs before paint to prevent flash — must be beforeInteractive */}
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&p)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}})()`,
+          }}
+        />
         <AntiExtensionCleaner />
         <a
           href="#main-content"
