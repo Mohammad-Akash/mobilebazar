@@ -3,7 +3,7 @@
 // Direct Supabase RPC calls with keyset pagination & caching
 // ==============================================================================
 
-import { createClient } from '@/src/lib/supabase/server'
+import { createPublicClient } from '@/src/lib/supabase/public'
 import { Database } from '@/src/types/supabase'
 import { SearchParamsInput, decodeCursor, encodeCursor } from '@/src/lib/validations/search'
 import {
@@ -87,7 +87,7 @@ export interface ActiveCityItem {
  */
 export async function searchAds(params: SearchParamsInput): Promise<SearchAdsResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     const decoded = decodeCursor(params.cursor)
     const pageSize = params.limit || 20
@@ -146,7 +146,7 @@ export async function searchAds(params: SearchParamsInput): Promise<SearchAdsRes
  */
 async function searchAdsFallback(params: SearchParamsInput): Promise<SearchAdsResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const pageSize = params.limit || 20
 
     let query = supabase.from('active_ads_view').select('*')
@@ -205,7 +205,7 @@ async function searchAdsFallback(params: SearchParamsInput): Promise<SearchAdsRe
  */
 export async function getLatestAds(limit: number = 8): Promise<ActiveAdRow[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('active_ads_view')
       .select('*')
@@ -231,7 +231,7 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
     return null
   }
 
-  const supabase = await createClient()
+  const supabase = createPublicClient()
 
   // 1. Fast path: check active_ads_view first (has pre-joined brand, model, city, area)
   const { data: viewAd } = await supabase
@@ -390,7 +390,7 @@ export async function getSimilarAds(
   limit: number = 4
 ): Promise<ActiveAdRow[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
 
     // Prioritize same model in active ads, excluding current ad
     const { data, error } = await supabase
@@ -439,7 +439,7 @@ export async function getSimilarAds(
  */
 export async function getPopularBrands(limit: number = 12): Promise<PopularBrandItem[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase.rpc('get_popular_brands' as any, { p_limit: limit })
 
     if (error || !data || (Array.isArray(data) && data.length === 0)) {
@@ -469,7 +469,7 @@ export async function getPopularBrands(limit: number = 12): Promise<PopularBrand
  */
 export async function getActiveCitiesWithCounts(limit: number = 30): Promise<ActiveCityItem[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase.rpc('get_active_cities_with_counts' as any, {
       p_limit: limit,
     })

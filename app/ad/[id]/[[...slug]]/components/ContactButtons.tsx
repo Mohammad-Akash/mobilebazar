@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSellerContactAction } from '@/src/lib/actions/seller-contact'
 import { startConversationAction } from '@/src/lib/actions/chat'
+import { createClient } from '@/src/lib/supabase/client'
 import { MakeOfferModal } from './MakeOfferModal'
 import {
   Phone,
@@ -22,6 +23,7 @@ interface ContactButtonsProps {
   adPrice?: number
   adStatus: string
   contactPreference: string
+  sellerId?: string
   isOwner?: boolean
   compactSticky?: boolean
 }
@@ -32,10 +34,12 @@ export function ContactButtons({
   adPrice = 0,
   adStatus,
   contactPreference,
+  sellerId,
   isOwner = false,
   compactSticky = false,
 }: ContactButtonsProps) {
   const router = useRouter()
+  const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(isOwner)
   const [isChatStarting, setIsChatStarting] = useState(false)
   const [contactLoading, setContactLoading] = useState<'call' | 'whatsapp' | null>(null)
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false)
@@ -45,6 +49,20 @@ export function ContactButtons({
 
   const isInactive = adStatus !== 'active'
   const isBusy = isChatStarting || contactLoading !== null
+
+  useEffect(() => {
+    if (isCurrentUserOwner) {
+      setIsCurrentUserOwner(true)
+      return
+    }
+    if (!sellerId) return
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user && data.user.id === sellerId) {
+        setIsCurrentUserOwner(true)
+      }
+    })
+  }, [isOwner, sellerId])
 
   // Reset loading states when returning via browser back button or page cache
   useEffect(() => {
@@ -64,7 +82,19 @@ export function ContactButtons({
     }
   }, [])
 
-  if (isOwner) {
+  if (isCurrentUserOwner) {
+    if (compactSticky) {
+      return (
+        <a
+          href={`/dashboard/ads/${adId}/edit`}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 active:scale-95 min-h-[44px]"
+        >
+          <Tag className="w-3.5 h-3.5" />
+          <span>Edit Handset Ad</span>
+        </a>
+      )
+    }
+
     return (
       <div className="p-4 rounded-2xl bg-[#7657FF]/10 border border-[#7657FF]/20 text-center space-y-3">
         <div className="space-y-1">

@@ -1,5 +1,4 @@
 import { notFound, permanentRedirect } from 'next/navigation'
-import { connection } from 'next/server'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getAdById, getSimilarAds } from '@/src/lib/data/ads'
@@ -7,7 +6,6 @@ import { formatPrice, formatRelativeTime } from '@/src/lib/utils/format'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { buildAdSlug, buildAdCanonicalPath } from '@/src/lib/utils/slug'
 import { SITE_CONFIG, absoluteUrl } from '@/src/lib/seo/site'
-import { createClient } from '@/src/lib/supabase/server'
 import {
   JsonLd,
   buildProductJsonLd,
@@ -28,17 +26,15 @@ import {
   FileText,
 } from 'lucide-react'
 
-
-export const instant = false
-
 interface AdDetailPageProps {
   params: Promise<{ id: string; slug?: string[] }>
 }
 
+export const instant = false
+
 export async function generateMetadata({
   params,
 }: AdDetailPageProps): Promise<Metadata> {
-  await connection()
   const { id } = await params
   const ad = await getAdById(id)
 
@@ -103,21 +99,11 @@ export async function generateMetadata({
 }
 
 export default async function AdDetailPage({ params }: AdDetailPageProps) {
-  await connection()
   const { id, slug: slugArray } = await params
   const ad = await getAdById(id)
 
   if (!ad || ad.status === 'deleted') {
     notFound()
-  }
-
-  let currentUserId: string | null = null
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    currentUserId = user?.id || null
-  } catch {
-    // offline or session error
   }
 
   const canonicalSlug = buildAdSlug({
@@ -181,8 +167,6 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
       : []
 
   const relativeTime = ad.published_at ? formatRelativeTime(ad.published_at) : ''
-
-  const isOwner = currentUserId ? currentUserId === ad.seller_id : false
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 pb-28 lg:pb-8">
@@ -332,7 +316,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
             adPrice={ad.price || 0}
             adStatus={ad.status || 'active'}
             contactPreference={ad.contact_preference || 'both'}
-            isOwner={currentUserId ? currentUserId === ad.seller_id : false}
+            sellerId={ad.seller_id ?? undefined}
           />
 
           {/* Seller Profile Card */}
@@ -406,31 +390,29 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
       )}
 
       {/* Mobile Sticky Action Bar (Safe Area Compliant) */}
-      {!isOwner && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF]/95 dark:bg-[#17152B]/95 backdrop-blur-md border-t border-[#E9E7EF] dark:border-[#2D2947] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-2xl">
-          <div className="max-w-md mx-auto flex items-center justify-between gap-3">
-            <div className="min-w-0 pr-1">
-              <span className="text-[10px] text-[#77758A] dark:text-[#9B98B2] uppercase font-bold block">
-                Price
-              </span>
-              <span className="text-base font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight truncate block">
-                {formatPrice(ad.price || 0)}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <ContactButtons
-                adId={adId}
-                adTitle={ad.title || 'Smartphone'}
-                adPrice={ad.price || 0}
-                adStatus={ad.status || 'active'}
-                contactPreference={ad.contact_preference || 'both'}
-                isOwner={false}
-                compactSticky={true}
-              />
-            </div>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFFFF]/95 dark:bg-[#17152B]/95 backdrop-blur-md border-t border-[#E9E7EF] dark:border-[#2D2947] p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-2xl">
+        <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+          <div className="min-w-0 pr-1">
+            <span className="text-[10px] text-[#77758A] dark:text-[#9B98B2] uppercase font-bold block">
+              Price
+            </span>
+            <span className="text-base font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight truncate block">
+              {formatPrice(ad.price || 0)}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <ContactButtons
+              adId={adId}
+              adTitle={ad.title || 'Smartphone'}
+              adPrice={ad.price || 0}
+              adStatus={ad.status || 'active'}
+              contactPreference={ad.contact_preference || 'both'}
+              sellerId={ad.seller_id ?? undefined}
+              compactSticky={true}
+            />
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

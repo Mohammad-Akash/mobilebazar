@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { connection } from 'next/server'
 import type { Metadata } from 'next'
 import { getLatestAds, getPopularBrands, getActiveCitiesWithCounts } from '@/src/lib/data/ads'
 import { AdCard } from '@/app/components/AdCard'
@@ -12,13 +11,10 @@ import {
   ShieldCheck,
   Smartphone,
   ArrowRight,
-  ArrowUpRight,
   Lock,
   Sparkles,
   Plus,
 } from 'lucide-react'
-
-export const instant = false
 
 export const metadata: Metadata = {
   alternates: {
@@ -26,8 +22,9 @@ export const metadata: Metadata = {
   },
 }
 
+export const instant = false
+
 export default async function HomePage() {
-  await connection()
   const [latestAds, , cities] = await Promise.all([
     getLatestAds(12),
     getPopularBrands(14),
@@ -133,7 +130,7 @@ export default async function HomePage() {
                   <ShieldCheck className="w-4 h-4 text-[#159B72]" />
                   <span className="text-[10px] font-mono text-[#77758A]">01</span>
                 </div>
-                <h4 className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">PTA Certified</h4>
+                <p className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">PTA Certified</p>
                 <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] mt-0.5">Every handset displays official tax registration</p>
               </div>
 
@@ -142,7 +139,7 @@ export default async function HomePage() {
                   <Smartphone className="w-4 h-4 text-[#7657FF] dark:text-[#8A6FFF]" />
                   <span className="text-[10px] font-mono text-[#77758A]">02</span>
                 </div>
-                <h4 className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">100% Smartphone Focus</h4>
+                <p className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">100% Smartphone Focus</p>
                 <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] mt-0.5">Zero cars, zero appliances, zero spam</p>
               </div>
 
@@ -151,7 +148,7 @@ export default async function HomePage() {
                   <Lock className="w-4 h-4 text-[#7657FF] dark:text-[#8A6FFF]" />
                   <span className="text-[10px] font-mono text-[#77758A]">03</span>
                 </div>
-                <h4 className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">In-Hand Inspection</h4>
+                <p className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">In-Hand Inspection</p>
                 <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] mt-0.5">Inspect physical hardware before paying</p>
               </div>
             </div>
@@ -421,7 +418,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/post-ad"
-            className="z-10 px-8 py-3.5 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-xs sm:text-sm shadow-md transition-all whitespace-nowrap active:scale-[0.98] cursor-pointer"
+            className="z-10 px-8 py-3.5 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-xs sm:text-sm shadow-md transition-all whitespace-nowrap active:scale-[0.98] cursor-pointer min-h-[44px] inline-flex items-center justify-center"
           >
             Post Your Smartphone Free
           </Link>

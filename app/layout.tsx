@@ -106,10 +106,16 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AntiExtensionCleaner />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#7657FF] focus:text-white focus:rounded-xl focus:shadow-xl focus:font-bold focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <Suspense fallback={<header className="h-16 border-b border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF]/80 dark:bg-[#17152B]/80" />}>
           <Header />
         </Suspense>
-        <main className="flex-1 w-full min-w-0">{children}</main>
+        <main id="main-content" className="flex-1 w-full min-w-0" tabIndex={-1}>{children}</main>
         <Footer />
         <Suspense fallback={null}>
           <MobileBottomNav />

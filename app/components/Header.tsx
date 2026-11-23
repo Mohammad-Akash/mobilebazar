@@ -1,46 +1,22 @@
 import Link from 'next/link'
-import { connection } from 'next/server'
-import { createClient } from '@/src/lib/supabase/server'
 import { logoutAction } from '@/app/auth/actions'
 import { ThemeToggle } from '@/app/components/ThemeToggle'
-import { HeaderChatBadge } from '@/app/components/HeaderChatBadge'
 import { MobileHeaderMenu } from '@/app/components/MobileHeaderMenu'
+import { HeaderAuthPill } from '@/app/components/HeaderAuthPill'
 import {
   Smartphone,
   Search,
   Plus,
-  User,
 } from 'lucide-react'
 
-export async function Header() {
-  await connection()
-  let user: { id: string; email?: string } | null = null
-  let fullName: string | null = null
-
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    user = data.user
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      fullName = profile?.full_name || user.email?.split('@')[0] || 'User'
-    }
-  } catch {
-    // offline or no active session
-  }
-
+export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-[#FFFFFF]/90 dark:bg-[#17152B]/90 backdrop-blur-md border-b border-[#E9E7EF] dark:border-[#2D2947] transition-colors safe-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-6">
         {/* Zone 1: Mobile Menu Button + Brand Wordmark */}
         <div className="flex items-center gap-2 sm:gap-8 shrink-0">
           {/* Mobile Drawer Trigger (Hamburger) */}
-          <MobileHeaderMenu user={user} fullName={fullName} logoutAction={logoutAction} />
+          <MobileHeaderMenu logoutAction={logoutAction} />
 
           <Link
             href="/"
@@ -58,25 +34,25 @@ export async function Header() {
           <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-[#77758A] dark:text-[#9B98B2]">
             <Link
               href="/ads"
-              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2 min-h-[44px] inline-flex items-center"
             >
               Browse Catalog
             </Link>
             <Link
               href="/ads?min_price=150000"
-              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2 min-h-[44px] inline-flex items-center"
             >
               Flagship Tier
             </Link>
             <Link
               href="/ads?pta=pta_approved"
-              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2 min-h-[44px] inline-flex items-center"
             >
               PTA Certified
             </Link>
             <Link
               href="/favorites"
-              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2"
+              className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] transition-colors whitespace-nowrap py-2 min-h-[44px] inline-flex items-center"
             >
               Saved Units
             </Link>
@@ -94,6 +70,7 @@ export async function Header() {
             <input
               type="text"
               name="q"
+              aria-label="Search smartphones by model, brand, or specs"
               placeholder="Search by model, brand, or specs..."
               className="w-full h-10 pl-10 pr-4 text-xs bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#F0EEE7] dark:hover:bg-[#29263D] focus:bg-[#FFFFFF] dark:focus:bg-[#17152B] border border-transparent focus:border-[#7657FF] rounded-xl text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] focus:outline-none transition-all"
             />
@@ -105,37 +82,9 @@ export async function Header() {
           <div className="hidden sm:flex items-center">
             <ThemeToggle />
           </div>
-          {user && <HeaderChatBadge />}
 
-          {user ? (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dashboard"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:text-[#7657FF] dark:hover:text-[#8A6FFF] py-2 px-3 rounded-xl border border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] transition-colors min-h-[44px]"
-                title="Go to Dashboard"
-              >
-                <User className="w-3.5 h-3.5 text-[#7657FF]" />
-                <span className="max-w-[100px] truncate">{fullName}</span>
-              </Link>
-              <form action={logoutAction} className="hidden lg:block">
-                <button
-                  type="submit"
-                  className="text-xs font-medium text-[#77758A] hover:text-[#E45858] dark:text-[#9B98B2] dark:hover:text-[#E45858] py-2 px-2 transition-colors cursor-pointer min-h-[44px] flex items-center"
-                >
-                  Logout
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Link
-                href="/login"
-                className="text-xs font-semibold text-[#17152B] dark:text-[#F7F6F2] hover:text-[#7657FF] py-2 px-2.5 transition-colors min-h-[44px] flex items-center"
-              >
-                Sign In
-              </Link>
-            </div>
-          )}
+          {/* User state (Client-side loaded for ISR cache preservation) */}
+          <HeaderAuthPill logoutAction={logoutAction} />
 
           {/* Primary CTA Button: Sell Smartphone */}
           <Link

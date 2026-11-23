@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/app/components/ThemeToggle'
+import { createClient } from '@/src/lib/supabase/client'
 import {
   Menu,
   X,
@@ -24,23 +25,69 @@ import {
 } from 'lucide-react'
 
 interface MobileHeaderMenuProps {
-  user: { id: string; email?: string } | null
-  fullName: string | null
+  user?: { id: string; email?: string } | null
+  fullName?: string | null
   logoutAction: () => Promise<void>
 }
 
 export function MobileHeaderMenu({
-  user,
-  fullName,
+  user: initialUser = null,
+  fullName: initialFullName = null,
   logoutAction,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [currentUser, setCurrentUser] = useState(initialUser)
+  const [currentFullName, setCurrentFullName] = useState(initialFullName)
   const pathname = usePathname()
 
   useEffect(() => {
     setMounted(true)
+    const supabase = createClient()
+    let isMounted = true
+
+    async function checkAuth() {
+      try {
+        const { data } = await supabase.auth.getUser()
+        if (!isMounted) return
+        if (data.user) {
+          setCurrentUser(data.user)
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', data.user.id)
+            .maybeSingle()
+          if (!isMounted) return
+          setCurrentFullName(profile?.full_name || data.user.email?.split('@')[0] || 'User')
+        } else {
+          setCurrentUser(null)
+          setCurrentFullName(null)
+        }
+      } catch {
+        // guest
+      }
+    }
+
+    checkAuth()
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return
+      if (session?.user) {
+        setCurrentUser(session.user)
+      } else {
+        setCurrentUser(null)
+        setCurrentFullName(null)
+      }
+    })
+
+    return () => {
+      isMounted = false
+      authListener.subscription.unsubscribe()
+    }
   }, [])
+
+  const user = currentUser
+  const fullName = currentFullName
 
   // Close drawer automatically on route navigation
   useEffect(() => {

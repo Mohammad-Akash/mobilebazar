@@ -1,11 +1,15 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { Send, Loader2, Tag, Image as ImageIcon, Smile, Camera, X, Plus } from 'lucide-react'
-import { ChatEmojiPicker } from './ChatEmojiPicker'
 import { CameraCaptureModal } from './CameraCaptureModal'
 import { createClient } from '@/src/lib/supabase/client'
-import imageCompression from 'browser-image-compression'
+
+const ChatEmojiPicker = dynamic(
+  () => import('./ChatEmojiPicker').then((m) => m.ChatEmojiPicker),
+  { ssr: false, loading: () => <div className="p-4 text-xs text-slate-400">Loading...</div> }
+)
 
 interface ThreadInputProps {
   onSend: (text: string, kind?: 'text' | 'offer', offerAmount?: number) => Promise<boolean>
@@ -164,6 +168,7 @@ export function ThreadInput({
             : Math.random().toString(36).substring(2, 15)
 
         // Parallel compression & upload
+        const imageCompression = (await import('browser-image-compression')).default
         const uploadPromises = selectedFiles.map(async (file, idx) => {
           let fileToUpload = file
           try {

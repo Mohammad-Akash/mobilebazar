@@ -8,6 +8,10 @@ import { InboxClient } from './InboxClient'
 export const metadata: Metadata = {
   title: 'Inbox — MobileBazar',
   description: 'Manage your direct smartphone buying and selling conversations on MobileBazar.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 

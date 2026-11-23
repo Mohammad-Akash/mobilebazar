@@ -78,7 +78,7 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
   // Prevents foreign key constraint crashes when models/areas are newly cataloged or custom
   let resolvedBrandId = data.brand_id
   let resolvedModelId = data.model_id
-  let resolvedCityId = data.city_id
+  const resolvedCityId = data.city_id
   let resolvedAreaId = data.area_id || null
 
   try {

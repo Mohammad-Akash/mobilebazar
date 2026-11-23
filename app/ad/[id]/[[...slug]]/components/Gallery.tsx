@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { getAdImageUrl } from '@/src/lib/utils/image-url'
 import { ChevronLeft, ChevronRight, Maximize2, X, Image as ImageIcon } from 'lucide-react'
 
@@ -67,19 +68,13 @@ export function Gallery({ images, adTitle }: GalleryProps) {
               }}
               className="w-full h-full shrink-0 snap-center relative flex items-center justify-center cursor-zoom-in"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={getAdImageUrl(img.storage_path, 'md')}
                 alt={`${adTitle} - photo ${idx + 1}`}
-                className="w-full h-full object-contain"
-                loading={idx === 0 ? 'eager' : 'lazy'}
-                onError={(e) => {
-                  const target = e.currentTarget
-                  const fallback = getAdImageUrl(img.storage_path, 'base')
-                  if (target.src !== fallback) {
-                    target.src = fallback
-                  }
-                }}
+                fill
+                sizes="(max-width: 768px) 100vw, 450px"
+                priority={idx === 0}
+                className="object-contain"
               />
             </div>
           ))}
@@ -122,21 +117,14 @@ export function Gallery({ images, adTitle }: GalleryProps) {
 
       {/* 2. Desktop Main Photo Container (hidden on mobile, visible on sm+) */}
       <div className="hidden sm:flex relative aspect-[4/3] bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm items-center justify-center group">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={getAdImageUrl(imageList[currentIndex].storage_path, 'md')}
           alt={`${adTitle} - photo ${currentIndex + 1}`}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 650px"
+          priority={currentIndex === 0}
+          className="object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.02]"
           onClick={() => setIsFullscreen(true)}
-          className="w-full h-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.02]"
-          loading={currentIndex === 0 ? 'eager' : 'lazy'}
-          fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
-          onError={(e) => {
-            const target = e.currentTarget
-            const fallback = getAdImageUrl(imageList[currentIndex].storage_path, 'base')
-            if (target.src !== fallback) {
-              target.src = fallback
-            }
-          }}
         />
 
         {/* Counter Badge */}

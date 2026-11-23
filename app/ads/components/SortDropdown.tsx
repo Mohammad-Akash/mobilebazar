@@ -24,7 +24,8 @@ export function SortDropdown() {
       <select
         value={currentSort}
         onChange={handleSortChange}
-        className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs min-h-[44px] sm:min-h-0"
+        aria-label="Sort listings by"
+        className="px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer shadow-2xs min-h-[44px]"
       >
         <option value="newest">Newest First</option>
         <option value="price_asc">Price: Low to High</option>

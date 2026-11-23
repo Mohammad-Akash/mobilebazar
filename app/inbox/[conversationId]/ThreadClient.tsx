@@ -62,6 +62,18 @@ export function ThreadClient({
   const [otherLastReadAt, setOtherLastReadAt] = useState<string | null>(initialOtherLastReadAt || null)
   const [isOtherOnline, setIsOtherOnline] = useState<boolean>(false)
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom helper
+  const scrollToBottom = (smooth = true) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight + 1000,
+        behavior: smooth ? 'smooth' : 'auto',
+      })
+    }
+  }
+
   // Sync state if initialMessages changes
   useEffect(() => {
     setMessages(sortMessagesChronologically(initialMessages))
@@ -84,18 +96,6 @@ export function ThreadClient({
   const [lightboxImages, setLightboxImages] = useState<string[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number>(0)
   const [lightboxCaption, setLightboxCaption] = useState<string | null>(null)
-
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  // Scroll to bottom helper
-  const scrollToBottom = (smooth = true) => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight + 1000,
-        behavior: smooth ? 'smooth' : 'auto',
-      })
-    }
-  }
 
   // Mark conversation read on mount and window focus
   useEffect(() => {

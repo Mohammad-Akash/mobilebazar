@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
-import imageCompression from 'browser-image-compression'
 import { FullAdFormData } from '@/src/lib/validations/ad'
 import { createClient } from '@/src/lib/supabase/client'
 import { AD_LIMITS } from '@/src/lib/constants/ad-options'
@@ -75,6 +74,8 @@ export function Step4Photos({ form, userId }: Step4Props) {
             : p
         )
       )
+
+      const imageCompression = (await import('browser-image-compression')).default
 
       const basePromise = imageCompression(item.file, {
         maxSizeMB: 0.35,

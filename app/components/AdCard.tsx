@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { FavoriteButton } from '@/app/components/FavoriteButton'
 import { ActiveAdRow } from '@/src/lib/data/ads'
 import { formatPrice, formatStorage, formatRelativeTime, formatPtaBadge } from '@/src/lib/utils/format'
@@ -42,19 +43,13 @@ export function AdCard({ ad, initialIsFavorited = false }: AdCardProps) {
         href={adHref}
         className="relative w-full aspect-[4/3] bg-[#F7F6F2] dark:bg-[#211E38] overflow-hidden block"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={imageUrl}
           alt={ad.title || 'Smartphone'}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
-          onError={(e) => {
-            const target = e.currentTarget as HTMLImageElement
-            if (!target.dataset.fallback) {
-              target.dataset.fallback = '1'
-              target.src = baseImageUrl
-            }
-          }}
+          className="object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-out"
         />
 
         {/* Minimal Editorial Kicker (Top Left: Featured or Condition) */}

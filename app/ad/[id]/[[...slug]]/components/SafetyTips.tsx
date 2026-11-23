@@ -40,10 +40,10 @@ export function SafetyTips({ adId, adTitle }: SafetyTipsProps) {
     <div className="space-y-4">
       {/* 1. Safety Box */}
       <div className="bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-3xl p-5 space-y-3">
-        <h4 className="font-bold text-amber-900 dark:text-amber-300 text-xs sm:text-sm flex items-center gap-2">
+        <h3 className="font-bold text-amber-900 dark:text-amber-300 text-xs sm:text-sm flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           <span>MobileBazar Buyer Safety Checklist</span>
-        </h4>
+        </h3>
         <ul className="text-xs text-amber-900/90 dark:text-amber-200/90 space-y-2">
           <li className="flex items-start gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />

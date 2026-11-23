@@ -22,7 +22,7 @@ export function Footer() {
           <div className="space-y-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-lg font-black tracking-tight"
+              className="inline-flex items-center gap-2 text-lg font-black tracking-tight min-h-[44px]"
             >
               <div className="w-8 h-8 rounded-xl bg-[#7657FF] flex items-center justify-center text-white shadow-xs">
                 <Smartphone className="w-4 h-4 stroke-[2.2]" />
@@ -34,7 +34,7 @@ export function Footer() {
             <p className="text-xs text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
               Pakistan&apos;s dedicated smartphone exchange. 100% peer-to-peer mobile marketplace with official PTA status clarity and in-person inspection.
             </p>
-            <div className="flex items-center gap-2 pt-1 text-xs text-[#159B72] font-semibold">
+            <div className="flex items-center gap-2 pt-1 text-xs text-[#159B72] font-semibold min-h-[44px]">
               <ShieldCheck className="w-4 h-4" />
               <span>PTA Verification Standard</span>
             </div>
@@ -42,14 +42,14 @@ export function Footer() {
 
           {/* Column 2: Popular Categories */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
+            <p className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
               Explore Phones
-            </h4>
-            <ul className="space-y-2 text-xs text-[#77758A] dark:text-[#9B98B2]">
+            </p>
+            <ul className="space-y-1 text-xs text-[#77758A] dark:text-[#9B98B2]">
               <li>
                 <Link
                   href="/ads"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-block"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center"
                 >
                   All Mobile Listings
                 </Link>
@@ -57,7 +57,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/ads?min_price=150000"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1.5"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   <span>Flagship Tier (150K+)</span>
@@ -66,7 +66,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/ads?pta=pta_approved"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-block"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center"
                 >
                   Official PTA Approved
                 </Link>
@@ -74,7 +74,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/ads?condition=new"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-block"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center"
                 >
                   Brand New In-Box
                 </Link>
@@ -82,7 +82,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/favorites"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1"
                 >
                   <Heart className="w-3.5 h-3.5 text-[#E45858]" />
                   <span>Saved Listings</span>
@@ -93,14 +93,14 @@ export function Footer() {
 
           {/* Column 3: Major Cities */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
+            <p className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
               Major Hubs
-            </h4>
-            <ul className="space-y-2 text-xs text-[#77758A] dark:text-[#9B98B2]">
+            </p>
+            <ul className="space-y-1 text-xs text-[#77758A] dark:text-[#9B98B2]">
               <li>
                 <Link
                   href="/mobiles/lahore"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1"
                 >
                   <MapPin className="w-3 h-3 text-[#7657FF]" />
                   <span>Phones in Lahore</span>
@@ -109,7 +109,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/mobiles/karachi"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1"
                 >
                   <MapPin className="w-3 h-3 text-[#7657FF]" />
                   <span>Phones in Karachi</span>
@@ -118,7 +118,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/mobiles/islamabad"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1"
                 >
                   <MapPin className="w-3 h-3 text-[#7657FF]" />
                   <span>Phones in Islamabad</span>
@@ -127,7 +127,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/mobiles/rawalpindi"
-                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors py-1 inline-flex items-center gap-1"
+                  className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors min-h-[44px] inline-flex items-center gap-1"
                 >
                   <MapPin className="w-3 h-3 text-[#7657FF]" />
                   <span>Phones in Rawalpindi</span>
@@ -138,9 +138,9 @@ export function Footer() {
 
           {/* Column 4: Quick Actions & Trust */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
+            <p className="text-xs font-black uppercase tracking-wider text-[#17152B] dark:text-[#F7F6F2]">
               Start Selling
-            </h4>
+            </p>
             <p className="text-xs text-[#77758A] dark:text-[#9B98B2]">
               Have a smartphone you want to upgrade or sell? List in under 2 minutes.
             </p>
@@ -157,19 +157,19 @@ export function Footer() {
         <div className="pt-8 border-t border-[#E9E7EF] dark:border-[#2D2947] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#77758A] dark:text-[#9B98B2]">
           <p>© {CURRENT_YEAR} MobileBazar Pakistan. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-4">
-            <Link href="/ads" className="hover:text-[#7657FF] transition-colors">
+            <Link href="/ads" className="hover:text-[#7657FF] transition-colors min-h-[44px] inline-flex items-center">
               Directory
             </Link>
             <span>•</span>
-            <Link href="/post-ad" className="hover:text-[#7657FF] transition-colors">
+            <Link href="/post-ad" className="hover:text-[#7657FF] transition-colors min-h-[44px] inline-flex items-center">
               Sell
             </Link>
             <span>•</span>
-            <Link href="/inbox" className="hover:text-[#7657FF] transition-colors">
+            <Link href="/inbox" className="hover:text-[#7657FF] transition-colors min-h-[44px] inline-flex items-center">
               Chats
             </Link>
             <span>•</span>
-            <Link href="/dashboard" className="hover:text-[#7657FF] transition-colors">
+            <Link href="/dashboard" className="hover:text-[#7657FF] transition-colors min-h-[44px] inline-flex items-center">
               My Account
             </Link>
           </div>

@@ -5,6 +5,7 @@ import { SITE_CONFIG } from '@/src/lib/seo/site'
 import { searchParamsSchema } from '@/src/lib/validations/search'
 import { searchAds } from '@/src/lib/data/ads'
 import { getActiveBrands, getActiveCities } from '@/src/lib/data/reference'
+import { JsonLd, buildItemListJsonLd, buildBreadcrumbJsonLd } from '@/src/lib/seo/jsonld'
 import { FilterSidebar } from './components/FilterSidebar'
 import { ActiveFilterChips } from './components/ActiveFilterChips'
 import { SortDropdown } from './components/SortDropdown'
@@ -80,8 +81,21 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
   const activeBrandName = brands.find((b) => b.slug === queryData.brand)?.name
   const activeCityName = cities.find((c) => c.slug === queryData.city)?.name
 
+  const itemListJsonLd = buildItemListJsonLd(
+    searchResult.ads.slice(0, 10).map((ad) => ({
+      name: ad.title || 'Smartphone',
+      url: `/ad/${ad.id}`,
+    }))
+  )
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Smartphones for Sale', url: '/ads' },
+  ])
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <JsonLd data={itemListJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
         <div>

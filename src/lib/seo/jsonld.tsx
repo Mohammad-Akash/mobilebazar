@@ -10,7 +10,9 @@ export function JsonLd({
 }: {
   data: Record<string, unknown> | Array<Record<string, unknown>>
 }) {
-  const serialized = JSON.stringify(data).replace(/</g, '\\u003c')
+  const serialized = JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
   return (
     <script
       type="application/ld+json"

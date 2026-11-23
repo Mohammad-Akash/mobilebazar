@@ -3,7 +3,7 @@
 // Server-side functions for Post Ad form and filters
 // ==============================================================================
 
-import { createClient } from '@/src/lib/supabase/server'
+import { createPublicClient } from '@/src/lib/supabase/public'
 import {
   MOCK_CITIES,
   MOCK_AREAS,
@@ -48,7 +48,7 @@ export interface ModelOption {
  */
 export async function getActiveCities(): Promise<CityOption[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('cities')
       .select('id, name, slug')
@@ -78,7 +78,7 @@ export async function getAreasByCity(cityId: string, citySlugOrName?: string): P
   if (!cityId) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('areas')
       .select('id, city_id, name, slug')
@@ -104,7 +104,7 @@ export async function getAreasByCity(cityId: string, citySlugOrName?: string): P
  */
 export async function getActiveBrands(): Promise<BrandOption[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('brands')
       .select('id, name, slug, logo_url')
@@ -137,7 +137,7 @@ export async function getModelsByBrand(
   if (!brandId) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('models')
       .select('id, brand_id, name, slug, release_year, storage_options, ram_options')
