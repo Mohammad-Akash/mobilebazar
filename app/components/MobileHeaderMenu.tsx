@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/app/components/ThemeToggle'
@@ -34,7 +35,12 @@ export function MobileHeaderMenu({
   logoutAction,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Close drawer automatically on route navigation
   useEffect(() => {
@@ -75,13 +81,13 @@ export function MobileHeaderMenu({
         <Menu className="w-5 h-5 stroke-[2.2]" />
       </button>
 
-      {/* Side Navigation Drawer (Native App Style) */}
-      {isOpen && (
+      {/* Side Navigation Drawer (Teleported to document.body via Portal to prevent header backdrop-filter clipping) */}
+      {isOpen && mounted && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Navigation Menu"
-          className="fixed inset-0 z-50 flex"
+          className="fixed inset-0 z-[9999] flex"
         >
           {/* Backdrop Overlay - Clicking anywhere outside closes the drawer */}
           <div
@@ -91,7 +97,7 @@ export function MobileHeaderMenu({
           />
 
           {/* Left Drawer Panel */}
-          <div className="relative w-80 max-w-[85vw] h-full bg-[#FFFFFF] dark:bg-[#17152B] shadow-2xl border-r border-[#E9E7EF] dark:border-[#2D2947] flex flex-col z-10 animate-in slide-in-from-left duration-200 safe-top safe-bottom">
+          <div className="relative w-80 max-w-[85vw] h-dvh bg-[#FFFFFF] dark:bg-[#17152B] shadow-2xl border-r border-[#E9E7EF] dark:border-[#2D2947] flex flex-col z-10 animate-in slide-in-from-left duration-200 safe-top safe-bottom">
             {/* Drawer Header with Brand Logo & Prominent Close [X] Button */}
             <div className="px-4 py-3.5 border-b border-[#E9E7EF] dark:border-[#2D2947] flex items-center justify-between gap-3 shrink-0">
               <Link
@@ -277,7 +283,8 @@ export function MobileHeaderMenu({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
