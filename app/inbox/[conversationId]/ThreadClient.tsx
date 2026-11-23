@@ -313,7 +313,7 @@ export function ThreadClient({
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col h-[calc(100dvh-5rem)] sm:h-[calc(100dvh-6rem)] min-h-[480px] bg-[#FFFFFF] dark:bg-[#17152B] rounded-2xl sm:rounded-3xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-xl overflow-hidden">
+    <div className="fixed inset-0 z-50 sm:relative sm:inset-auto sm:z-auto max-w-4xl mx-auto flex flex-col h-dvh sm:h-[calc(100dvh-6rem)] min-h-0 bg-[#FFFFFF] dark:bg-[#17152B] sm:rounded-3xl border-0 sm:border border-[#E9E7EF] dark:border-[#2D2947] sm:shadow-xl overflow-hidden">
       {/* Header with Live Active/Online Status & Last Seen */}
       <ThreadHeader
         otherUserName={otherUser.full_name || 'MobileBazar User'}
@@ -326,7 +326,7 @@ export function ThreadClient({
       />
 
       {/* Pinned Ad Bar & Safety Banner */}
-      <div className="p-3 sm:p-4 bg-[#F7F6F2] dark:bg-[#121120] border-b border-[#E9E7EF] dark:border-[#2D2947] space-y-2">
+      <div className="p-2 sm:p-3 bg-[#F7F6F2] dark:bg-[#121120] border-b border-[#E9E7EF] dark:border-[#2D2947] space-y-1.5 shrink-0">
         <PinnedAdCard
           ad={ad}
           onOpenOfferModal={() => handleOpenOfferModal(ad.price || undefined, false)}
@@ -336,7 +336,7 @@ export function ThreadClient({
 
       {/* Error / Alert notice */}
       {errorBanner && (
-        <div className="p-2.5 mx-3 mt-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between gap-2">
+        <div className="p-2.5 mx-3 mt-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorBanner}</span>
@@ -354,7 +354,7 @@ export function ThreadClient({
       {/* Messages Scroll Area with Professional WhatsApp-Style Read Receipts */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-2 bg-[#F7F6F2]/30 dark:bg-[#0E0D1A]/30 scroll-smooth"
+        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 bg-[#F7F6F2]/30 dark:bg-[#0E0D1A]/30 scroll-smooth min-h-0"
       >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
@@ -392,12 +392,12 @@ export function ThreadClient({
       </div>
 
       {/* Quick Replies Strip */}
-      <div className="px-4 py-2 border-t border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B]">
+      <div className="px-3 py-1.5 sm:px-4 sm:py-2 border-t border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#17152B] shrink-0">
         <QuickReplies onSelect={handleQuickReply} isBuyer={isBuyer} />
       </div>
 
       {/* Sticky Bottom Input with Multiple Photos, Rich Emoji Picker, Phone & Offer Buttons */}
-      <div className="p-3 sm:p-4 bg-[#FFFFFF] dark:bg-[#17152B] border-t border-[#E9E7EF] dark:border-[#2D2947]">
+      <div className="p-2 sm:p-4 bg-[#FFFFFF] dark:bg-[#17152B] border-t border-[#E9E7EF] dark:border-[#2D2947] shrink-0 safe-bottom">
         <ThreadInput
           onSend={(text, kind, offerAmount) => handleSend(text, kind, offerAmount)}
           onOpenOfferModal={() => handleOpenOfferModal(ad.price || undefined, false)}

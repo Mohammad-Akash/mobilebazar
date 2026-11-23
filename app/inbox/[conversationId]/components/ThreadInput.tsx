@@ -353,16 +353,16 @@ export function ThreadInput({
       {/* Main Input Form */}
       <form
         onSubmit={handleSubmit}
-        className="relative flex items-end gap-1.5 bg-[#FFFFFF] dark:bg-[#17152B] p-2 rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-lg"
+        className="relative flex items-end gap-1 sm:gap-1.5 bg-[#FFFFFF] dark:bg-[#17152B] p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-[#E9E7EF] dark:border-[#2D2947] shadow-lg"
       >
         {/* Attachment Buttons Toolbar */}
-        <div className="flex items-center gap-1 pb-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 pb-1 shrink-0">
           {/* Multiple Photos Button */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isSending}
-            className="w-8 h-8 rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer relative"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer relative"
             title="Attach multiple photos from your phone"
           >
             <ImageIcon className="w-4 h-4 stroke-[2]" />
@@ -378,7 +378,7 @@ export function ThreadInput({
             type="button"
             onClick={() => setShowEmojiPicker((prev) => !prev)}
             disabled={isSending}
-            className={`w-8 h-8 rounded-xl active:scale-95 flex items-center justify-center transition-all cursor-pointer ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl active:scale-95 flex items-center justify-center transition-all cursor-pointer ${
               showEmojiPicker
                 ? 'text-[#7657FF] bg-[#7657FF]/10'
                 : 'text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10'
@@ -388,12 +388,12 @@ export function ThreadInput({
             <Smile className="w-4 h-4 stroke-[2]" />
           </button>
 
-          {/* Capture Photo Button (Replaces Call) */}
+          {/* Capture Photo Button (Camera) */}
           <button
             type="button"
             onClick={() => setShowCameraModal(true)}
             disabled={isSending || selectedFiles.length >= MAX_IMAGES}
-            className="w-8 h-8 rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer disabled:opacity-40"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl text-[#77758A] dark:text-[#9B98B2] hover:text-[#7657FF] hover:bg-[#7657FF]/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer disabled:opacity-40"
             title="Capture photo from camera"
           >
             <Camera className="w-4 h-4 stroke-[2]" />
@@ -405,11 +405,11 @@ export function ThreadInput({
               type="button"
               onClick={onOpenOfferModal}
               disabled={isSending}
-              className="h-8 px-2.5 rounded-xl bg-[#7657FF]/10 hover:bg-[#7657FF]/20 active:scale-95 text-[#7657FF] dark:text-[#8A6FFF] text-xs font-bold flex items-center gap-1 transition-all shrink-0 cursor-pointer"
+              className="h-7 sm:h-8 px-2 rounded-lg sm:rounded-xl bg-[#7657FF]/10 hover:bg-[#7657FF]/20 active:scale-95 text-[#7657FF] dark:text-[#8A6FFF] text-xs font-bold flex items-center gap-1 transition-all shrink-0 cursor-pointer"
               title="Make or counter an offer"
             >
               <Tag className="w-3.5 h-3.5 stroke-[2.2]" />
-              <span className="hidden sm:inline">Offer</span>
+              <span className="hidden md:inline">Offer</span>
             </button>
           )}
         </div>
@@ -423,19 +423,19 @@ export function ThreadInput({
           onKeyDown={handleKeyDown}
           placeholder={
             previewUrls.length > 0
-              ? `Add a caption for ${previewUrls.length} photo(s)...`
-              : 'Type a message... (Press Enter to send)'
+              ? 'Add a caption...'
+              : 'Type a message...'
           }
           maxLength={1000}
-          className="flex-1 max-h-28 p-2 text-base sm:text-sm bg-transparent text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] resize-none outline-none leading-relaxed"
+          className="flex-1 min-w-0 max-h-24 p-1.5 sm:p-2 text-base sm:text-sm bg-transparent text-[#17152B] dark:text-[#F7F6F2] placeholder:text-[#77758A] resize-none outline-none leading-normal"
         />
 
         {/* Send Action */}
-        <div className="flex items-center gap-2 pb-1 pr-1">
+        <div className="flex items-center gap-1 sm:gap-2 pb-1 pr-0.5 sm:pr-1 shrink-0">
           <button
             type="submit"
             disabled={(!text.trim() && selectedFiles.length === 0) || isSending}
-            className="w-9 h-9 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-sm active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-sm active:scale-95"
             title="Send message"
           >
             {isSending ? (

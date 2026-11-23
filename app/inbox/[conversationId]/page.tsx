@@ -55,7 +55,7 @@ export default async function ConversationPage({ params }: ConversationPageProps
   const initialMessages = await getMessages(conversationId, undefined, undefined, 40)
 
   return (
-    <div className="py-4 sm:py-6 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="p-0 sm:py-6 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <ThreadClient
         conversationId={conversationId}
         currentUserId={user.id}

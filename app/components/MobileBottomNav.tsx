@@ -7,8 +7,12 @@ import { Home, Compass, PlusCircle, MessageSquare, User } from 'lucide-react'
 export function MobileBottomNav() {
   const pathname = usePathname()
 
-  // Hide mobile bottom nav on post-ad wizard or ad edit page to give maximum screen real estate for form entry
-  if (pathname?.startsWith('/post-ad') || pathname?.includes('/edit')) {
+  // Hide mobile bottom nav on post-ad wizard, ad edit, or active chat thread to give maximum screen real estate
+  if (
+    pathname?.startsWith('/post-ad') ||
+    pathname?.includes('/edit') ||
+    (pathname?.startsWith('/inbox/') && pathname !== '/inbox')
+  ) {
     return null
   }
 

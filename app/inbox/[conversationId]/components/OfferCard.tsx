@@ -78,7 +78,7 @@ export function OfferCard({
 
   return (
     <div
-      className={`p-4 rounded-3xl border space-y-3 max-w-sm w-full shadow-sm transition-all ${
+      className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl border space-y-2 sm:space-y-3 max-w-sm w-full shadow-sm transition-all ${
         isMine
           ? 'bg-[#7657FF]/10 dark:bg-[#7657FF]/15 border-[#7657FF]/30 ml-auto'
           : 'bg-[#FFFFFF] dark:bg-[#17152B] border-[#E9E7EF] dark:border-[#2D2947]'
@@ -86,21 +86,21 @@ export function OfferCard({
     >
       {/* Header Info */}
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <div
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shrink-0 ${
               isMine
                 ? 'bg-[#7657FF] text-white'
                 : 'bg-[#7657FF]/10 dark:bg-[#7657FF]/20 text-[#7657FF] dark:text-[#8A6FFF]'
             }`}
           >
-            <Tag className="w-4 h-4 stroke-[2.2]" />
+            <Tag className="w-3.5 h-3.5 stroke-[2.2]" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#7657FF] dark:text-[#8A6FFF]">
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#7657FF] dark:text-[#8A6FFF]">
               {isMine ? 'Your Submitted Offer' : 'Offer Received'}
             </span>
-            <h4 className="text-xl font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight">
+            <h4 className="text-lg sm:text-xl font-black text-[#17152B] dark:text-[#F7F6F2] tabular-nums tracking-tight">
               Rs {amount.toLocaleString()}
             </h4>
           </div>
@@ -115,13 +115,13 @@ export function OfferCard({
 
       {/* Optional Note / Message */}
       {customNote && (
-        <div className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-xs text-[#17152B] dark:text-[#F7F6F2] italic">
+        <div className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-xs text-[#17152B] dark:text-[#F7F6F2] italic">
           &ldquo;{customNote}&rdquo;
         </div>
       )}
 
       {/* Description text */}
-      <p className="text-[11px] text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
+      <p className="text-[10px] sm:text-[11px] text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
         {isMine
           ? 'Your offer has been sent to the seller. Waiting for their response.'
           : 'The buyer is ready to purchase the device at this price.'}

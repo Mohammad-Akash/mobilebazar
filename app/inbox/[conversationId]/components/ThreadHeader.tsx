@@ -25,8 +25,8 @@ export function ThreadHeader({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <div className="relative flex items-center justify-between p-3.5 bg-[#FFFFFF] dark:bg-[#17152B] border-b border-[#E9E7EF] dark:border-[#2D2947] rounded-t-3xl">
-      <div className="flex items-center gap-3 min-w-0">
+    <div className="relative flex items-center justify-between px-3 py-2.5 sm:p-3.5 bg-[#FFFFFF] dark:bg-[#17152B] border-b border-[#E9E7EF] dark:border-[#2D2947] sm:rounded-t-3xl shrink-0 safe-top">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <Link
           href="/inbox"
           className="p-1.5 rounded-xl text-[#77758A] hover:text-[#17152B] dark:hover:text-[#F7F6F2] hover:bg-[#F7F6F2] dark:hover:bg-[#211E38] transition-colors"

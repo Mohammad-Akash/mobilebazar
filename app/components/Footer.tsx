@@ -1,9 +1,18 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Smartphone, ShieldCheck, Heart, Sparkles, MapPin } from 'lucide-react'
 
 const CURRENT_YEAR = 2026
 
 export function Footer() {
+  const pathname = usePathname()
+
+  // Hide footer on active chat conversation to keep chat screen clean and full-height
+  if (pathname?.startsWith('/inbox/') && pathname !== '/inbox') {
+    return null
+  }
   return (
     <footer className="border-t border-[#E9E7EF] dark:border-[#2D2947] bg-[#FFFFFF] dark:bg-[#121022] text-[#17152B] dark:text-[#F7F6F2] transition-colors safe-bottom">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
