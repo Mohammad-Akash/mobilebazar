@@ -90,7 +90,7 @@ export function SpecTable({ ad }: SpecTableProps) {
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
       <div className="flex items-center justify-between">
         <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 min-w-0">
-          <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+          <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-[#7657FF] dark:text-[#8A6FFF] shrink-0" />
           <span className="truncate">Verified Phone Specifications</span>
         </h3>
         <span className="text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0 ml-2">
@@ -104,9 +104,9 @@ export function SpecTable({ ad }: SpecTableProps) {
           return (
             <div
               key={spec.label}
-              className="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 transition-colors hover:border-blue-200 dark:hover:border-blue-900/50 min-w-0"
+              className="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 transition-colors hover:border-violet-200 dark:hover:border-violet-900/50 min-w-0"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-xs text-blue-600 dark:text-blue-400">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-xs text-[#7657FF] dark:text-[#8A6FFF]">
                 <Icon className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">

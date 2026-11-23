@@ -46,7 +46,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-          <BadgeDollarSign className="w-5 h-5 text-blue-600" />
+          <BadgeDollarSign className="w-5 h-5 text-[#7657FF]" />
           <span>Price & Description</span>
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -74,13 +74,13 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
             step={500}
             placeholder="e.g. 185000"
             {...register('price', { valueAsNumber: true })}
-            className={`w-full pl-16 pr-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-lg font-black focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+            className={`w-full pl-16 pr-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-lg font-black focus:outline-none focus:ring-2 focus:ring-[#7657FF] transition-colors ${
               errors.price ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
             }`}
           />
         </div>
         {price > 0 && (
-          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+          <p className="text-xs font-semibold text-[#7657FF] dark:text-[#8A6FFF]">
             Rs {Number(price).toLocaleString('en-PK')}
           </p>
         )}
@@ -92,7 +92,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
             <input
               type="checkbox"
               {...register('is_negotiable')}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+              className="w-4 h-4 rounded text-[#7657FF] focus:ring-[#7657FF] border-slate-300"
             />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Price is slightly negotiable
@@ -113,7 +113,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           <button
             type="button"
             onClick={handleAutoGenerateTitle}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold flex items-center gap-1"
+            className="text-xs text-[#7657FF] dark:text-[#8A6FFF] hover:underline font-bold flex items-center gap-1"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Auto-generate Standard Title</span>
@@ -124,7 +124,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           type="text"
           placeholder="e.g. Apple iPhone 15 Pro Max 256GB PTA Approved"
           {...register('title')}
-          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#7657FF] transition-colors ${
             errors.title ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
           }`}
         />
@@ -148,7 +148,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           rows={5}
           placeholder="Mention cosmetic condition, scratches, screen status, original accessories, face ID/fingerprint status..."
           {...register('description')}
-          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+          className={`w-full px-4 py-3.5 rounded-2xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF] transition-colors ${
             errors.description ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
           }`}
         />
@@ -183,7 +183,7 @@ export function Step3Price({ form, brands, selectedModel }: Step3Props) {
           maxLength={18}
           placeholder="e.g. 356938035643803"
           {...register('imei')}
-          className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+          className={`w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF] transition-colors ${
             errors.imei ? 'border-red-500' : 'border-slate-300 dark:border-slate-700'
           }`}
         />

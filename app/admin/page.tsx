@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
               <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" /> New Ads
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block" /> New Users
+              <span className="w-2.5 h-2.5 rounded-sm bg-violet-500 inline-block" /> New Users
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm bg-red-400 inline-block" /> Removed Ads

@@ -87,7 +87,7 @@ export function LandingPageLayout({
                 ) : (
                   <Link
                     href={crumb.url}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors"
                   >
                     {crumb.name}
                   </Link>
@@ -100,7 +100,7 @@ export function LandingPageLayout({
 
       {/* 3. Page Header & Stats Summary */}
       <header className="space-y-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-950/60 border border-violet-200 dark:border-violet-900 text-violet-700 dark:text-violet-300 text-xs font-bold">
           <Smartphone className="w-3.5 h-3.5" />
           <span>Verified Smartphone Market</span>
         </div>
@@ -114,11 +114,11 @@ export function LandingPageLayout({
             <>
               Showing <strong className="text-slate-900 dark:text-white">{stats.adCount} verified phone ads</strong>
               {cityName && ` in ${cityName}`}. Market price ranges from{' '}
-              <strong className="text-blue-600 dark:text-blue-400">
+              <strong className="text-[#7657FF] dark:text-[#8A6FFF]">
                 {formatPrice(stats.minPrice || 0)}
               </strong>{' '}
               to{' '}
-              <strong className="text-blue-600 dark:text-blue-400">
+              <strong className="text-[#7657FF] dark:text-[#8A6FFF]">
                 {formatPrice(stats.maxPrice || 0)}
               </strong>
               {stats.medianPrice ? ` (Median price: ${formatPrice(stats.medianPrice)})` : ''}.
@@ -139,7 +139,7 @@ export function LandingPageLayout({
             </div>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-3xl shadow-xs">
               <span className="text-xs text-slate-400 block font-medium">Starting From</span>
-              <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5 block">
+              <span className="text-xl sm:text-2xl font-black text-[#7657FF] dark:text-[#8A6FFF] mt-0.5 block">
                 {formatPrice(stats.minPrice || 0)}
               </span>
             </div>
@@ -176,7 +176,7 @@ export function LandingPageLayout({
                   ...(citySlug ? { city: citySlug } : {}),
                   ...(brandSlug ? { brand: brandSlug } : {}),
                 }).toString()}`}
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-sm shadow-blue-600/30 active:scale-95"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-sm transition-all shadow-sm shadow-[#7657FF]/30 active:scale-95"
               >
                 <span>View All Filtered Smartphones</span>
                 <ArrowRight className="w-4 h-4" />
@@ -185,7 +185,7 @@ export function LandingPageLayout({
           </>
         ) : (
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center space-y-4 shadow-sm">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900 mx-auto flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="w-16 h-16 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF]">
               <Smartphone className="w-8 h-8" />
             </div>
             <h2 className="text-lg font-black text-slate-900 dark:text-white">
@@ -197,7 +197,7 @@ export function LandingPageLayout({
             <div className="pt-2">
               <Link
                 href="/post-ad"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-sm shadow-blue-600/30 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-sm transition-all shadow-sm shadow-[#7657FF]/30 active:scale-95"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Post a Free Smartphone Ad</span>
@@ -220,8 +220,8 @@ export function LandingPageLayout({
               </h3>
               <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
                 According to verified smartphone listings on MobileBazar, prices range from{' '}
-                <strong className="text-blue-600 dark:text-blue-400">{formatPrice(stats.minPrice || 0)}</strong> to{' '}
-                <strong className="text-blue-600 dark:text-blue-400">{formatPrice(stats.maxPrice || 0)}</strong>, with a median market price of{' '}
+                <strong className="text-[#7657FF] dark:text-[#8A6FFF]">{formatPrice(stats.minPrice || 0)}</strong> to{' '}
+                <strong className="text-[#7657FF] dark:text-[#8A6FFF]">{formatPrice(stats.maxPrice || 0)}</strong>, with a median market price of{' '}
                 <strong>{stats.medianPrice ? formatPrice(stats.medianPrice) : 'N/A'}</strong>.
               </p>
             </div>
@@ -264,7 +264,7 @@ export function LandingPageLayout({
                       <li key={c.slug}>
                         <Link
                           href={targetPath}
-                          className="text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          className="text-slate-500 hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors"
                         >
                           {modelName || brandName || 'Mobiles'} in {c.name} ({c.ad_count})
                         </Link>
@@ -290,7 +290,7 @@ export function LandingPageLayout({
                       <li key={m.slug}>
                         <Link
                           href={targetPath}
-                          className="text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          className="text-slate-500 hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors"
                         >
                           {brandName} {m.name} {cityName ? `in ${cityName}` : ''} ({m.ad_count})
                         </Link>
@@ -316,7 +316,7 @@ export function LandingPageLayout({
                       <li key={b.slug}>
                         <Link
                           href={targetPath}
-                          className="text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          className="text-slate-500 hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors"
                         >
                           {b.name} Phones {cityName ? `in ${cityName}` : ''} ({b.ad_count})
                         </Link>

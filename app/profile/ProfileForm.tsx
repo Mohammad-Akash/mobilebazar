@@ -60,7 +60,7 @@ export function ProfileForm({
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
             Total Ads
           </span>
-          <p className="text-xl font-black text-blue-600 dark:text-blue-400">{initialData.adsCount}</p>
+          <p className="text-xl font-black text-[#7657FF] dark:text-[#8A6FFF]">{initialData.adsCount}</p>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export function ProfileForm({
       <form action={formAction} className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-blue-600" />
+            <User className="w-3.5 h-3.5 text-[#7657FF]" />
             <span>Full Name</span>
           </label>
           <input
@@ -89,7 +89,7 @@ export function ProfileForm({
             name="fullName"
             defaultValue={initialData.fullName}
             required
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
           />
           {state?.fieldErrors?.fullName && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.fullName[0]}</p>
@@ -98,13 +98,13 @@ export function ProfileForm({
 
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-blue-600" />
+            <MapPin className="w-3.5 h-3.5 text-[#7657FF]" />
             <span>Home City</span>
           </label>
           <select
             name="cityId"
             defaultValue={initialData.cityId || ''}
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
           >
             <option value="">Select City</option>
             {cities.map((city) => (
@@ -118,7 +118,7 @@ export function ProfileForm({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-blue-600" />
+              <Phone className="w-3.5 h-3.5 text-[#7657FF]" />
               <span>Mobile Phone Number</span>
             </label>
             {initialData.isPhoneVerified ? (
@@ -142,7 +142,7 @@ export function ProfileForm({
             />
             <Link
               href="/dashboard/profile/verify?return_to=/profile"
-              className="px-4 py-3 text-xs font-bold rounded-2xl bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap transition-colors active:scale-95 shadow-sm shadow-blue-600/30"
+              className="px-4 py-3 text-xs font-bold rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white whitespace-nowrap transition-colors active:scale-95 shadow-sm shadow-[#7657FF]/30"
             >
               {initialData.isPhoneVerified ? 'Change Number' : 'Verify via SMS'}
             </Link>
@@ -162,7 +162,7 @@ export function ProfileForm({
             name="whatsappNumber"
             defaultValue={initialData.whatsappNumber || ''}
             placeholder="03001234567"
-            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
           />
           {state?.fieldErrors?.whatsappNumber && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.whatsappNumber[0]}</p>
@@ -173,7 +173,7 @@ export function ProfileForm({
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
           >
             {isPending ? (
               <>

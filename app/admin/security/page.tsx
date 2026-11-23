@@ -38,7 +38,7 @@ export default async function AdminSecurityPage({
       )}
 
       {reason === 'verify_required' && (
-        <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl text-xs text-blue-800 dark:text-blue-200 space-y-1">
+        <div className="p-4 bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800 rounded-2xl text-xs text-violet-800 dark:text-violet-200 space-y-1">
           <p className="font-bold">🔐 Code Verification Required</p>
           <p>Your session is currently AAL1. Enter your 6-digit authenticator code below to upgrade to AAL2.</p>
         </div>

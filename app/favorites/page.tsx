@@ -78,7 +78,7 @@ export default async function FavoritesPage() {
 
         <Link
           href="/ads"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm shadow-blue-600/30 transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-xs sm:text-sm shadow-sm shadow-[#7657FF]/30 transition-all self-start sm:self-auto"
         >
           <span>Explore All Phones</span>
           <ArrowRight className="w-4 h-4" />
@@ -99,8 +99,8 @@ export default async function FavoritesPage() {
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center max-w-xl mx-auto space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 mx-auto flex items-center justify-center text-blue-600 dark:text-blue-400">
-            <Heart className="w-8 h-8 text-blue-600" />
+          <div className="w-16 h-16 rounded-3xl bg-violet-50 dark:bg-violet-950/50 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF]">
+            <Heart className="w-8 h-8 text-[#7657FF]" />
           </div>
           <h2 className="text-lg font-black text-slate-900 dark:text-white">
             No Saved Smartphones Yet
@@ -111,7 +111,7 @@ export default async function FavoritesPage() {
           <div className="pt-2">
             <Link
               href="/ads"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
             >
               <Smartphone className="w-4 h-4" />
               <span>Browse Smartphones Now</span>

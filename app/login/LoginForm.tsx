@@ -42,7 +42,7 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm space-y-6">
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900 mx-auto flex items-center justify-center text-blue-600 dark:text-blue-400">
+        <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF]">
           <Smartphone className="w-6 h-6" />
         </div>
         <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -65,7 +65,7 @@ export function LoginForm() {
 
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <Mail className="w-3.5 h-3.5 text-blue-600" />
+            <Mail className="w-3.5 h-3.5 text-[#7657FF]" />
             <span>Email Address</span>
           </label>
           <input
@@ -74,7 +74,7 @@ export function LoginForm() {
             required
             autoComplete="email"
             placeholder="you@example.com"
-            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
           />
           {state?.fieldErrors?.email && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.email[0]}</p>
@@ -83,7 +83,7 @@ export function LoginForm() {
 
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5 text-blue-600" />
+            <Lock className="w-3.5 h-3.5 text-[#7657FF]" />
             <span>Password</span>
           </label>
           <input
@@ -92,7 +92,7 @@ export function LoginForm() {
             required
             autoComplete="current-password"
             placeholder="••••••••"
-            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
           />
           {state?.fieldErrors?.password && (
             <p className="text-xs text-red-600 mt-1 font-semibold">{state.fieldErrors.password[0]}</p>
@@ -102,7 +102,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full min-h-[48px] py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2 cursor-pointer"
         >
           {isPending ? (
             <>
@@ -122,7 +122,7 @@ export function LoginForm() {
         Don&apos;t have an account?{' '}
         <Link
           href={`/signup${next !== '/' ? `?next=${encodeURIComponent(next)}` : ''}`}
-          className="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center min-h-[44px]"
+          className="font-bold text-[#7657FF] dark:text-[#8A6FFF] hover:underline inline-flex items-center min-h-[44px]"
         >
           Create Free Account
         </Link>

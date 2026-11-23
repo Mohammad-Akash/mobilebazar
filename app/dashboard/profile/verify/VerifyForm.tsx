@@ -93,7 +93,7 @@ export function VerifyPhoneForm() {
         <div
           className={`flex items-center justify-center w-8 h-8 rounded-xl font-bold text-xs ${
             step === 'phone'
-              ? 'bg-blue-600 text-white shadow-xs'
+              ? 'bg-[#7657FF] text-white shadow-xs'
               : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
           }`}
         >
@@ -102,14 +102,14 @@ export function VerifyPhoneForm() {
         <div className="flex-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
           <div
             className={`h-full transition-all duration-300 ${
-              step === 'otp' ? 'w-full bg-blue-600' : 'w-1/2 bg-blue-600'
+              step === 'otp' ? 'w-full bg-[#7657FF]' : 'w-1/2 bg-[#7657FF]'
             }`}
           />
         </div>
         <div
           className={`flex items-center justify-center w-8 h-8 rounded-xl font-bold text-xs ${
             step === 'otp'
-              ? 'bg-blue-600 text-white shadow-xs'
+              ? 'bg-[#7657FF] text-white shadow-xs'
               : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
           }`}
         >
@@ -122,7 +122,7 @@ export function VerifyPhoneForm() {
         <form onSubmit={handleSendOtp} className="space-y-5">
           <div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-blue-600" />
+              <Smartphone className="w-5 h-5 text-[#7657FF]" />
               <span>Verify Mobile Phone</span>
             </h1>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -146,7 +146,7 @@ export function VerifyPhoneForm() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 maxLength={12}
-                className="flex-1 rounded-r-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 rounded-r-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
               />
             </div>
             <p className="text-[11px] text-slate-400">Only Pakistani mobile numbers (+92) supported</p>
@@ -162,7 +162,7 @@ export function VerifyPhoneForm() {
           <button
             type="submit"
             disabled={isPending || !phone}
-            className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
           >
             {isPending ? (
               <>
@@ -181,7 +181,7 @@ export function VerifyPhoneForm() {
         <form onSubmit={handleVerifyOtp} className="space-y-5">
           <div>
             <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-blue-600" />
+              <KeyRound className="w-5 h-5 text-[#7657FF]" />
               <span>Enter 6-Digit Code</span>
             </h1>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -205,7 +205,7 @@ export function VerifyPhoneForm() {
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               required
               maxLength={6}
-              className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 text-2xl tracking-[0.3em] text-center font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 text-2xl tracking-[0.3em] text-center font-mono focus:outline-none focus:ring-2 focus:ring-[#7657FF]"
             />
           </div>
 
@@ -219,7 +219,7 @@ export function VerifyPhoneForm() {
           <button
             type="submit"
             disabled={isPending || otp.length !== 6}
-            className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-blue-600/30 flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-2xl bg-[#7657FF] hover:bg-[#6343ED] text-white font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
           >
             {isPending ? (
               <>
@@ -239,7 +239,7 @@ export function VerifyPhoneForm() {
                 setOtp('')
                 setError('')
               }}
-              className="hover:text-blue-600 flex items-center gap-1 font-semibold"
+              className="hover:text-[#7657FF] flex items-center gap-1 font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Change Number</span>
@@ -252,7 +252,7 @@ export function VerifyPhoneForm() {
                 type="button"
                 onClick={handleResend}
                 disabled={isPending}
-                className="text-blue-600 hover:underline font-bold disabled:opacity-50"
+                className="text-[#7657FF] hover:underline font-bold disabled:opacity-50"
               >
                 Resend SMS Code
               </button>

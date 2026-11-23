@@ -196,7 +196,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
                 ) : (
                   <Link
                     href={crumb.url}
-                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="hover:text-[#7657FF] dark:hover:text-[#8A6FFF] transition-colors"
                   >
                     {crumb.name}
                   </Link>
@@ -233,7 +233,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           {/* Description Box */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <FileText className="w-5 h-5 text-[#7657FF] dark:text-[#8A6FFF]" />
               <span>Seller Note & Condition Details</span>
             </h3>
             <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
@@ -251,7 +251,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
                 <span className="text-xs uppercase tracking-wider font-bold text-slate-400 block mb-0.5">
                   Asking Price
                 </span>
-                <span className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                <span className="text-3xl font-black text-[#7657FF] dark:text-[#8A6FFF] tracking-tight">
                   {formatPrice(ad.price || 0)}
                 </span>
               </div>
@@ -272,7 +272,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
               </h1>
               <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
                 <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                  <MapPin className="w-3.5 h-3.5 text-[#7657FF]" />
                   <span>
                     {ad.city_name}
                     {ad.area_name ? `, ${ad.area_name}` : ''}
@@ -301,7 +301,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
                 {ad.pta_status ? ad.pta_status.replace(/_/g, ' ').toUpperCase() : 'PTA UNVERIFIED'}
               </span>
               {ad.storage_gb && (
-                <span className="px-3 py-1 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900 text-xs font-bold">
+                <span className="px-3 py-1 rounded-xl bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 border border-violet-200 dark:border-violet-900 text-xs font-bold">
                   {ad.storage_gb} GB Storage
                 </span>
               )}
@@ -326,7 +326,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
           {/* Seller Profile Card */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 flex items-center justify-center font-black text-blue-600 dark:text-blue-400 text-lg">
+              <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/50 border border-violet-100 dark:border-violet-900 flex items-center justify-center font-black text-[#7657FF] dark:text-[#8A6FFF] text-lg">
                 {(ad.seller?.full_name || ad.seller_name || 'U')[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -378,7 +378,7 @@ export default async function AdDetailPage({ params }: AdDetailPageProps) {
             </div>
             <Link
               href={`/ads?brand=${ad.brand_slug}&city=${ad.city_slug}`}
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#7657FF] dark:text-[#8A6FFF] hover:underline flex items-center gap-1"
             >
               <span>Explore All</span>
               <ChevronRight className="w-3.5 h-3.5" />

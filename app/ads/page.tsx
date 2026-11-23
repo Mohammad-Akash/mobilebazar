@@ -117,7 +117,7 @@ export default async function AdsPage({ searchParams }: AdsPageProps) {
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
               Smartphones for Sale
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300">
               Verified Listings
             </span>
           </div>
