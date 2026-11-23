@@ -32,18 +32,18 @@ export default async function MyAdsPage({ searchParams }: MyAdsPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Sub-Tabs: Active / Sold / Expired */}
-      <div className="flex items-center gap-2 border-b border-zinc-100 dark:border-zinc-800 pb-3">
+      {/* Sub-Tabs: Active / Sold / Expired (Mobile edge-to-edge scroll) */}
+      <div className="flex items-center gap-2 border-b border-[#E9E7EF] dark:border-[#2D2947] pb-3 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.key
           return (
             <Link
               key={tab.key}
               href={`/dashboard/ads?status=${tab.key}`}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 active:scale-95 ${
+              className={`shrink-0 px-3.5 sm:px-4 py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold transition-all flex items-center gap-2 active:scale-95 min-h-[40px] ${
                 isActive
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-[#7657FF] text-white shadow-sm shadow-[#7657FF]/30'
+                  : 'bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] text-[#77758A] dark:text-[#9B98B2] hover:text-[#17152B] dark:hover:text-[#F7F6F2]'
               }`}
             >
               <span>{tab.label}</span>
@@ -51,7 +51,7 @@ export default async function MyAdsPage({ searchParams }: MyAdsPageProps) {
                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                   isActive
                     ? 'bg-white/20 text-white'
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    : 'bg-[#F0EEE7] dark:bg-[#211E38] text-[#17152B] dark:text-[#F7F6F2]'
                 }`}
               >
                 {tab.count}
