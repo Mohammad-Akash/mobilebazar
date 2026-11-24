@@ -46,19 +46,29 @@ export function MobileHeaderMenu({
     const supabase = createClient()
     let isMounted = true
 
+    async function fetchName(uid: string, email?: string) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', uid)
+          .maybeSingle()
+        if (!isMounted) return
+        setCurrentFullName(profile?.full_name || email?.split('@')[0] || 'User')
+      } catch {
+        if (isMounted) setCurrentFullName(email?.split('@')[0] || 'User')
+      }
+    }
+
     async function checkAuth() {
       try {
-        const { data } = await supabase.auth.getUser()
+        // getSession() reads from storage — instant, no network call
+        const { data: sessionData } = await supabase.auth.getSession()
+        const session = sessionData?.session
         if (!isMounted) return
-        if (data.user) {
-          setCurrentUser(data.user)
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', data.user.id)
-            .maybeSingle()
-          if (!isMounted) return
-          setCurrentFullName(profile?.full_name || data.user.email?.split('@')[0] || 'User')
+        if (session?.user) {
+          setCurrentUser(session.user)
+          fetchName(session.user.id, session.user.email ?? undefined)
         } else {
           setCurrentUser(null)
           setCurrentFullName(null)
@@ -74,6 +84,7 @@ export function MobileHeaderMenu({
       if (!isMounted) return
       if (session?.user) {
         setCurrentUser(session.user)
+        fetchName(session.user.id, session.user.email ?? undefined)
       } else {
         setCurrentUser(null)
         setCurrentFullName(null)

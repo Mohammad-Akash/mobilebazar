@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { User } from 'lucide-react'
 import { createClient } from '@/src/lib/supabase/client'
@@ -11,44 +11,66 @@ interface HeaderAuthPillProps {
 }
 
 export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
-  const [fullName, setFullName] = useState<string | null>(null)
-  const [isClient, setIsClient] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
+  // Start as false so SSR and first-client paint both render "Sign In" (no flicker)
+  const [ready, setReady] = useState(false)
+
+  const fetchName = useCallback(async (uid: string, email?: string) => {
+    try {
+      const supabase = createClient()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', uid)
+        .maybeSingle()
+      setDisplayName(profile?.full_name || email?.split('@')[0] || 'User')
+    } catch {
+      setDisplayName(email?.split('@')[0] || 'User')
+    }
+  }, [])
 
   useEffect(() => {
-    setIsClient(true)
     const supabase = createClient()
-
     let isMounted = true
 
-    async function fetchUser() {
-      try {
-        const { data } = await supabase.auth.getUser()
-        if (!isMounted) return
-        if (data.user) {
-          setUser(data.user)
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', data.user.id)
-            .maybeSingle()
-          if (!isMounted) return
-          setFullName(profile?.full_name || data.user.email?.split('@')[0] || 'User')
-        }
-      } catch {
-        // guest or offline
+    async function init() {
+      // 1. getSession() is instant (reads from storage, no network call)
+      //    Use it to immediately show logged-in state without waiting for getUser()
+      const { data: sessionData } = await supabase.auth.getSession()
+      const session = sessionData?.session
+
+      if (!isMounted) return
+
+      if (session?.user) {
+        // Show user immediately from session — no network round-trip needed yet
+        setUserId(session.user.id)
+        setReady(true)
+        // Fetch display name in background (non-blocking)
+        fetchName(session.user.id, session.user.email ?? undefined)
+      } else {
+        setReady(true)
       }
+
+      // 2. Also do getUser() in background to ensure token is fresh (security best practice)
+      //    but don't block the UI on it
+      supabase.auth.getUser().catch(() => {/* ignore */})
     }
 
-    fetchUser()
+    init()
 
+    // 3. Subscribe to auth state changes for login/logout events
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) return
       if (session?.user) {
-        setUser(session.user)
+        setUserId(session.user.id)
+        setReady(true)
+        // Fetch the profile name when auth state changes (login event)
+        fetchName(session.user.id, session.user.email ?? undefined)
       } else {
-        setUser(null)
-        setFullName(null)
+        setUserId(null)
+        setDisplayName(null)
+        setReady(true)
       }
     })
 
@@ -56,9 +78,19 @@ export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
       isMounted = false
       authListener.subscription.unsubscribe()
     }
-  }, [])
+  }, [fetchName])
 
-  if (!isClient || !user) {
+  // Not hydrated yet — render nothing (avoids mismatch with SSR "Sign In")
+  if (!ready) {
+    return (
+      <div className="flex items-center gap-1 sm:gap-2">
+        {/* Tiny skeleton so layout doesn't jump */}
+        <div className="w-16 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse" />
+      </div>
+    )
+  }
+
+  if (!userId) {
     return (
       <div className="flex items-center gap-1 sm:gap-2">
         <Link
@@ -80,7 +112,9 @@ export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
         title="Go to Dashboard"
       >
         <User className="w-3.5 h-3.5 text-[#7657FF]" />
-        <span className="max-w-[100px] truncate">{fullName}</span>
+        <span className="max-w-[100px] truncate">
+          {displayName ?? '...'}
+        </span>
       </Link>
       <form action={logoutAction} className="hidden lg:block">
         <button
