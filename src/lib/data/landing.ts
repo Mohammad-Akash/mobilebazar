@@ -1,7 +1,6 @@
 import { createPublicClient } from '@/src/lib/supabase/public'
 import { ActiveAdRow } from './ads'
 import {
-  MOCK_ADS,
   MOCK_BRANDS,
   MOCK_CITIES,
   MOCK_MODELS,
@@ -158,27 +157,15 @@ export async function getLandingStats(params: {
       }
     }
   } catch {
-    // fallback to mock stats
+    // fallback
   }
 
-  const matchingAds = MOCK_ADS.filter(
-    (a) =>
-      (!params.citySlug || a.city_slug === params.citySlug) &&
-      (!params.brandSlug || a.brand_slug === params.brandSlug) &&
-      (!params.modelSlug || a.model_slug === params.modelSlug)
-  )
-
-  const prices = matchingAds
-    .map((a) => a.price || 0)
-    .filter((p) => p > 0)
-    .sort((a, b) => a - b)
-
   return {
-    adCount: Math.max(matchingAds.length, 5),
-    minPrice: prices.length > 0 ? prices[0] : 120000,
-    medianPrice: prices.length > 0 ? prices[Math.floor(prices.length / 2)] : 220000,
-    maxPrice: prices.length > 0 ? prices[prices.length - 1] : 435000,
-    newestPublishedAt: matchingAds[0]?.published_at || new Date().toISOString(),
+    adCount: 0,
+    minPrice: null,
+    medianPrice: null,
+    maxPrice: null,
+    newestPublishedAt: null,
   }
 }
 
@@ -217,17 +204,10 @@ export async function getLandingAds(params: {
       return data as ActiveAdRow[]
     }
   } catch {
-    // fallback to mock ads
+    // fallback
   }
 
-  const matching = MOCK_ADS.filter(
-    (a) =>
-      (!params.citySlug || a.city_slug === params.citySlug) &&
-      (!params.brandSlug || a.brand_slug === params.brandSlug) &&
-      (!params.modelSlug || a.model_slug === params.modelSlug)
-  )
-
-  return matching.length > 0 ? matching.slice(0, limit) : MOCK_ADS.slice(0, limit)
+  return []
 }
 
 /**

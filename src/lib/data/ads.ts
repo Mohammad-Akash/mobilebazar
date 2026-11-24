@@ -7,43 +7,12 @@ import { createPublicClient } from '@/src/lib/supabase/public'
 import { Database } from '@/src/types/supabase'
 import { SearchParamsInput, decodeCursor, encodeCursor } from '@/src/lib/validations/search'
 import {
-  MOCK_ADS,
   MOCK_BRANDS,
   MOCK_CITIES,
 } from './mock-seed'
 
-export function searchMockAds(params: SearchParamsInput): SearchAdsResult {
-  let filtered = [...MOCK_ADS]
-  if (params.brand) filtered = filtered.filter((a) => a.brand_slug === params.brand)
-  if (params.model) filtered = filtered.filter((a) => a.model_slug === params.model)
-  if (params.city) filtered = filtered.filter((a) => a.city_slug === params.city)
-  if (params.area) filtered = filtered.filter((a) => a.area_slug === params.area)
-  if (params.min_price) filtered = filtered.filter((a) => (a.price || 0) >= params.min_price!)
-  if (params.max_price) filtered = filtered.filter((a) => (a.price || 0) <= params.max_price!)
-  if (params.pta) filtered = filtered.filter((a) => a.pta_status === params.pta)
-  if (params.condition) filtered = filtered.filter((a) => a.condition === params.condition)
-  if (params.storage) filtered = filtered.filter((a) => a.storage_gb === params.storage)
-  if (params.q) {
-    const q = params.q.toLowerCase()
-    filtered = filtered.filter(
-      (a) =>
-        (a.title || '').toLowerCase().includes(q) ||
-        (a.description || '').toLowerCase().includes(q)
-    )
-  }
-  if (params.sort === 'price_asc') {
-    filtered.sort((a, b) => (a.price || 0) - (b.price || 0))
-  } else if (params.sort === 'price_desc') {
-    filtered.sort((a, b) => (b.price || 0) - (a.price || 0))
-  } else {
-    filtered.sort(
-      (a, b) =>
-        new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime()
-    )
-  }
-  const pageSize = params.limit || 20
-  const ads = filtered.slice(0, pageSize)
-  return { ads, nextCursor: null, hasNextPage: false }
+export function searchMockAds(_params: SearchParamsInput): SearchAdsResult {
+  return { ads: [], nextCursor: null, hasNextPage: false }
 }
 
 export type ActiveAdRow = Database['public']['Views']['active_ads_view']['Row']
@@ -110,7 +79,7 @@ export async function searchAds(params: SearchParamsInput): Promise<SearchAdsRes
       p_limit: pageSize,
     })
 
-    if (error || !data || (Array.isArray(data) && data.length === 0)) {
+    if (error) {
       return searchAdsFallback(params)
     }
 
@@ -173,8 +142,8 @@ async function searchAdsFallback(params: SearchParamsInput): Promise<SearchAdsRe
     query = query.limit(pageSize + 1)
 
     const { data, error } = await query
-    if (error || !data || data.length === 0) {
-      return searchMockAds(params)
+    if (error || !data) {
+      return { ads: [], nextCursor: null, hasNextPage: false }
     }
 
     const rows = (data as ActiveAdRow[]) || []
@@ -196,7 +165,7 @@ async function searchAdsFallback(params: SearchParamsInput): Promise<SearchAdsRe
 
     return { ads, nextCursor, hasNextPage }
   } catch {
-    return searchMockAds(params)
+    return { ads: [], nextCursor: null, hasNextPage: false }
   }
 }
 
@@ -212,13 +181,13 @@ export async function getLatestAds(limit: number = 8): Promise<ActiveAdRow[]> {
       .order('published_at', { ascending: false })
       .limit(limit)
 
-    if (error || !data || data.length === 0) {
-      return MOCK_ADS.slice(0, limit)
+    if (error || !data) {
+      return []
     }
 
     return (data as ActiveAdRow[]) || []
   } catch {
-    return MOCK_ADS.slice(0, limit)
+    return []
   }
 }
 
@@ -354,31 +323,6 @@ export async function getAdById(adId: string): Promise<AdDetailWithRelations | n
     seller: seller || null,
   }
 
-  // If not found in supabase, check MOCK_ADS
-  const mockAd = MOCK_ADS.find((a) => a.id === adId)
-  if (mockAd) {
-    return {
-      ...mockAd,
-      images: [
-        { id: 'img-1', storage_path: mockAd.cover_image_path || '', position: 0 },
-        {
-          id: 'img-2',
-          storage_path:
-            'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&auto=format&fit=crop&q=80',
-          position: 1,
-        },
-      ],
-      seller: {
-        id: mockAd.seller_id || 'u-1',
-        full_name: mockAd.seller_name || 'Verified Seller',
-        avatar_url: mockAd.seller_avatar || null,
-        created_at: mockAd.created_at || new Date().toISOString(),
-        ads_count: 3,
-        is_phone_verified: true,
-      },
-    } as AdDetailWithRelations
-  }
-
   return result
 }
 
@@ -415,22 +359,12 @@ export async function getSimilarAds(
         return brandAds as ActiveAdRow[]
       }
 
-      const mockSimilar = MOCK_ADS.filter(
-        (a) =>
-          a.id !== currentAd.id &&
-          (a.brand_id === currentAd.brand_id || a.model_id === currentAd.model_id)
-      )
-      return mockSimilar.slice(0, limit)
+      return []
     }
 
     return (data as ActiveAdRow[]) || []
   } catch {
-    const mockSimilar = MOCK_ADS.filter(
-      (a) =>
-        a.id !== currentAd.id &&
-        (a.brand_id === currentAd.brand_id || a.model_id === currentAd.model_id)
-    )
-    return mockSimilar.slice(0, limit)
+    return []
   }
 }
 
@@ -448,7 +382,7 @@ export async function getPopularBrands(limit: number = 12): Promise<PopularBrand
         name: b.name,
         slug: b.slug,
         logo_url: b.logo_url,
-        ads_count: MOCK_ADS.filter((a) => a.brand_slug === b.slug).length,
+        ads_count: 0,
       }))
     }
 
@@ -459,7 +393,7 @@ export async function getPopularBrands(limit: number = 12): Promise<PopularBrand
       name: b.name,
       slug: b.slug,
       logo_url: b.logo_url,
-      ads_count: MOCK_ADS.filter((a) => a.brand_slug === b.slug).length,
+      ads_count: 0,
     }))
   }
 }
@@ -479,7 +413,7 @@ export async function getActiveCitiesWithCounts(limit: number = 30): Promise<Act
         id: c.id,
         name: c.name,
         slug: c.slug,
-        ads_count: MOCK_ADS.filter((a) => a.city_slug === c.slug).length,
+        ads_count: 0,
       }))
     }
 
@@ -489,7 +423,7 @@ export async function getActiveCitiesWithCounts(limit: number = 30): Promise<Act
       id: c.id,
       name: c.name,
       slug: c.slug,
-      ads_count: MOCK_ADS.filter((a) => a.city_slug === c.slug).length,
+      ads_count: 0,
     }))
   }
 }
