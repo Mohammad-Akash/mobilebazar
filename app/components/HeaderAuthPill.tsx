@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { User } from 'lucide-react'
 import { createClient } from '@/src/lib/supabase/client'
@@ -13,8 +13,9 @@ interface HeaderAuthPillProps {
 export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
   const [displayName, setDisplayName] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
-  // Start as false so SSR and first-client paint both render "Sign In" (no flicker)
   const [ready, setReady] = useState(false)
+  // Guard so we don't set state after unmount
+  const mountedRef = useRef(true)
 
   const fetchName = useCallback(async (uid: string, email?: string) => {
     try {
@@ -24,50 +25,46 @@ export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
         .select('full_name')
         .eq('id', uid)
         .maybeSingle()
+      if (!mountedRef.current) return
       setDisplayName(profile?.full_name || email?.split('@')[0] || 'User')
     } catch {
-      setDisplayName(email?.split('@')[0] || 'User')
+      if (mountedRef.current) setDisplayName(email?.split('@')[0] || 'User')
     }
   }, [])
 
   useEffect(() => {
+    mountedRef.current = true
     const supabase = createClient()
-    let isMounted = true
 
-    async function init() {
-      // 1. getSession() is instant (reads from storage, no network call)
-      //    Use it to immediately show logged-in state without waiting for getUser()
-      const { data: sessionData } = await supabase.auth.getSession()
-      const session = sessionData?.session
+    /**
+     * onAuthStateChange fires INITIAL_SESSION immediately on mount.
+     * After a server-action login (cookie set server-side), Supabase's
+     * browser client detects the cookie and fires INITIAL_SESSION with
+     * the real session — no manual getSession() call needed.
+     *
+     * This avoids the race condition where getSession() returns null
+     * (localStorage empty) before the cookie→localStorage sync happens.
+     */
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mountedRef.current) return
 
-      if (!isMounted) return
-
-      if (session?.user) {
-        // Show user immediately from session — no network round-trip needed yet
-        setUserId(session.user.id)
+      if (
+        event === 'INITIAL_SESSION' ||
+        event === 'SIGNED_IN' ||
+        event === 'TOKEN_REFRESHED' ||
+        event === 'USER_UPDATED'
+      ) {
+        if (session?.user) {
+          setUserId(session.user.id)
+          fetchName(session.user.id, session.user.email ?? undefined)
+        } else {
+          setUserId(null)
+          setDisplayName(null)
+        }
+        // Mark ready after INITIAL_SESSION so we never flash "Sign In"
+        // before we know the actual auth state
         setReady(true)
-        // Fetch display name in background (non-blocking)
-        fetchName(session.user.id, session.user.email ?? undefined)
-      } else {
-        setReady(true)
-      }
-
-      // 2. Also do getUser() in background to ensure token is fresh (security best practice)
-      //    but don't block the UI on it
-      supabase.auth.getUser().catch(() => {/* ignore */})
-    }
-
-    init()
-
-    // 3. Subscribe to auth state changes for login/logout events
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) return
-      if (session?.user) {
-        setUserId(session.user.id)
-        setReady(true)
-        // Fetch the profile name when auth state changes (login event)
-        fetchName(session.user.id, session.user.email ?? undefined)
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setUserId(null)
         setDisplayName(null)
         setReady(true)
@@ -75,17 +72,16 @@ export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
     })
 
     return () => {
-      isMounted = false
+      mountedRef.current = false
       authListener.subscription.unsubscribe()
     }
   }, [fetchName])
 
-  // Not hydrated yet — render nothing (avoids mismatch with SSR "Sign In")
+  // Still resolving — show a subtle skeleton to avoid layout shift
   if (!ready) {
     return (
       <div className="flex items-center gap-1 sm:gap-2">
-        {/* Tiny skeleton so layout doesn't jump */}
-        <div className="w-16 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 animate-pulse" />
+        <div className="w-16 h-7 rounded-lg bg-slate-200 dark:bg-[#2D2947] animate-pulse" />
       </div>
     )
   }

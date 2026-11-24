@@ -60,12 +60,16 @@ export function MobileHeaderMenu({
       }
     }
 
-    async function checkAuth() {
-      try {
-        // getSession() reads from storage — instant, no network call
-        const { data: sessionData } = await supabase.auth.getSession()
-        const session = sessionData?.session
-        if (!isMounted) return
+    // INITIAL_SESSION fires immediately on mount with the current session
+    // from the auth cookie — no network round-trip needed
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return
+      if (
+        event === 'INITIAL_SESSION' ||
+        event === 'SIGNED_IN' ||
+        event === 'TOKEN_REFRESHED' ||
+        event === 'USER_UPDATED'
+      ) {
         if (session?.user) {
           setCurrentUser(session.user)
           fetchName(session.user.id, session.user.email ?? undefined)
@@ -73,19 +77,7 @@ export function MobileHeaderMenu({
           setCurrentUser(null)
           setCurrentFullName(null)
         }
-      } catch {
-        // guest
-      }
-    }
-
-    checkAuth()
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) return
-      if (session?.user) {
-        setCurrentUser(session.user)
-        fetchName(session.user.id, session.user.email ?? undefined)
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setCurrentUser(null)
         setCurrentFullName(null)
       }
