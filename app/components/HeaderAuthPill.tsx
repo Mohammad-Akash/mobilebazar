@@ -1,92 +1,59 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { User } from 'lucide-react'
 import { createClient } from '@/src/lib/supabase/client'
 import { HeaderChatBadge } from '@/app/components/HeaderChatBadge'
 
 interface HeaderAuthPillProps {
+  initialUser?: { id: string; email?: string } | null
+  initialFullName?: string | null
   logoutAction: () => Promise<void>
 }
 
-export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
-  const [displayName, setDisplayName] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
-  // Guard so we don't set state after unmount
-  const mountedRef = useRef(true)
+export function HeaderAuthPill({
+  initialUser = null,
+  initialFullName = null,
+  logoutAction,
+}: HeaderAuthPillProps) {
+  const [user, setUser] = useState(initialUser)
+  const [fullName, setFullName] = useState(initialFullName)
 
-  const fetchName = useCallback(async (uid: string, email?: string) => {
-    try {
-      const supabase = createClient()
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', uid)
-        .maybeSingle()
-      if (!mountedRef.current) return
-      setDisplayName(profile?.full_name || email?.split('@')[0] || 'User')
-    } catch {
-      if (mountedRef.current) setDisplayName(email?.split('@')[0] || 'User')
-    }
-  }, [])
-
+  // Sync state if server re-renders and passes updated props (e.g. after login/logout)
   useEffect(() => {
-    mountedRef.current = true
+    setUser(initialUser)
+    setFullName(initialFullName)
+  }, [initialUser, initialFullName])
+
+  // Also listen for client-side auth events (e.g. client token refresh or cross-tab signout)
+  useEffect(() => {
     const supabase = createClient()
-
-    /**
-     * onAuthStateChange fires INITIAL_SESSION immediately on mount.
-     * After a server-action login (cookie set server-side), Supabase's
-     * browser client detects the cookie and fires INITIAL_SESSION with
-     * the real session — no manual getSession() call needed.
-     *
-     * This avoids the race condition where getSession() returns null
-     * (localStorage empty) before the cookie→localStorage sync happens.
-     */
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!mountedRef.current) return
-
-      if (
-        event === 'INITIAL_SESSION' ||
-        event === 'SIGNED_IN' ||
-        event === 'TOKEN_REFRESHED' ||
-        event === 'USER_UPDATED'
-      ) {
-        if (session?.user) {
-          setUserId(session.user.id)
-          fetchName(session.user.id, session.user.email ?? undefined)
-        } else {
-          setUserId(null)
-          setDisplayName(null)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .maybeSingle()
+          setFullName(profile?.full_name || session.user.email?.split('@')[0] || 'User')
+        } catch {
+          setFullName(session.user.email?.split('@')[0] || 'User')
         }
-        // Mark ready after INITIAL_SESSION so we never flash "Sign In"
-        // before we know the actual auth state
-        setReady(true)
       } else if (event === 'SIGNED_OUT') {
-        setUserId(null)
-        setDisplayName(null)
-        setReady(true)
+        setUser(null)
+        setFullName(null)
       }
     })
 
     return () => {
-      mountedRef.current = false
       authListener.subscription.unsubscribe()
     }
-  }, [fetchName])
+  }, [])
 
-  // Still resolving — show a subtle skeleton to avoid layout shift
-  if (!ready) {
-    return (
-      <div className="flex items-center gap-1 sm:gap-2">
-        <div className="w-16 h-7 rounded-lg bg-slate-200 dark:bg-[#2D2947] animate-pulse" />
-      </div>
-    )
-  }
-
-  if (!userId) {
+  if (!user) {
     return (
       <div className="flex items-center gap-1 sm:gap-2">
         <Link
@@ -109,7 +76,7 @@ export function HeaderAuthPill({ logoutAction }: HeaderAuthPillProps) {
       >
         <User className="w-3.5 h-3.5 text-[#7657FF]" />
         <span className="max-w-[100px] truncate">
-          {displayName ?? '...'}
+          {fullName || user.email?.split('@')[0] || 'User'}
         </span>
       </Link>
       <form action={logoutAction} className="hidden lg:block">

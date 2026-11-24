@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { createClient } from '@/src/lib/supabase/server'
 import { logoutAction } from '@/app/auth/actions'
 import { ThemeToggle } from '@/app/components/ThemeToggle'
 import { MobileHeaderMenu } from '@/app/components/MobileHeaderMenu'
@@ -9,14 +11,41 @@ import {
   Plus,
 } from 'lucide-react'
 
-export function Header() {
+export async function Header() {
+  let user: { id: string; email?: string } | null = null
+  let fullName: string | null = null
+
+  try {
+    const cookieStore = await cookies()
+    const hasAuthCookie = cookieStore
+      .getAll()
+      .some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
+
+    if (hasAuthCookie) {
+      const supabase = await createClient()
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        fullName = profile?.full_name || user.email?.split('@')[0] || 'User'
+      }
+    }
+  } catch {
+    // offline or guest session
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-[#FFFFFF]/90 dark:bg-[#17152B]/90 backdrop-blur-md border-b border-[#E9E7EF] dark:border-[#2D2947] transition-colors safe-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-6">
         {/* Zone 1: Mobile Menu Button + Brand Wordmark */}
         <div className="flex items-center gap-2 sm:gap-8 shrink-0">
           {/* Mobile Drawer Trigger (Hamburger) */}
-          <MobileHeaderMenu logoutAction={logoutAction} />
+          <MobileHeaderMenu user={user} fullName={fullName} logoutAction={logoutAction} />
 
           <Link
             href="/"
@@ -83,8 +112,8 @@ export function Header() {
             <ThemeToggle />
           </div>
 
-          {/* User state (Client-side loaded for ISR cache preservation) */}
-          <HeaderAuthPill logoutAction={logoutAction} />
+          {/* User state (server-provided for instant paint, client-synced) */}
+          <HeaderAuthPill initialUser={user} initialFullName={fullName} logoutAction={logoutAction} />
 
           {/* Primary CTA Button: Sell Smartphone */}
           <Link

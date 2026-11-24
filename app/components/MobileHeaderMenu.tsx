@@ -41,6 +41,12 @@ export function MobileHeaderMenu({
   const [currentFullName, setCurrentFullName] = useState(initialFullName)
   const pathname = usePathname()
 
+  // Sync state when props change from server (e.g. after login/logout)
+  useEffect(() => {
+    setCurrentUser(initialUser)
+    setCurrentFullName(initialFullName)
+  }, [initialUser, initialFullName])
+
   useEffect(() => {
     setMounted(true)
     const supabase = createClient()
