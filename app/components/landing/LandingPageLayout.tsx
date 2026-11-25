@@ -163,7 +163,7 @@ export function LandingPageLayout({
       <section className="space-y-6">
         {initialAds.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {initialAds.map((ad) => (
                 <AdCard key={ad.id} ad={ad} />
               ))}

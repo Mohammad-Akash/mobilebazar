@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { Search } from 'lucide-react'
 import { ActiveAdRow } from '@/src/lib/data/ads'
 import { getFavoritedIdsAction } from '@/src/lib/actions/favorites'
 import { AdCard } from '@/app/components/AdCard'
@@ -95,20 +97,34 @@ export function AdsListingClient({
   // Empty state
   if (ads.length === 0 && !isLoadingMore) {
     return (
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-12 text-center space-y-4">
-        <span className="text-4xl">🔍</span>
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">No Ads Found</h3>
-        <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-          No phones match your selected filters. Please adjust or clear your filters to see more results.
-        </p>
+      <div className="bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-sm">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF] shadow-xs">
+          <Search className="w-6 h-6 sm:w-8 sm:h-8" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base sm:text-lg font-black text-[#17152B] dark:text-[#F7F6F2] tracking-tight">
+            No Ads Found
+          </h3>
+          <p className="text-xs sm:text-sm text-[#77758A] dark:text-[#9B98B2] max-w-sm mx-auto leading-relaxed">
+            No phones match your selected filters. Please adjust or clear your filters to see more results.
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link
+            href="/ads"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#7657FF] hover:bg-[#6343ED] text-white text-xs font-bold transition-all shadow-sm shadow-[#7657FF]/30 active:scale-95 cursor-pointer"
+          >
+            Clear All Filters
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      {/* Ads Grid (1 col on small phone, 2 cols on modern phone, 3 cols on desktop) */}
-      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+      {/* Ads Grid (2 cols on mobile, 3 cols on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
         {ads.map((ad) => (
           <AdCard key={ad.id || Math.random().toString()} ad={ad} initialIsFavorited={ad.id ? favoritedIds.has(ad.id) : false} />
         ))}

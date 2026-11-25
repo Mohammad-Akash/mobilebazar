@@ -8,7 +8,7 @@ interface AdGridSkeletonProps {
 export function AdGridSkeleton({ count = 9, className = '' }: AdGridSkeletonProps) {
   return (
     <div
-      className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}
+      className={`grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 ${className}`}
       role="status"
       aria-busy="true"
     >

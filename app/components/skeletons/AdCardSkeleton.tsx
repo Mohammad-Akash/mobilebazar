@@ -10,7 +10,7 @@ export function AdCardSkeleton() {
       <Skeleton className="w-full aspect-[4/3] rounded-none !bg-[#F0EEE7] dark:!bg-[#211E38]" />
 
       {/* 2. Content */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
+      <div className="p-2.5 sm:p-5 flex flex-col flex-1 justify-between gap-2 sm:gap-3">
         <div>
           {/* Brand & Market Header */}
           <div className="flex items-center justify-between">
