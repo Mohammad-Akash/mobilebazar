@@ -59,12 +59,6 @@ export async function getActiveCities(): Promise<CityOption[]> {
       return MOCK_CITIES
     }
 
-    if (data.length < PAKISTAN_CITIES.length) {
-      const existingSlugs = new Set(data.map((c) => c.slug.toLowerCase()))
-      const missing = PAKISTAN_CITIES.filter((c) => !existingSlugs.has(c.slug.toLowerCase()))
-      return [...data, ...missing].sort((a, b) => a.name.localeCompare(b.name))
-    }
-
     return data
   } catch {
     return MOCK_CITIES

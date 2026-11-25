@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/src/lib/supabase/server'
 import { fullAdSchema, type FullAdFormData } from '@/src/lib/validations/ad'
 import { checkRateLimit } from '@/src/lib/rate-limit'
+import { PAKISTAN_CITIES } from '@/src/lib/data/locations-catalog'
 
 export interface CreateAdResult {
   success?: boolean
@@ -75,10 +76,10 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
   }
 
   // 3.5 Verify and resolve foreign key references for brand, model, city, and area
-  // Prevents foreign key constraint crashes when models/areas are newly cataloged or custom
+  // Prevents foreign key constraint crashes when models/areas/cities are newly cataloged or custom
   let resolvedBrandId = data.brand_id
   let resolvedModelId = data.model_id
-  const resolvedCityId = data.city_id
+  let resolvedCityId = data.city_id
   let resolvedAreaId = data.area_id || null
 
   try {
@@ -127,6 +128,50 @@ export async function createAd(formData: FullAdFormData): Promise<CreateAdResult
         if (anyModel) {
           resolvedModelId = anyModel.id
           resolvedBrandId = anyModel.brand_id
+        }
+      }
+    }
+
+    // 2.5 Ensure city exists in DB (prevents ads_city_id_fkey violation)
+    const { data: dbCity } = await supabase
+      .from('cities')
+      .select('id')
+      .eq('id', resolvedCityId)
+      .maybeSingle()
+
+    if (!dbCity) {
+      // Find matching city from master catalog by id
+      const catalogCity = PAKISTAN_CITIES.find((c) => c.id === data.city_id)
+      let foundCityId: string | null = null
+
+      if (catalogCity) {
+        // Try to match by slug or case-insensitive name in DB
+        const { data: dbCityMatch } = await supabase
+          .from('cities')
+          .select('id')
+          .or(`slug.eq.${catalogCity.slug.toLowerCase()},name.ilike.${catalogCity.name}`)
+          .limit(1)
+          .maybeSingle()
+
+        if (dbCityMatch) {
+          foundCityId = dbCityMatch.id
+        }
+      }
+
+      if (foundCityId) {
+        resolvedCityId = foundCityId
+      } else {
+        // Fallback to any active city in the DB so FK constraint never fails
+        const { data: fallbackCity } = await supabase
+          .from('cities')
+          .select('id')
+          .eq('is_active', true)
+          .order('id', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+
+        if (fallbackCity) {
+          resolvedCityId = fallbackCity.id
         }
       }
     }

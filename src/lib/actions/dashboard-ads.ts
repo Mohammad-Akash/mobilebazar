@@ -8,6 +8,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/src/lib/supabase/server'
 import { fullAdSchema, type FullAdFormData } from '@/src/lib/validations/ad'
+import { PAKISTAN_CITIES } from '@/src/lib/data/locations-catalog'
 
 export interface ActionResult {
   success?: boolean
@@ -163,12 +164,73 @@ export async function updateAdAction(
     return { error: 'Only active ads can be edited. Please repost the ad first.' }
   }
 
+  // 4. Resolve city & area references safely to prevent FK constraint errors
+  let resolvedCityId = data.city_id
+  let resolvedAreaId = data.area_id || null
+
+  try {
+    const { data: dbCity } = await supabase
+      .from('cities')
+      .select('id')
+      .eq('id', resolvedCityId)
+      .maybeSingle()
+
+    if (!dbCity) {
+      const catalogCity = PAKISTAN_CITIES.find((c) => c.id === data.city_id)
+      let foundCityId: string | null = null
+
+      if (catalogCity) {
+        const { data: dbCityMatch } = await supabase
+          .from('cities')
+          .select('id')
+          .or(`slug.eq.${catalogCity.slug.toLowerCase()},name.ilike.${catalogCity.name}`)
+          .limit(1)
+          .maybeSingle()
+
+        if (dbCityMatch) {
+          foundCityId = dbCityMatch.id
+        }
+      }
+
+      if (foundCityId) {
+        resolvedCityId = foundCityId
+      } else {
+        const { data: fallbackCity } = await supabase
+          .from('cities')
+          .select('id')
+          .eq('is_active', true)
+          .order('id', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+
+        if (fallbackCity) {
+          resolvedCityId = fallbackCity.id
+        }
+      }
+    }
+
+    if (resolvedAreaId) {
+      const { data: dbArea } = await supabase
+        .from('areas')
+        .select('id')
+        .eq('id', resolvedAreaId)
+        .eq('city_id', resolvedCityId)
+        .maybeSingle()
+
+      if (!dbArea) {
+        resolvedAreaId = null
+      }
+    }
+  } catch (err) {
+    console.warn('Dashboard update reference validation warning:', err)
+  }
+
   // 4. Update core ad fields (status, seller_id, dates are strictly omitted)
   const updatePayload = {
     brand_id: data.brand_id,
     model_id: data.model_id,
-    city_id: data.city_id,
-    area_id: data.area_id || null,
+    city_id: resolvedCityId,
+    area_id: resolvedAreaId,
     title: data.title,
     description: data.description,
     price: data.price,

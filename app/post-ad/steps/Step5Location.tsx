@@ -42,21 +42,12 @@ export function Step5Location({ form, cities: propCities }: Step5Props) {
   const selectedAreaId = watch('area_id')
   const contactPref = watch('contact_preference')
 
-  // Merge server props with master Pakistan cities list (80 cities)
+  // Prioritize verified database cities to ensure valid foreign keys
   const allCities: ExtendedCityOption[] = useMemo(() => {
-    const list: ExtendedCityOption[] = [...PAKISTAN_CITIES]
     if (propCities && propCities.length > 0) {
-      const slugMap = new Map(list.map((c) => [c.slug.toLowerCase(), c]))
-      for (const pc of propCities) {
-        const existing = slugMap.get(pc.slug.toLowerCase())
-        if (existing) {
-          existing.id = pc.id
-        } else {
-          list.push(pc)
-        }
-      }
+      return propCities
     }
-    return list
+    return PAKISTAN_CITIES
   }, [propCities])
 
   // City Search State
