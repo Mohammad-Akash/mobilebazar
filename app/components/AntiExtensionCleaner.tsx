@@ -27,12 +27,15 @@ if (typeof window !== 'undefined') {
             })
             .join(' ')
 
-          // Suppress browser extension hydration pollution errors
+          // Suppress browser extension hydration pollution & extension runtime errors
           if (
             fullMessage.includes('bis_skin_checked') ||
             fullMessage.includes('bis_register') ||
             fullMessage.includes('data-gr-ext-installed') ||
-            fullMessage.includes('data-new-gr-c-s-check-loaded')
+            fullMessage.includes('data-new-gr-c-s-check-loaded') ||
+            fullMessage.includes('chrome-extension://') ||
+            fullMessage.includes('moz-extension://') ||
+            fullMessage.includes("reading 'M_ID'")
           ) {
             return
           }
@@ -48,6 +51,49 @@ if (typeof window !== 'undefined') {
     })
   } catch {
     // Fallback if Object.defineProperty is restricted
+  }
+
+  // Intercept uncaught errors & unhandled rejections from browser extensions before Next.js overlay catches them
+  try {
+    const win = window as unknown as Record<string, unknown>
+    if (!win.__antiExtErrorHooked) {
+      win.__antiExtErrorHooked = true
+
+      const isExtensionError = (src?: string, msg?: string, stack?: string) => {
+        return Boolean(
+          (src && (src.startsWith('chrome-extension://') || src.startsWith('moz-extension://'))) ||
+            (stack && (stack.includes('chrome-extension://') || stack.includes('moz-extension://'))) ||
+            (msg && (msg.includes('chrome-extension://') || msg.includes("reading 'M_ID'")))
+        )
+      }
+
+      window.addEventListener(
+        'error',
+        (event: ErrorEvent) => {
+          if (isExtensionError(event.filename, event.message, event.error?.stack)) {
+            event.stopImmediatePropagation()
+            event.preventDefault()
+          }
+        },
+        true
+      )
+
+      window.addEventListener(
+        'unhandledrejection',
+        (event: PromiseRejectionEvent) => {
+          const reason = event.reason as { message?: string; stack?: string } | undefined
+          const msg = reason?.message || String(reason || '')
+          const stack = reason?.stack || ''
+          if (isExtensionError('', msg, stack)) {
+            event.stopImmediatePropagation()
+            event.preventDefault()
+          }
+        },
+        true
+      )
+    }
+  } catch {
+    // Ignore listener errors
   }
 }
 

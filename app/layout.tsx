@@ -100,12 +100,12 @@ export default function RootLayout({
         className="min-h-dvh flex flex-col bg-[#F7F6F2] dark:bg-[#0E0D1A] text-[#17152B] dark:text-[#F7F6F2] pb-20 md:pb-0 transition-colors duration-200"
         suppressHydrationWarning
       >
-        {/* Theme init: runs before paint to prevent flash — must be beforeInteractive */}
+        {/* Theme init + extension error guard: runs before paint and before Next.js dev overlay */}
         <Script
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&p)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}})()`,
+            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(!t&&p)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}try{if(!window.__antiExtErrorHooked){window.__antiExtErrorHooked=true;var isExt=function(s,m,st){return Boolean((s&&(s.indexOf('chrome-extension://')===0||s.indexOf('moz-extension://')===0))||(st&&(st.indexOf('chrome-extension://')!==-1||st.indexOf('moz-extension://')!==-1))||(m&&(m.indexOf('chrome-extension://')!==-1||m.indexOf("reading 'M_ID'")!==-1)))};window.addEventListener('error',function(ev){if(isExt(ev.filename,ev.message,ev.error&&ev.error.stack)){ev.stopImmediatePropagation();ev.preventDefault()}},true);window.addEventListener('unhandledrejection',function(ev){var r=ev.reason;var m=(r&&r.message)||String(r||'');var st=(r&&r.stack)||'';if(isExt('',m,st)){ev.stopImmediatePropagation();ev.preventDefault()}},true)}}catch(e){}})()`,
           }}
         />
         <AntiExtensionCleaner />
