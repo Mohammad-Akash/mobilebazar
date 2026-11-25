@@ -15,13 +15,14 @@ export async function Header() {
   let user: { id: string; email?: string } | null = null
   let fullName: string | null = null
 
-  try {
-    const cookieStore = await cookies()
-    const hasAuthCookie = cookieStore
-      .getAll()
-      .some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
+  // Read cookies outside try/catch so Next.js Cache Components properly suspends at <Suspense>
+  const cookieStore = await cookies()
+  const hasAuthCookie = cookieStore
+    .getAll()
+    .some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
 
-    if (hasAuthCookie) {
+  if (hasAuthCookie) {
+    try {
       const supabase = await createClient()
       const { data } = await supabase.auth.getUser()
       user = data.user
@@ -34,9 +35,9 @@ export async function Header() {
 
         fullName = profile?.full_name || user.email?.split('@')[0] || 'User'
       }
+    } catch {
+      // offline or guest session
     }
-  } catch {
-    // offline or guest session
   }
 
   return (
