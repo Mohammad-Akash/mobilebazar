@@ -158,6 +158,8 @@ export async function signupAction(
       message = 'This email is already registered'
     } else if (error.message.includes('Password should be')) {
       message = 'Password is too weak'
+    } else if (error.message.toLowerCase().includes('rate limit')) {
+      message = 'Too many verification emails were sent recently. Please wait a bit before trying again.'
     }
     return { error: message }
   }
