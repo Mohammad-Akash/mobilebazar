@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { signupAction, type AuthState } from '@/app/auth/actions'
-import { Smartphone, Mail, Lock, User, ArrowRight, AlertCircle, Loader2 } from 'lucide-react'
+import { Smartphone, Mail, Lock, User, ArrowRight, AlertCircle, Loader2, MailCheck } from 'lucide-react'
 
 export function SignupFormSkeleton() {
   return (
@@ -38,8 +38,48 @@ export function SignupForm() {
     null
   )
 
+  if (state?.success && state?.needsEmailVerification) {
+    return (
+      <div className="w-full max-w-md p-6 sm:p-8 bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-3xl shadow-sm space-y-6 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF]">
+          <MailCheck className="w-7 h-7" />
+        </div>
+
+        <div className="space-y-2">
+          <h1 className="text-2xl font-black tracking-tight text-[#17152B] dark:text-[#F7F6F2]">
+            Verify Your Email
+          </h1>
+          <p className="text-xs sm:text-sm text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
+            Account created! We have sent a verification link to{' '}
+            <span className="font-bold text-[#17152B] dark:text-[#F7F6F2] break-all">
+              {state.email}
+            </span>
+            .
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] border border-[#E9E7EF] dark:border-[#2D2947] text-xs text-[#77758A] dark:text-[#9B98B2] space-y-1.5 text-left">
+          <p className="font-bold text-[#17152B] dark:text-[#F7F6F2]">Next Steps:</p>
+          <p>1. Open your Gmail / email inbox.</p>
+          <p>2. Click the confirmation link (check Spam/Promotions if not in Inbox).</p>
+          <p>3. Once verified, sign in to your account.</p>
+        </div>
+
+        <div className="pt-2 space-y-3">
+          <Link
+            href="/login"
+            className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
+          >
+            <span>Go to Sign In</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="w-full max-w-md p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm space-y-6">
+    <div className="w-full max-w-md p-6 sm:p-8 bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-3xl shadow-sm space-y-6">
       <div className="text-center space-y-2">
         <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-950/60 border border-violet-100 dark:border-violet-900 mx-auto flex items-center justify-center text-[#7657FF] dark:text-[#8A6FFF]">
           <Smartphone className="w-6 h-6" />

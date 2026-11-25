@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { z } from 'zod'
 import { createClient } from '@/src/lib/supabase/server'
 import { checkRateLimit } from '@/src/lib/rate-limit'
@@ -45,6 +46,8 @@ function getSafeRedirectPath(rawPath: string | null | undefined): string {
 export type AuthState = {
   error?: string
   success?: boolean
+  needsEmailVerification?: boolean
+  email?: string
   fieldErrors?: Record<string, string[]>
 }
 
@@ -122,11 +125,27 @@ export async function signupAction(
     }
   }
 
+  let emailRedirectTo: string | undefined
+  try {
+    const headerList = await headers()
+    const origin =
+      headerList.get('origin') ||
+      (headerList.get('x-forwarded-host')
+        ? `${headerList.get('x-forwarded-proto') || 'https'}://${headerList.get('x-forwarded-host')}`
+        : undefined)
+    if (origin) {
+      emailRedirectTo = `${origin}/auth/confirm`
+    }
+  } catch {
+    // Fallback to Supabase default Site URL
+  }
+
   const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: validated.data.email,
     password: validated.data.password,
     options: {
+      ...(emailRedirectTo ? { emailRedirectTo } : {}),
       data: {
         full_name: validated.data.fullName,
       },
@@ -141,6 +160,20 @@ export async function signupAction(
       message = 'Password is too weak'
     }
     return { error: message }
+  }
+
+  // Supabase returns an empty identities array when email already exists and confirmation is enabled
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return { error: 'This email is already registered. Please sign in instead.' }
+  }
+
+  // If email confirmation is required, session will be null until user clicks the link in Gmail
+  if (!data.session) {
+    return {
+      success: true,
+      needsEmailVerification: true,
+      email: validated.data.email,
+    }
   }
 
   revalidatePath('/', 'layout')
