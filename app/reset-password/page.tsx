@@ -1,9 +1,10 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import Link from 'next/link'
 import { resetPasswordAction, type AuthState } from '@/app/auth/actions'
 import { PasswordStrengthMeter } from '@/app/components/auth/PasswordStrengthMeter'
-import { ShieldCheck, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
+import { ShieldCheck, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff, KeyRound } from 'lucide-react'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -105,6 +106,22 @@ export default function ResetPasswordPage() {
             )}
           </button>
         </form>
+
+        <div className="text-center text-xs text-[#77758A] dark:text-[#9B98B2] pt-2 border-t border-[#E9E7EF] dark:border-[#2D2947] flex items-center justify-between">
+          <Link
+            href="/forgot-password"
+            className="font-bold text-[#7657FF] dark:text-[#8A6FFF] hover:underline inline-flex items-center gap-1 min-h-[44px]"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>Reset using 6-Digit OTP</span>
+          </Link>
+          <Link
+            href="/login"
+            className="hover:text-[#17152B] dark:hover:text-[#F7F6F2] min-h-[44px] inline-flex items-center"
+          >
+            Back to Sign In
+          </Link>
+        </div>
       </div>
     </div>
   )

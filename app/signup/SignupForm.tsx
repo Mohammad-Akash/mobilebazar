@@ -2,9 +2,10 @@
 
 import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { signupAction, resendVerificationAction, type AuthState } from '@/app/auth/actions'
+import { signupAction, resendVerificationAction, verifySignupOtpAction, type AuthState } from '@/app/auth/actions'
 import { GoogleAuthButton } from '@/app/components/auth/GoogleAuthButton'
 import { PasswordStrengthMeter } from '@/app/components/auth/PasswordStrengthMeter'
+import { OtpInput } from '@/app/components/auth/OtpInput'
 import {
   Smartphone,
   Mail,
@@ -44,9 +45,15 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [username, setUsername] = useState('')
+  const [signupOtp, setSignupOtp] = useState('')
 
   const [state, formAction, isPending] = useActionState<AuthState | null, FormData>(
     signupAction,
+    null
+  )
+
+  const [otpState, otpFormAction, isOtpPending] = useActionState<AuthState | null, FormData>(
+    verifySignupOtpAction,
     null
   )
 
@@ -99,19 +106,12 @@ export function SignupForm() {
             Verify Your Email
           </h1>
           <p className="text-xs sm:text-sm text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
-            Account created! We have sent a verification link to{' '}
+            We have sent a 6-digit OTP code to{' '}
             <span className="font-bold text-[#17152B] dark:text-[#F7F6F2] break-all">
               {state.email}
             </span>
-            .
+            . Enter the code below to verify immediately.
           </p>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] border border-[#E9E7EF] dark:border-[#2D2947] text-xs text-[#77758A] dark:text-[#9B98B2] space-y-1.5 text-left">
-          <p className="font-bold text-[#17152B] dark:text-[#F7F6F2]">Next Steps:</p>
-          <p>1. Open your Gmail / email inbox.</p>
-          <p>2. Click the confirmation link (check Spam/Promotions if not in Inbox).</p>
-          <p>3. Once verified, sign in to your account.</p>
         </div>
 
         {resendMsg && (
@@ -121,19 +121,67 @@ export function SignupForm() {
           </div>
         )}
 
-        {resendErr && (
+        {(otpState?.error || resendErr) && (
           <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300 flex items-center gap-2 text-left">
             <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{resendErr}</span>
+            <span>{otpState?.error || resendErr}</span>
           </div>
         )}
 
-        <div className="pt-2 space-y-3">
+        {/* 6-Digit OTP Form */}
+        <form action={otpFormAction} className="space-y-4 pt-1">
+          <input type="hidden" name="email" value={state.email} />
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#17152B] dark:text-[#F7F6F2]">
+              6-Digit Verification Code
+            </label>
+            <OtpInput
+              value={signupOtp}
+              onChange={setSignupOtp}
+              name="token"
+              disabled={isOtpPending}
+            />
+            {otpState?.fieldErrors?.token && (
+              <p className="text-xs text-red-500 font-semibold">{otpState.fieldErrors.token[0]}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isOtpPending || signupOtp.length !== 6}
+            className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] disabled:opacity-50 text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {isOtpPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Verifying code...</span>
+              </>
+            ) : (
+              <>
+                <span>Verify & Sign In</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="relative py-1">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#E9E7EF] dark:border-[#2D2947]" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-[#FFFFFF] dark:bg-[#17152B] px-3 text-[#77758A] dark:text-[#9B98B2] font-semibold">
+              Or
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3">
           <button
             type="button"
             onClick={handleResendVerification}
             disabled={cooldown > 0 || resending}
-            className="w-full min-h-[46px] py-3 px-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#EFECE4] dark:hover:bg-[#2A2645] border border-[#E9E7EF] dark:border-[#2D2947] text-[#17152B] dark:text-[#F7F6F2] font-bold text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full min-h-[44px] py-2.5 px-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#EFECE4] dark:hover:bg-[#2A2645] border border-[#E9E7EF] dark:border-[#2D2947] text-[#17152B] dark:text-[#F7F6F2] font-bold text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             {resending ? (
               <Loader2 className="w-4 h-4 animate-spin text-[#7657FF]" />
@@ -144,17 +192,16 @@ export function SignupForm() {
               {resending
                 ? 'Resending...'
                 : cooldown > 0
-                  ? `Resend Verification Email (${cooldown}s)`
-                  : 'Resend Verification Email'}
+                  ? `Resend Code (${cooldown}s)`
+                  : 'Resend Code'}
             </span>
           </button>
 
           <Link
             href="/login"
-            className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
+            className="w-full min-h-[44px] py-2.5 px-4 bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#EFECE4] dark:hover:bg-[#2A2645] border border-[#E9E7EF] dark:border-[#2D2947] text-[#17152B] dark:text-[#F7F6F2] font-bold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2"
           >
-            <span>Go to Sign In</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Back to Sign In</span>
           </Link>
         </div>
       </div>

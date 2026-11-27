@@ -42,6 +42,23 @@ const forgotPasswordSchema = z.object({
   email: z.string().trim().email('Please enter a valid email address'),
 })
 
+const recoveryOtpSchema = z
+  .object({
+    email: z.string().trim().email('Please enter a valid email address'),
+    token: z.string().trim().regex(/^\d{6}$/, 'OTP code must be exactly 6 digits'),
+    password: strongPasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+
+const signupOtpSchema = z.object({
+  email: z.string().trim().email('Please enter a valid email address'),
+  token: z.string().trim().regex(/^\d{6}$/, 'OTP code must be exactly 6 digits'),
+})
+
 const resetPasswordSchema = z
   .object({
     password: strongPasswordSchema,
@@ -345,6 +362,126 @@ export async function resetPasswordAction(
 
   revalidatePath('/', 'layout')
   redirect('/login?message=Password+updated+successfully.+Please+sign+in.')
+}
+
+export async function verifyRecoveryOtpAction(
+  prevState: AuthState | null,
+  formData: FormData
+): Promise<AuthState> {
+  const email = (formData.get('email') as string)?.trim()
+  const token = (formData.get('token') as string)?.trim()
+  const password = formData.get('password') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  const validated = recoveryOtpSchema.safeParse({
+    email,
+    token,
+    password,
+    confirmPassword,
+  })
+
+  if (!validated.success) {
+    return {
+      error: 'Please enter the 6-digit code and meet all strong password requirements.',
+      fieldErrors: validated.error.flatten().fieldErrors,
+      email,
+    }
+  }
+
+  const supabase = await createClient()
+
+  // 1. Verify 6-digit OTP token for recovery
+  const { error: otpError } = await supabase.auth.verifyOtp({
+    email: validated.data.email,
+    token: validated.data.token,
+    type: 'recovery',
+  })
+
+  if (otpError) {
+    let msg = otpError.message
+    if (
+      msg.toLowerCase().includes('expired') ||
+      msg.toLowerCase().includes('invalid') ||
+      msg.toLowerCase().includes('token')
+    ) {
+      msg = 'Invalid or expired 6-digit OTP code. Please check Gmail or click Resend.'
+    }
+    return {
+      error: msg,
+      email: validated.data.email,
+    }
+  }
+
+  // 2. Set new password now that recovery session is established
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: validated.data.password,
+  })
+
+  if (updateError) {
+    return {
+      error: updateError.message,
+      email: validated.data.email,
+    }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/login?message=Password+updated+successfully.+Please+sign+in+with+your+new+password.')
+}
+
+export async function verifySignupOtpAction(
+  prevState: AuthState | null,
+  formData: FormData
+): Promise<AuthState> {
+  const email = (formData.get('email') as string)?.trim()
+  const token = (formData.get('token') as string)?.trim()
+
+  const validated = signupOtpSchema.safeParse({ email, token })
+  if (!validated.success) {
+    return {
+      error: 'Please enter a valid 6-digit OTP code.',
+      fieldErrors: validated.error.flatten().fieldErrors,
+      email,
+      needsEmailVerification: true,
+    }
+  }
+
+  const supabase = await createClient()
+  let { error } = await supabase.auth.verifyOtp({
+    email: validated.data.email,
+    token: validated.data.token,
+    type: 'signup',
+  })
+
+  // Fallback: if 'signup' type isn't recognized or user was email-type
+  if (error && (error.message.toLowerCase().includes('unsupported') || error.message.toLowerCase().includes('invalid'))) {
+    const res = await supabase.auth.verifyOtp({
+      email: validated.data.email,
+      token: validated.data.token,
+      type: 'email',
+    })
+    if (!res.error) {
+      error = null
+    }
+  }
+
+  if (error) {
+    let msg = error.message
+    if (
+      msg.toLowerCase().includes('expired') ||
+      msg.toLowerCase().includes('invalid') ||
+      msg.toLowerCase().includes('token')
+    ) {
+      msg = 'Invalid or expired 6-digit code. Please request a new code via Resend.'
+    }
+    return {
+      error: msg,
+      email: validated.data.email,
+      needsEmailVerification: true,
+    }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/?welcome=true')
 }
 
 export async function updateProfileAction(
