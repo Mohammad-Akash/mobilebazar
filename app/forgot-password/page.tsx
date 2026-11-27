@@ -1,15 +1,72 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { forgotPasswordAction, type AuthState } from '@/app/auth/actions'
-import { KeyRound, Mail, ArrowRight, ArrowLeft, AlertCircle, MailCheck, Loader2 } from 'lucide-react'
+import { createClient } from '@/src/lib/supabase/client'
+import {
+  KeyRound,
+  Mail,
+  ArrowRight,
+  ArrowLeft,
+  AlertCircle,
+  MailCheck,
+  Loader2,
+  RefreshCw,
+  CheckCircle2,
+} from 'lucide-react'
 
 export default function ForgotPasswordPage() {
   const [state, formAction, isPending] = useActionState<AuthState | null, FormData>(
     forgotPasswordAction,
     null
   )
+
+  const [cooldown, setCooldown] = useState(0)
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState<string | null>(null)
+  const [resendErr, setResendErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (state?.success) {
+      setCooldown(60)
+      setResendMsg(null)
+      setResendErr(null)
+    }
+  }, [state])
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  const handleResend = async () => {
+    if (!state?.email || cooldown > 0 || resending) return
+    setResending(true)
+    setResendMsg(null)
+    setResendErr(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.resetPasswordForEmail(state.email, {
+        redirectTo: `${window.location.origin}/auth/confirm?next=/reset-password`,
+      })
+      if (error) {
+        setResendErr(
+          error.message.toLowerCase().includes('rate limit')
+            ? 'Email rate limit exceeded (Supabase free SMTP allows 2-4 emails/hour). Please wait a bit or check Spam.'
+            : error.message
+        )
+      } else {
+        setResendMsg(`Reset link resent to ${state.email}`)
+        setCooldown(60)
+      }
+    } catch {
+      setResendErr('Failed to resend reset link. Please try again.')
+    } finally {
+      setResending(false)
+    }
+  }
 
   return (
     <div className="min-h-[75dvh] flex items-center justify-center px-4 py-8 sm:py-12">
@@ -26,16 +83,54 @@ export default function ForgotPasswordPage() {
               <p className="text-xs sm:text-sm text-[#77758A] dark:text-[#9B98B2] leading-relaxed">
                 If an account exists for{' '}
                 <span className="font-bold text-[#17152B] dark:text-[#F7F6F2]">{state.email}</span>,
-                we have sent a password reset link. Click it to set a new strong password.
+                we have sent a password reset link. Check your <strong>Inbox</strong> and{' '}
+                <strong>Spam / Promotions</strong> folder.
               </p>
             </div>
-            <Link
-              href="/login"
-              className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm rounded-2xl transition flex items-center justify-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Sign In</span>
-            </Link>
+
+            {resendMsg && (
+              <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{resendMsg}</span>
+              </div>
+            )}
+
+            {resendErr && (
+              <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300 flex items-center gap-2 text-left">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{resendErr}</span>
+              </div>
+            )}
+
+            <div className="space-y-3 pt-1">
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={cooldown > 0 || resending}
+                className="w-full min-h-[46px] py-3 px-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#EFECE4] dark:hover:bg-[#2A2645] border border-[#E9E7EF] dark:border-[#2D2947] text-[#17152B] dark:text-[#F7F6F2] font-bold text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {resending ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#7657FF]" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 text-[#7657FF]" />
+                )}
+                <span>
+                  {resending
+                    ? 'Resending...'
+                    : cooldown > 0
+                      ? `Resend Reset Link (${cooldown}s)`
+                      : 'Resend Reset Link'}
+                </span>
+              </button>
+
+              <Link
+                href="/login"
+                className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm rounded-2xl transition flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Sign In</span>
+              </Link>
+            </div>
           </div>
         ) : (
           <>

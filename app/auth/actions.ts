@@ -275,6 +275,50 @@ export async function forgotPasswordAction(
   }
 }
 
+export async function resendVerificationAction(email: string): Promise<{
+  success?: boolean
+  error?: string
+}> {
+  if (!email || !email.includes('@')) {
+    return { error: 'Invalid email address.' }
+  }
+
+  let emailRedirectTo: string | undefined
+  try {
+    const headerList = await headers()
+    const origin =
+      headerList.get('origin') ||
+      (headerList.get('x-forwarded-host')
+        ? `${headerList.get('x-forwarded-proto') || 'https'}://${headerList.get('x-forwarded-host')}`
+        : undefined)
+    if (origin) {
+      emailRedirectTo = `${origin}/auth/confirm`
+    }
+  } catch {
+    // fallback
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      ...(emailRedirectTo ? { emailRedirectTo } : {}),
+    },
+  })
+
+  if (error) {
+    if (error.message.toLowerCase().includes('rate limit')) {
+      return {
+        error: 'Supabase email rate limit exceeded. Please wait a few minutes or configure Custom SMTP.',
+      }
+    }
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
 export async function resetPasswordAction(
   prevState: AuthState | null,
   formData: FormData

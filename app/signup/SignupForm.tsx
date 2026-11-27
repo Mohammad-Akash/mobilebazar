@@ -1,8 +1,8 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { signupAction, type AuthState } from '@/app/auth/actions'
+import { signupAction, resendVerificationAction, type AuthState } from '@/app/auth/actions'
 import { GoogleAuthButton } from '@/app/components/auth/GoogleAuthButton'
 import { PasswordStrengthMeter } from '@/app/components/auth/PasswordStrengthMeter'
 import {
@@ -18,6 +18,7 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
+  RefreshCw,
 } from 'lucide-react'
 
 export function SignupFormSkeleton() {
@@ -49,6 +50,43 @@ export function SignupForm() {
     null
   )
 
+  const [cooldown, setCooldown] = useState(0)
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState<string | null>(null)
+  const [resendErr, setResendErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (state?.success && state?.needsEmailVerification) {
+      setCooldown(60)
+      setResendMsg(null)
+      setResendErr(null)
+    }
+  }, [state])
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  const handleResendVerification = async () => {
+    if (!state?.email || cooldown > 0 || resending) return
+    setResending(true)
+    setResendMsg(null)
+    setResendErr(null)
+    try {
+      const res = await resendVerificationAction(state.email)
+      if (res.error) {
+        setResendErr(res.error)
+      } else {
+        setResendMsg(`Verification email resent to ${state.email}`)
+        setCooldown(60)
+      }
+    } finally {
+      setResending(false)
+    }
+  }
+
   if (state?.success && state?.needsEmailVerification) {
     return (
       <div className="w-full max-w-md p-6 sm:p-8 bg-[#FFFFFF] dark:bg-[#17152B] border border-[#E9E7EF] dark:border-[#2D2947] rounded-3xl shadow-lg space-y-6 text-center transition-all duration-300">
@@ -76,7 +114,41 @@ export function SignupForm() {
           <p>3. Once verified, sign in to your account.</p>
         </div>
 
-        <div className="pt-2">
+        {resendMsg && (
+          <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{resendMsg}</span>
+          </div>
+        )}
+
+        {resendErr && (
+          <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300 flex items-center gap-2 text-left">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{resendErr}</span>
+          </div>
+        )}
+
+        <div className="pt-2 space-y-3">
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={cooldown > 0 || resending}
+            className="w-full min-h-[46px] py-3 px-4 rounded-2xl bg-[#F7F6F2] dark:bg-[#211E38] hover:bg-[#EFECE4] dark:hover:bg-[#2A2645] border border-[#E9E7EF] dark:border-[#2D2947] text-[#17152B] dark:text-[#F7F6F2] font-bold text-xs sm:text-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {resending ? (
+              <Loader2 className="w-4 h-4 animate-spin text-[#7657FF]" />
+            ) : (
+              <RefreshCw className="w-4 h-4 text-[#7657FF]" />
+            )}
+            <span>
+              {resending
+                ? 'Resending...'
+                : cooldown > 0
+                  ? `Resend Verification Email (${cooldown}s)`
+                  : 'Resend Verification Email'}
+            </span>
+          </button>
+
           <Link
             href="/login"
             className="w-full min-h-[48px] py-3.5 px-4 bg-[#7657FF] hover:bg-[#6343ED] active:scale-[0.98] text-white font-bold text-sm rounded-2xl transition duration-150 shadow-sm shadow-[#7657FF]/30 flex items-center justify-center gap-2"
