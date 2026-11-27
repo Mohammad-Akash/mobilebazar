@@ -13,11 +13,38 @@ const loginSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
+const strongPasswordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters')
+  .regex(/[A-Z]/, 'Include at least 1 uppercase letter (A-Z)')
+  .regex(/[a-z]/, 'Include at least 1 lowercase letter (a-z)')
+  .regex(/[0-9]/, 'Include at least 1 number (0-9)')
+  .regex(/[^A-Za-z0-9]/, 'Include at least 1 special character (!@#$...)')
+
 const signupSchema = z
   .object({
-    fullName: z.string().min(2, 'Full name is required (min 2 characters)'),
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    fullName: z.string().trim().min(2, 'Full name is required (min 2 characters)'),
+    username: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .regex(/^[a-z0-9_]{3,24}$/, 'Username must be 3–24 characters (letters, numbers, underscores)'),
+    email: z.string().trim().email('Please enter a valid email address'),
+    password: strongPasswordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().email('Please enter a valid email address'),
+})
+
+const resetPasswordSchema = z
+  .object({
+    password: strongPasswordSchema,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -107,12 +134,14 @@ export async function signupAction(
   }
 
   const fullName = formData.get('fullName') as string
+  const username = formData.get('username') as string
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get('confirmPassword') as string
 
   const validated = signupSchema.safeParse({
     fullName,
+    username,
     email,
     password,
     confirmPassword,
@@ -148,6 +177,7 @@ export async function signupAction(
       ...(emailRedirectTo ? { emailRedirectTo } : {}),
       data: {
         full_name: validated.data.fullName,
+        username: validated.data.username,
       },
     },
   })
@@ -187,6 +217,90 @@ export async function logoutAction() {
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/login')
+}
+
+export async function forgotPasswordAction(
+  prevState: AuthState | null,
+  formData: FormData
+): Promise<AuthState> {
+  const rl = await checkRateLimit('login')
+  if (!rl.success) {
+    return {
+      error: `Too many requests. Please try again in ${rl.retryAfterSeconds || 60} seconds.`,
+    }
+  }
+
+  const email = formData.get('email') as string
+  const validated = forgotPasswordSchema.safeParse({ email })
+
+  if (!validated.success) {
+    return {
+      error: 'Please enter a valid email address',
+      fieldErrors: validated.error.flatten().fieldErrors,
+    }
+  }
+
+  let redirectTo: string | undefined
+  try {
+    const headerList = await headers()
+    const origin =
+      headerList.get('origin') ||
+      (headerList.get('x-forwarded-host')
+        ? `${headerList.get('x-forwarded-proto') || 'https'}://${headerList.get('x-forwarded-host')}`
+        : undefined)
+    if (origin) {
+      redirectTo = `${origin}/auth/confirm?next=/reset-password`
+    }
+  } catch {
+    // fallback
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(validated.data.email, {
+    ...(redirectTo ? { redirectTo } : {}),
+  })
+
+  if (error) {
+    if (error.message.toLowerCase().includes('rate limit')) {
+      return {
+        error: 'Too many reset emails sent recently. Please wait a few minutes and try again.',
+      }
+    }
+    return { error: error.message }
+  }
+
+  return {
+    success: true,
+    email: validated.data.email,
+  }
+}
+
+export async function resetPasswordAction(
+  prevState: AuthState | null,
+  formData: FormData
+): Promise<AuthState> {
+  const password = formData.get('password') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  const validated = resetPasswordSchema.safeParse({ password, confirmPassword })
+  if (!validated.success) {
+    return {
+      error: 'Please meet all strong password requirements',
+      fieldErrors: validated.error.flatten().fieldErrors,
+    }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({
+    password: validated.data.password,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/login?message=Password+updated+successfully.+Please+sign+in.')
 }
 
 export async function updateProfileAction(
